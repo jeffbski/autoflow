@@ -39,10 +39,10 @@ var r = react('filename, uid, outDirname').define(
 ).callbackDef('err, html, user, bytesWritten');
 
 
-console.log(r.ast);
+//console.log(r.ast);
 
-/*
+
 r.exec("hello.txt", 100, 'outHello', useHtml);
 r.exec("small.txt", 200, 'outSmall', useHtml);
 r.exec("world.txt", 300, 'outWorld', useHtml);
-*/
+
