@@ -31,7 +31,7 @@ function useHtml(err, html, user, bytesWritten) {
 }
 
 var r = react();
-r.ast.inputNames = ['filename', 'uid', 'outDirname', 'anObj'];
+r.ast.inputNames = ['filename', 'uid', 'outDirname', 'anObj', 'cb'];
 r.ast.taskDefs = [
   { f:'anObj.loadUser',      a:['uid'],               cb:['user'] },
   { f:loadFile,              a:['filename'],          cb:['filedata'] },

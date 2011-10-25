@@ -30,7 +30,7 @@ function useHtml(err, html, user, bytesWritten) {
   console.log('final result: %s, user: %s, written: %s', html, user, bytesWritten);     
 }
 
-var r = react('filename, uid, outDirname, anObj').define(
+var r = react('filename, uid, outDirname, anObj, cb').define(
     'anObj.loadUser', 'uid              -> err, user',
     loadFile,         'filename         -> err, filedata',
     markdown,         'filedata         -> returns html',

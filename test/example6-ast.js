@@ -26,7 +26,7 @@ function useHtml(err, html, user, bytesWritten) {
 }
 
 var r = react();
-r.ast.inputNames = ['filename', 'uid', 'outDirname'];
+r.ast.inputNames = ['filename', 'uid', 'outDirname', 'cb'];
 r.ast.taskDefs = [
   { f:loadUser,          a:['uid'],               cb:['user'] },
   { f:loadFile,          a:['filename'],          cb:['filedata'] },
