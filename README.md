@@ -12,6 +12,8 @@ It takes inspiration from several projects including:
  - Tim Caswell and Elijah Insua's [conductor](https://github.com/creationix/conductor) - [Article](http://howtonode.org/step-of-conductor)
  - Caolan McMahon's [async](https://github.com/caolan/async)
 
+React gets its name from similarities with how "chain reactions" work in the physical world. You start the reaction and then it cascades and continues until complete.
+
 ## Goals
 
  - Improved error and exception handling
@@ -39,6 +41,14 @@ To reduce the boilerplate code needed and improve error handling, React automati
  - Optional parse step to create flow AST (TODO allow pluggable parsers to allow many interfaces)
  - Validate the flow AST - determine if dependencies can all be met as defined such that flow will complete (TODO)
  - Execute the flow AST
+
+## Installing
+
+    npm install react
+
+OR 
+   
+Pull from github - http://github.com/jeffbski/react
 
 ## Examples
 
