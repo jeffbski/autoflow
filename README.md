@@ -123,11 +123,16 @@ To reduce the boilerplate code needed and improve error handling, React automati
 
  - 2011-10-26 - React is in active development and interface may change frequently in these early stages. Current code is functional but does not perform validation yet.  Additional interfaces are planned to make it easy to define flows in a variety of ways. Documentation and examples forthcoming.
 
+## License
+
+ - [MIT license](http://github.com/jeffbski/react/raw/master/LICENSE)
+
 ## Contributors
 
  - Author: Jeff Barczewski (@jeffbski)
 
 ## Contributing
 
- - Ideas and pull requests are encouraged  - http://github.com/jeffbski/react
+ - Source code repository: http://github.com/jeffbski/react
+ - Ideas and pull requests are encouraged  - http://github.com/jeffbski/react/issues
  - You may contact me at @jeffbski or through github at http://github.com/jeffbski
