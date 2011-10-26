@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "author": "Jeff Barczewski <jeff.barczewski@gmail.com>",
   "repository": { "type": "git", "url": "http://github.com/jeffbski/react.git" }, 
-  "bugs" : { "web": "http://github.com/jeffbski/react/issues" }, 
+  "bugs" : { "url": "http://github.com/jeffbski/react/issues" }, 
   "licenses": [{ "type": "MIT", "url" : "http://github.com/jeffbski/react/raw/master/LICENSE" }],
   "main": "react",
   "engines": { "node": "~v0.4.12" },
