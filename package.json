@@ -1,15 +1,13 @@
 {
   "author": "Jeff Barczewski <jeff.barczewski@gmail.com>",
   "name": "react",
-  "description": "React - async flow library",
+  "description": "React - async flow library which simplifies async development by reducing boilerplate code and improving error and exception handling",
   "version": "0.0.1",
-  "repository": {
-    "url": ""
-  },
+  "repository": { "type" : "git", "url" : "http://github.com/jeffbski/react.git" }, 
+  "bugs" : { "web" : "http://github.com/jeffbski/react/issues" }, 
+  "licenses": [{ "type": "MIT", "url" : "http://github.com/jeffbski/react/raw/master/LICENSE" }]
   "main": "react",
-  "engines": {
-    "node": "~v0.4.12"
-  },
+  "engines": { "node": "~v0.4.12" },
   "dependencies": {},
   "devDependencies": {}
 }
