@@ -39,6 +39,10 @@ To reduce the boilerplate code needed and improve error handling, React automati
 
 ## Examples
 
+ 1. [Direct AST](#directAST)
+ 2. [Using Simple DSL](#simpleDSL)
+
+<a name="directAST"/>
 ### Example directly using AST
 
     var react = require('react').react;
@@ -78,6 +82,7 @@ To reduce the boilerplate code needed and improve error handling, React automati
     r.exec("hello.txt", 100, 'outHello', useHtml);
     r.exec("small.txt", 200, 'outSmall', useHtml);
 
+<a name="simpleDSL"/>
 ### Example using simple DSL interface
 
     var react = require('react').react;
@@ -113,7 +118,7 @@ To reduce the boilerplate code needed and improve error handling, React automati
 
 ## Status
 
- - 2011-10-26 - React is in active development and interface may change frequently in these early stages. Current code is functional but does not perform validation yet.  Additional interfaces are planned to make it easy to define flows in a variety of ways.
+ - 2011-10-26 - React is in active development and interface may change frequently in these early stages. Current code is functional but does not perform validation yet.  Additional interfaces are planned to make it easy to define flows in a variety of ways. Documentation and examples forthcoming.
 
 ## Contributors
 
