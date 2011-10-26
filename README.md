@@ -1,6 +1,8 @@
 # React.js
 
-React is a javascript module to make it easier to work with asynchronous code.
+React is a javascript module to make it easier to work with asynchronous code, 
+by reducing boilerplate code and improving error and exception handling.
+
 This async flow control module is initially designed to work with Node.js but 
 is planned to be extended to browser and other environments.
 
