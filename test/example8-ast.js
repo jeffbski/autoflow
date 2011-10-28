@@ -4,8 +4,8 @@
   AST directly without define, using object methods in addition to functions 
  */
 
-var react = require('../react.js').react;
-var reactOptions = require('react').reactOptions;
+var react = require(__dirname+'/../lib/react.js').react;
+var reactOptions = require(__dirname+'/../lib/react.js').reactOptions;
 reactOptions.debugOutput = true;
 
 
