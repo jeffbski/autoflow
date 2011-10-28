@@ -4,8 +4,8 @@
    Example setting the AST directly without using define
  */
 
-var react = require('../react.js').react;
-var reactOptions = require('react').reactOptions;
+var react = require(__dirname+'/../lib/react.js').react;
+var reactOptions = require(__dirname+'/../lib/react.js').reactOptions;
 reactOptions.debugOutput = true;
 
 function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
