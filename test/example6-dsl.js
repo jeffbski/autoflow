@@ -4,8 +4,9 @@
    Example using functions with the simple DSL
  */
 
-var react = require(__dirname+'/../lib/react.js').react;
-var reactOptions = require(__dirname+'/../lib/react.js').reactOptions;
+var reactMod = require(__dirname+'/../lib/react.js'); 
+var react = reactMod.react;
+var reactOptions = reactMod.reactOptions;
 reactOptions.debugOutput = true;
 reactOptions.stackTraceLimitMin = 20;
 

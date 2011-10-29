@@ -4,9 +4,9 @@
    Example setting the AST directly without using define
  */
 
-var react = require(__dirname+'/../lib/react.js').react;
-var reactOptions = require(__dirname+'/../lib/react.js').reactOptions;
-reactOptions.debugOutput = true;
+var reactMod = require(__dirname+'/../lib/react.js');
+reactMod.reactOptions.debugOutput = true;
+var react = reactMod.react;
 
 function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
 function loadFile(filename, cb){ setTimeout(cb, 100, null, 'Filedata'+filename); }
@@ -25,7 +25,7 @@ function useHtml(err, html, user, bytesWritten) {
   console.log('final result: %s, user: %s, written:%s', html, user, bytesWritten);     
 }
 
-var r = react();
+var r = reactMod.react();
 r.ast.inputNames = ['filename', 'uid', 'outDirname', 'cb'];
 r.ast.taskDefs = [
   { f:loadUser,          a:['uid'],               cb:['user'] },
