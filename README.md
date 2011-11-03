@@ -58,6 +58,7 @@ Pull from github - http://github.com/jeffbski/react
 <a name="directAST"/>
 ### Example directly using AST
 
+```javascript
     var react = require('react').react;
 
     function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
@@ -94,10 +95,12 @@ Pull from github - http://github.com/jeffbski/react
 
     r.exec("hello.txt", 100, 'outHello', useHtml);
     r.exec("small.txt", 200, 'outSmall', useHtml);
+```
 
 <a name="simpleDSL"/>
 ### Example using simple DSL interface
 
+```javascript
     var react = require('react').react;
 
     function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
@@ -128,6 +131,7 @@ Pull from github - http://github.com/jeffbski/react
         customizeEmail,   'user, emailHtml  -> returns custEmailHtml',
         deliverEmail,     'custEmailHtml    -> err, deliveredEmail', { after: writeOutput }
     ).callbackDef('err, html, user, bytesWritten');
+```
 
 ## Status
 
