@@ -12,38 +12,65 @@ function badF2(a, b, cb) { cb('my-error'); }
 
 test('set and validate AST', function (t) {
   var fn = react();
-  t.ok(fn.setAndValidateAST({
+  var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [
-      { f: multiply, a: ['a', 'b'], cb: ['c'] }
+      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'] }
     ],
     outTask: { a: ['c'] }
-  }), 'should set and validate as true');
+  });
+  t.deepEqual(errors, [], 'should set and validate as true');
   t.deepEqual(fn.ast.inParams, ['a', 'b']);
   t.deepEqual(fn.ast.tasks, [
-      { f: multiply, a: ['a', 'b'], cb: ['c'] }
+      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'], name: 'multiply' }
     ]);
   t.deepEqual(fn.ast.outTask, { a: ['c'] }); 
   t.end();
-});  
+});
+
+test('unnamed tasks will be assigned unique names', function (t) {
+  var fn = react();
+  var errors = fn.setAndValidateAST({
+    inParams: ['a', 'b'],
+    tasks: [
+      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'] },
+      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'], name: 'multiply' },
+      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'], name: 'times' },
+      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'] }
+    ],
+    outTask: { a: ['c'] }
+  });
+  t.deepEqual(errors, [], 'should set and validate as true');
+  t.deepEqual(fn.ast.tasks, [
+      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'], name: 'multiply_0' },
+      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'], name: 'multiply' },
+      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'], name: 'times' },
+      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'], name: 'multiply_3' }
+    ]);
+  t.end();
+});
+
+
 
 /*
 test('execution with no errors should call callback with result', function (t) {
-  t.plan(2);
   var fn = react();
-  fn.ast.inParams = ['a', 'b'];
-  fn.ast.tasks = [
-    { f: multiply, a: ['a', 'b'], cb: ['c'] }
-  ];
-  fn.ast.outTask = { a: ['c'] };
-
+  var errors = fn.setAndValidateAST({
+    inParams: ['a', 'b'],
+    tasks: [
+      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'] }
+    ],
+    outTask: { a: ['c'] }
+  });
+  t.deepEqual(errors, [], 'no validation errors');
   fn(2, 3, function (err, c) {
     t.equal(err, null);
     t.equal(c, 6);
     t.end();
   });
 });
-
+*/
+/*
 test('multi-step', function (t) {
   t.plan(3);
   var fn = react();

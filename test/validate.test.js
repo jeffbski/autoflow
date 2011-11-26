@@ -94,4 +94,19 @@ test('ast.outTask.a should be an array of string param names', function (t) {
   t.deepEqual(validate(ast), []);  
   t.end();
 });
+
+test('ast.tasks that specify name need to be unique', function (t) {
+  var ast = {
+    inParams: ['a'], 
+    tasks: [
+      { type: 'cb', f: foo, a: [], cb: ['bar'], name: 'dog' },
+      { type: 'cb', f: foo, a: [], cb: ['bar'], name: 'dog' }
+    ], 
+    outTask: { a: ['bar'] }
+  };
+  var msg = sprintf('ast.tasks that specify name need to be unique, duplicate: %s',
+                    'dog');
+  t.deepEqual(validate(ast), [msg]);  
+  t.end();
+});
   

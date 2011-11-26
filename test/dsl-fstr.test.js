@@ -25,6 +25,7 @@ test('empty first string -> empty inParams, tasks, outTask', function (t) {
   t.end();
 });
 
+/*
 test('single first string -> inParams["foo"], empty tasks, outTask', function (t) {
   var r = dsl('foo');
   t.deepEqual(r.ast.inParams, ['foo']);
@@ -32,3 +33,4 @@ test('single first string -> inParams["foo"], empty tasks, outTask', function (t
   t.deepEqual(r.ast.outTask, {});
   t.end();
 });
+*/
