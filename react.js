@@ -1,8 +1,7 @@
 'use strict';
 
 var core = require('./lib/core.js');
-var dsl = require('./lib/dsl-fstr.js');
 
-module.exports = dsl;
+module.exports = core;
 module.exports.options = core.options;
-
+module.exports.dslfs = require('./lib/dslfs.js');

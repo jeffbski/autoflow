@@ -2,7 +2,7 @@
 
 var test = require('tap').test;
 
-var dsl = require('../lib/dsl-fstr.js');
+var dsl = require('../lib/dslfs.js');
 
 test('module exports an object', function (t) {
   t.type(dsl, 'function', 'has define by DSL method');
