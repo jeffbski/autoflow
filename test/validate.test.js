@@ -5,8 +5,10 @@ var util = require('util');
 var sprintf = require('sprintf').sprintf;
 
 var validate = require('../lib/validate.js');
+var tutil = require('../lib/task.js');
 
 function foo() { }
+function bar() { }
 
 test('empty ast is invalid', function (t) {
   t.deepEqual(validate(), ['ast must be an object with inParams, tasks, and outTask']);
@@ -110,3 +112,30 @@ test('ast.tasks that specify name need to be unique', function (t) {
   t.end();
 });
   
+test('ast.locals should be non-null if passed in', function (t) {
+  var ast = {
+    inParams: ['a'], 
+    tasks: [{ type: 'ret', f: foo, a: [], ret: 'bar' }],
+    outTask: { a: ['bar'] },
+    locals: null  //err should be non-null if passed in
+  };
+  t.deepEqual(validate(ast), ['ast.locals should not be null']);
+
+  ast.locals = { };
+  t.deepEqual(validate(ast), []);
+  t.end();
+});
+
+test('multiple tasks output the same param, must be unique', function (t) {
+  var ast = {
+    inParams: ['a'], 
+    tasks: [
+      { type: 'cb', f: foo, a: [], cb: ['c'] },
+      { type: 'cb', f: bar, a: [], cb: ['c'] }
+    ], 
+    outTask: { a: ['bar'] }
+  };
+  var msg = 'multiple tasks output the same param, must be unique. param: c';
+  t.deepEqual(validate(ast), [msg]);  
+  t.end();
+});

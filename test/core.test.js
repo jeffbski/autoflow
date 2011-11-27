@@ -34,18 +34,18 @@ test('unnamed tasks will be assigned unique names', function (t) {
     inParams: ['a', 'b'],
     tasks: [
       { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'] },
-      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'], name: 'multiply' },
-      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'], name: 'times' },
-      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'] }
+      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['d'], name: 'multiply' },
+      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['e'], name: 'times' },
+      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['f'] }
     ],
     outTask: { a: ['c'] }
   });
   t.deepEqual(errors, [], 'should set and validate as true');
   t.deepEqual(fn.ast.tasks, [
       { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'], name: 'multiply_0' },
-      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'], name: 'multiply' },
-      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'], name: 'times' },
-      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'], name: 'multiply_3' }
+      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['d'], name: 'multiply' },
+      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['e'], name: 'times' },
+      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['f'], name: 'multiply_3' }
     ]);
   t.end();
 });

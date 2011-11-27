@@ -69,10 +69,15 @@ test('retTask verifies ret type', function (t) {
   msg = sprintf('retTask requires ret to be a string param name or null - %s',
                     util.inspect(ast.tasks[0]));
   t.deepEqual(validate(ast), [msg]);  
-
-  ast = Object.create(ast);
-  ast.tasks[0].ret = null;  //valid
-  t.deepEqual(validate(ast), []);  
   t.end();
 });
 
+test('valid retTask', function (t) {
+  var ast = {
+    inParams: ['a'], 
+    tasks: [{ type: 'ret', f: foo, a: [], ret: 'bar' }],
+    outTask: { a: ['bar'] }
+  };
+  t.deepEqual(validate(ast), []);  
+  t.end();
+});

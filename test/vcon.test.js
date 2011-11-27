@@ -4,22 +4,29 @@ var test = require('tap').test;
 
 var VContext = require('../lib/vcon.js');
 
-test('createVContext with empty args returns empty vCon', function (t) {
+test('VContext.create with empty args returns empty vCon', function (t) {
   t.deepEqual(VContext.create([], []).values, {}, 'should be empty object');
   t.deepEqual(VContext.create([], ['a']).values, {}, 'should be empty object');
   t.end();
 });
 
-test('createVContext with more args than params, ignore extra args', function (t) {
+test('VContext.create with more args than params, ignore extra args', function (t) {
   t.deepEqual(VContext.create([1], []).values, {}, 'should be empty object');
   t.deepEqual(VContext.create([1, 2], ['a']).values, { a: 1 },
               'should be object with one value');
   t.end();
 });
 
-test('createVContext sets vCon[paramName] to arg value', function (t) {
+test('VContext.create sets vCon[paramName] to arg value', function (t) {
   t.deepEqual(VContext.create([1, 2], ['a', 'b']).values, { a: 1, b: 2 },
               'should have all values');
+  t.end();
+});
+
+test('create with locals is merged with args taking precedence', function (t) {
+  var locals = { a: 11, c: 30 };
+  t.deepEqual(VContext.create([1, 2], ['a', 'b'], locals).values,
+              { a: 1, c: 30, b: 2 }, 'should have merge of values');
   t.end();
 });
 

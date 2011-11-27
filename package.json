@@ -9,7 +9,8 @@
   "main": "react",
   "engines": { "node": "~v0.4.12" },
   "dependencies": {
-    "sprintf": "~0.1.1"
+    "sprintf": "~0.1.1",
+    "ensure-array": "~0.0.2"
   },
   "devDependencies": {
     "tap": "~0.1.0",
