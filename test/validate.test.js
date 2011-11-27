@@ -126,11 +126,24 @@ test('ast.locals should be non-null if passed in', function (t) {
   t.end();
 });
 
+test('non-method string functions need to map to fn in locals', function (t) {
+  var ast = {
+    inParams: ['a'], 
+    tasks: [{ type: 'ret', f: 'foo', a: [], ret: 'bar' }],
+    outTask: { a: ['bar'] },
+    locals: { }
+  };
+  var msg = sprintf('function: %s not found in locals or input params - task[%s]', 
+                    'foo', 0);
+  t.deepEqual(validate(ast), [msg]);  
+  t.end();
+});
+
 test('multiple tasks output the same param, must be unique', function (t) {
   var ast = {
     inParams: ['a'], 
     tasks: [
-      { type: 'cb', f: foo, a: [], cb: ['c'] },
+      { type: 'cb', f: foo, a: [], cb: ['baz', 'c'] },
       { type: 'cb', f: bar, a: [], cb: ['c'] }
     ], 
     outTask: { a: ['bar'] }
