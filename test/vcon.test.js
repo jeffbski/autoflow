@@ -23,7 +23,13 @@ test('createVContext sets vCon[paramName] to arg value', function (t) {
   t.end();
 });
 
-test('getVar on undefined or nulls returns undefined', function (t) {
+test('getVar on null returns null', function (t) {
+  t.equal(VContext.create([null], ['a']).getVar('a'), null);
+  t.equal(VContext.create([{ b: null }], ['a']).getVar('a.b'), null);
+  t.end();
+});
+
+test('getVar on undefined or null parent returns undefined', function (t) {
   t.equal(VContext.create([], []).getVar('a'), undefined);
   t.equal(VContext.create([], ['a']).getVar('a'), undefined);
   t.equal(VContext.create([], ['a']).getVar('a.b'), undefined);
@@ -60,5 +66,40 @@ test('getVar for property returns the property', function (t) {
   t.equal(VContext.create([o], ['a']).getVar('a.b'), 100);
   o = { b: { c: 200 }};
   t.equal(VContext.create([o], ['a']).getVar('a.b.c'), 200);
+  t.end();  
+});
+
+test('setVar will create objects if needed', function (t) {
+  var v = VContext.create([], []);
+  v.setVar('foo.bar.baz', 100);
+  t.deepEqual(v.values, { foo: { bar: { baz: 100}}});
+  t.end();
+});
+
+test('simple setVar', function (t) {
+  var v = VContext.create([], []);
+  v.setVar('foo', 100);
+  t.deepEqual(v.values, { foo: 100});
+  t.end();
+});
+
+test('setVar will not affect other vars', function (t) {
+  var v = VContext.create([{ bar: 1}], ['foo']);
+  v.setVar('foo.baz', 2);
+  t.deepEqual(v.values, { foo: { bar: 1, baz: 2 }});
+  t.end();
+});
+
+test('setVar with null key, will not set anything', function (t) {
+  var v = VContext.create([{ bar: 1}], ['foo']);
+  v.setVar(null, 2);
+  t.deepEqual(v.values, { foo: { bar: 1 }});
+  t.end();  
+});
+
+test('setVar with undefined key, will not set anything', function (t) {
+  var v = VContext.create([{ bar: 1}], ['foo']);
+  v.setVar(undefined, 2);
+  t.deepEqual(v.values, { foo: { bar: 1 }});
   t.end();  
 });

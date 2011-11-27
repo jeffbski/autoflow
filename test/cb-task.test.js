@@ -47,7 +47,7 @@ test('task with any status is not ready', function (t) {
   t.end();  
 });
 
-test('no args defined, no after is not ready', function (t) {
+test('no args defined, no after -> not ready', function (t) {
   var task = new CbTask({ type: 'cb', f: foo, a: ['b'], cb: [] });
   var vCon = VContext.create([], []);
   var tasksByName = { foo: task };
@@ -55,15 +55,63 @@ test('no args defined, no after is not ready', function (t) {
   t.end();
 });
 
-test('all args defined, no after is ready', function (t) {
-  var task = new CbTask({ type: 'cb', f: foo, a: ['b', 'c'], cb: [] });
-  var vCon = VContext.create([1, 2], ['b', 'c']);
+test('objprop undefined -> NOT ready', function (t) {
+  var task = new CbTask({ type: 'cb', f: foo, a: ['b', 'c.prop'], cb: [] });
+  var vCon = VContext.create([1, {}], ['b', 'c']);
+  var tasksByName = { foo: task };
+  t.equal(task.isReady(vCon, tasksByName), false);
+  t.end();  
+});
+
+test('all args defined, no after, out no obj parent -> NOT ready', function (t) {
+  var task = new CbTask({ type: 'cb', f: foo, a: ['b', 'c'], cb: ['d.e'] });
+  var vCon = VContext.create([1, null], ['b', 'c']);
+  var tasksByName = { foo: task };
+  t.equal(task.isReady(vCon, tasksByName), false, 'false if out objparent undef');  
+  t.end();  
+});
+
+test('all args defined, no after, out no obj.par.par -> NOT ready', function (t) {
+  var task = new CbTask({ type: 'cb', f: foo, a: ['b', 'c'], cb: ['c.e.f'] });
+  var vCon = VContext.create([1, { }], ['b', 'c']);
+  var tasksByName = { foo: task };
+  t.equal(task.isReady(vCon, tasksByName), false, 'false if out objparent undef');  
+  t.end();  
+});
+
+test('all args defined, no after, out null obj parent -> NOT ready', function (t) {
+  var task = new CbTask({ type: 'cb', f: foo, a: ['b', 'c'], cb: ['c.e'] });
+  var vCon = VContext.create([1, null], ['b', 'c']);
+  var tasksByName = { foo: task };
+  t.equal(task.isReady(vCon, tasksByName), false, 'false if out objparent null');  
+  t.end();  
+});
+
+test('all args defined, no after, out null obj.par.par -> NOT ready', function (t) {
+  var task = new CbTask({ type: 'cb', f: foo, a: ['b', 'c'], cb: ['c.e.f'] });
+  var vCon = VContext.create([1, { e: null }], ['b', 'c']);
+  var tasksByName = { foo: task };
+  t.equal(task.isReady(vCon, tasksByName), false, 'false if out objparent null');  
+  t.end();  
+});
+
+test('all args defined, no after -> ready', function (t) {
+  var task = new CbTask({ type: 'cb', f: foo, a: ['b', 'c'], cb: ['d'] });
+  var vCon = VContext.create([1, null], ['b', 'c']);
   var tasksByName = { foo: task };
   t.equal(task.isReady(vCon, tasksByName), true);
   t.end();  
 });
 
-test('all args defined, after not complete is NOT ready', function (t) {
+test('all args defined, objprop null, no after -> ready', function (t) {
+  var task = new CbTask({ type: 'cb', f: foo, a: ['b', 'c.prop'], cb: [] });
+  var vCon = VContext.create([1, { prop: null }], ['b', 'c']);
+  var tasksByName = { foo: task };
+  t.equal(task.isReady(vCon, tasksByName), true);
+  t.end();  
+});
+
+test('all args defined, after not complete -> NOT ready', function (t) {
   var tcat = new CbTask({ type: 'cb', f: cat, a: [], cb: [], status: 'complete' });
   var tbar = new CbTask({ type: 'cb', f: bar, a: [], cb: [], status: 'running' });
   var task = new CbTask(
@@ -74,7 +122,7 @@ test('all args defined, after not complete is NOT ready', function (t) {
   t.end();  
 });
 
-test('all args defined, after all complete is ready', function (t) {
+test('all args defined, after all complete -> ready', function (t) {
   var tcat = new CbTask({ type: 'cb', f: cat, a: [], cb: [], status: 'complete' });
   var tbar = new CbTask({ type: 'cb', f: bar, a: [], cb: [], status: 'complete' });
   var task = new CbTask(
