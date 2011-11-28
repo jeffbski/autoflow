@@ -17,10 +17,10 @@ test('mixed', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['res', 'prefstr', 'poststr'],
     tasks: [
-      { type: 'cb', f: load,    a: ['res'],              cb: ['lres'] },
-      { type: 'ret', f: upper,  a: ['lres'],            ret: 'ulres'  },
-      { type: 'cb', f: prefix,  a: ['prefstr', 'ulres'],  cb: ['plres'] },
-      { type: 'cb', f: postfix, a: ['plres', 'poststr'], cb: ['plresp'] }
+      { f: load,    a: ['res'],              cb: ['lres'] },
+      { f: upper,   a: ['lres'],            ret: 'ulres'  },
+      { f: prefix,  a: ['prefstr', 'ulres'], cb: ['plres'] },
+      { f: postfix, a: ['plres', 'poststr'], cb: ['plresp'] }
     ],
     outTask: { a: ['plresp'] }
   });
@@ -45,11 +45,11 @@ test('cb with err', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['res', 'prefstr', 'poststr'],
     tasks: [
-      { type: 'cb', f: load,    a: ['res'],               cb: ['lres'] },
-      { type: 'ret', f: upper,  a: ['lres'],             ret: 'ulres'  },
-      { type: 'cb', f: makeError, a: ['ulres'],           cb: ['na']  },
-      { type: 'cb', f: prefix,  a: ['prefstr', 'na'],     cb: ['plres'] },
-      { type: 'cb', f: postfix, a: ['plres', 'poststr'],  cb: ['plresp'] }
+      { f: load,      a: ['res'],               cb: ['lres'] },
+      { f: upper,     a: ['lres'],             ret: 'ulres'  },
+      { f: makeError, a: ['ulres'],             cb: ['na']  },
+      { f: prefix,    a: ['prefstr', 'na'],     cb: ['plres'] },
+      { f: postfix,   a: ['plres', 'poststr'],  cb: ['plresp'] }
     ],
     outTask: { a: ['plresp'] }
   });

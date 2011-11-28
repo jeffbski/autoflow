@@ -54,18 +54,14 @@ test('each task must be an object', function (t) {
   
 });
 
-test('each task in ast.tasks must match a task type', function (t) {
+
+test('each task in ast.tasks must match a valid task type', function (t) {
   var ast = {
     inParams: ['a'], 
-    tasks: [{ f: foo, a: [], ret: 'bar' }], //err missing type
+    tasks: [{ type: 'zoo', f: foo, a: [], ret: 'bar' }], //err wrong type
     outTask: { a: ['bar'] }
   };
   var msg = sprintf('task.type should match one of cb, ret - %s',
-                    util.inspect(ast.tasks[0]));
-  t.deepEqual(validate(ast), [msg]);  
-
-  ast.tasks = [{ type: 'zoo', f: foo, a: [], ret: 'bar' }];
-  msg = sprintf('task.type should match one of cb, ret - %s',
                     util.inspect(ast.tasks[0]));
   t.deepEqual(validate(ast), [msg]);
   t.end();
