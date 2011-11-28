@@ -7,13 +7,16 @@
   "bugs" : { "url": "http://github.com/jeffbski/react/issues" }, 
   "licenses": [{ "type": "MIT", "url" : "http://github.com/jeffbski/react/raw/master/LICENSE" }],
   "main": "react",
-  "engines": { "node": "~v0.4.12" },
+  "engines": { "node": "*" },
   "dependencies": {
     "sprintf": "~0.1.1",
     "ensure-array": "~0.0.2"
   },
   "devDependencies": {
-    "tap": "~0.1.0",
-    "tapper" : "https://github.com/jeffbski/tapper/tarball/v0.0.6"
+    "tap" : "~0.1.0",
+    "tapr" : "~0.1.0"
+  },
+  "scripts": {
+    "test": "node_modules/.bin/tapr test"
   }
 }
