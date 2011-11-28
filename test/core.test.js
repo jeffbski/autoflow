@@ -15,14 +15,14 @@ test('set and validate AST', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [
-      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'] }
+      { f: multiply, a: ['a', 'b'], cb: ['c'] }
     ],
     outTask: { a: ['c'] }
   });
   t.deepEqual(errors, [], 'should set and validate as true');
   t.deepEqual(fn.ast.inParams, ['a', 'b']);
   t.deepEqual(fn.ast.tasks, [
-      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'], name: 'multiply' }
+      { f: multiply, a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'multiply' }
     ]);
   t.deepEqual(fn.ast.outTask, { a: ['c'] }); 
   t.end();
@@ -33,19 +33,20 @@ test('unnamed tasks will be assigned unique names', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [
-      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'] },
-      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['d'], name: 'multiply' },
-      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['e'], name: 'times' },
-      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['f'] }
+      { f: multiply, a: ['a', 'b'], cb: ['c'] },
+      { f: multiply, a: ['a', 'b'], cb: ['d'], name: 'multiply' },
+      { f: multiply, a: ['a', 'b'], cb: ['e'], name: 'times' },
+      { f: multiply, a: ['a', 'b'], cb: ['f'] }
     ],
     outTask: { a: ['c'] }
   });
   t.deepEqual(errors, [], 'should set and validate as true');
+  console.error(fn.ast.tasks);
   t.deepEqual(fn.ast.tasks, [
-      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['c'], name: 'multiply_0' },
-      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['d'], name: 'multiply' },
-      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['e'], name: 'times' },
-      { type: 'cb', f: multiply, a: ['a', 'b'], cb: ['f'], name: 'multiply_3' }
+      { f: multiply, a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'multiply_0' },
+      { f: multiply, a: ['a', 'b'], cb: ['d'], name: 'multiply', type: 'cb' },
+      { f: multiply, a: ['a', 'b'], cb: ['e'], name: 'times', type: 'cb' },
+      { f: multiply, a: ['a', 'b'], cb: ['f'], type: 'cb', name: 'multiply_3' }
     ]);
   t.end();
 });

@@ -23,7 +23,7 @@ test('empty ast is invalid', function (t) {
 test('ast.inParams must be an array of strings', function (t) {
   var ast = {
     inParams: 'a',  //err should be an array
-    tasks: [{ type: 'ret', f: foo, a: [], ret: 'bar' }],
+    tasks: [{ f: foo, a: [], ret: 'bar' }],
     outTask: { a: ['bar'] }
   };
   t.deepEqual(validate(ast), ['ast.inParams must be an array of strings']);
@@ -70,7 +70,7 @@ test('each task in ast.tasks must match a valid task type', function (t) {
 test('ast.outTask.a should be an array of string param names', function (t) {
   var ast = {
     inParams: ['a'], 
-    tasks: [{ type: 'ret', f: foo, a: [], ret: 'bar' }], 
+    tasks: [{ f: foo, a: [], ret: 'bar' }], 
     outTask: { a: ['bar'] }
   };
   ast.outTask = {}; //err a should be an arr
@@ -97,8 +97,8 @@ test('ast.tasks that specify name need to be unique', function (t) {
   var ast = {
     inParams: ['a'], 
     tasks: [
-      { type: 'cb', f: foo, a: [], cb: ['bar'], name: 'dog' },
-      { type: 'cb', f: foo, a: [], cb: ['bar'], name: 'dog' }
+      { f: foo, a: [], cb: ['bar'], name: 'dog' },
+      { f: foo, a: [], cb: ['bar'], name: 'dog' }
     ], 
     outTask: { a: ['bar'] }
   };
@@ -111,7 +111,7 @@ test('ast.tasks that specify name need to be unique', function (t) {
 test('ast.locals should be non-null if passed in', function (t) {
   var ast = {
     inParams: ['a'], 
-    tasks: [{ type: 'ret', f: foo, a: [], ret: 'bar' }],
+    tasks: [{ f: foo, a: [], ret: 'bar' }],
     outTask: { a: ['bar'] },
     locals: null  //err should be non-null if passed in
   };
@@ -125,7 +125,7 @@ test('ast.locals should be non-null if passed in', function (t) {
 test('non-method string functions need to map to fn in locals or in params', function (t) {
   var ast = {
     inParams: ['a'], 
-    tasks: [{ type: 'ret', f: 'foo', a: [], ret: 'bar' }],
+    tasks: [{ f: 'foo', a: [], ret: 'bar' }],
     outTask: { a: ['bar'] },
     locals: { }
   };
@@ -138,7 +138,7 @@ test('non-method string functions need to map to fn in locals or in params', fun
 test('string functions maps to fn in locals', function (t) {
   var ast = {
     inParams: ['a'], 
-    tasks: [{ type: 'ret', f: 'cat.bar', a: [], ret: 'bar' }],
+    tasks: [{ f: 'cat.bar', a: [], ret: 'bar' }],
     outTask: { a: ['bar'] },
     locals: { cat: { bar: foo }}
   };
@@ -149,7 +149,7 @@ test('string functions maps to fn in locals', function (t) {
 test('string functions need to map to fn in locals or in params', function (t) {
   var ast = {
     inParams: ['a'], 
-    tasks: [{ type: 'ret', f: 'foo.bar', a: [], ret: 'bar' }],
+    tasks: [{ f: 'foo.bar', a: [], ret: 'bar' }],
     outTask: { a: ['bar'] },
     locals: { foo: {}}
   };
@@ -162,7 +162,7 @@ test('string functions need to map to fn in locals or in params', function (t) {
 test('param func str fn need to map to fn in locals or in params', function (t) {
   var ast = {
     inParams: ['a'], 
-    tasks: [{ type: 'ret', f: 'a', a: [], ret: 'bar' }],
+    tasks: [{ f: 'a', a: [], ret: 'bar' }],
     outTask: { a: ['bar'] },
     locals: { }
   };
@@ -173,7 +173,7 @@ test('param func str fn need to map to fn in locals or in params', function (t) 
 test('param obj exist func str needs map to fn in locals or in params', function (t) {
   var ast = {
     inParams: ['a'], 
-    tasks: [{ type: 'ret', f: 'a.b', a: [], ret: 'bar' }],
+    tasks: [{ f: 'a.b', a: [], ret: 'bar' }],
     outTask: { a: ['bar'] },
     locals: { }
   };
@@ -186,7 +186,7 @@ test('param obj exist func str needs map to fn in locals or in params', function
 test('param obj !exist func str needs map to fn in locals or in params', function (t) {
   var ast = {
     inParams: ['a'], 
-    tasks: [{ type: 'ret', f: 'd.e', a: [], ret: 'bar' }],
+    tasks: [{ f: 'd.e', a: [], ret: 'bar' }],
     outTask: { a: ['bar'] },
     locals: { }
   };
@@ -198,8 +198,8 @@ test('multiple tasks output the same param, must be unique', function (t) {
   var ast = {
     inParams: ['a'], 
     tasks: [
-      { type: 'cb', f: foo, a: [], cb: ['baz', 'c'] },
-      { type: 'cb', f: bar, a: [], cb: ['c'] }
+      { f: foo, a: [], cb: ['baz', 'c'] },
+      { f: bar, a: [], cb: ['c'] }
     ], 
     outTask: { a: ['bar'] }
   };
