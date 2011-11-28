@@ -126,7 +126,7 @@ test('ast.locals should be non-null if passed in', function (t) {
   t.end();
 });
 
-test('non-method string functions need to map to fn in locals', function (t) {
+test('non-method string functions need to map to fn in locals or in params', function (t) {
   var ast = {
     inParams: ['a'], 
     tasks: [{ type: 'ret', f: 'foo', a: [], ret: 'bar' }],
@@ -136,6 +136,65 @@ test('non-method string functions need to map to fn in locals', function (t) {
   var msg = sprintf('function: %s not found in locals or input params - task[%s]', 
                     'foo', 0);
   t.deepEqual(validate(ast), [msg]);  
+  t.end();
+});
+
+test('string functions maps to fn in locals', function (t) {
+  var ast = {
+    inParams: ['a'], 
+    tasks: [{ type: 'ret', f: 'cat.bar', a: [], ret: 'bar' }],
+    outTask: { a: ['bar'] },
+    locals: { cat: { bar: foo }}
+  };
+  t.deepEqual(validate(ast), []);  
+  t.end();
+});
+
+test('string functions need to map to fn in locals or in params', function (t) {
+  var ast = {
+    inParams: ['a'], 
+    tasks: [{ type: 'ret', f: 'foo.bar', a: [], ret: 'bar' }],
+    outTask: { a: ['bar'] },
+    locals: { foo: {}}
+  };
+  var msg = sprintf('function: %s not found in locals or input params - task[%s]', 
+                    'foo.bar', 0);
+  t.deepEqual(validate(ast), [msg]);  
+  t.end();
+});
+
+test('param func str fn need to map to fn in locals or in params', function (t) {
+  var ast = {
+    inParams: ['a'], 
+    tasks: [{ type: 'ret', f: 'a', a: [], ret: 'bar' }],
+    outTask: { a: ['bar'] },
+    locals: { }
+  };
+  t.deepEqual(validate(ast), []);  
+  t.end();
+});
+
+test('param obj exist func str needs map to fn in locals or in params', function (t) {
+  var ast = {
+    inParams: ['a'], 
+    tasks: [{ type: 'ret', f: 'a.b', a: [], ret: 'bar' }],
+    outTask: { a: ['bar'] },
+    locals: { }
+  };
+  var msg = sprintf('function: %s not found in locals or input params - task[%s]', 
+                    'a.b', 0);
+  t.deepEqual(validate(ast), [msg]);  
+  t.end();
+});
+
+test('param obj !exist func str needs map to fn in locals or in params', function (t) {
+  var ast = {
+    inParams: ['a'], 
+    tasks: [{ type: 'ret', f: 'd.e', a: [], ret: 'bar' }],
+    outTask: { a: ['bar'] },
+    locals: { }
+  };
+  t.deepEqual(validate(ast), []);  
   t.end();
 });
 
