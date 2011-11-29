@@ -61,8 +61,8 @@ test('each task in ast.tasks must match a valid task type', function (t) {
     tasks: [{ type: 'zoo', f: foo, a: [], ret: 'bar' }], //err wrong type
     outTask: { a: ['bar'] }
   };
-  var msg = sprintf('task.type should match one of cb, ret - %s',
-                    util.inspect(ast.tasks[0]));
+  var msg = sprintf('task.type should match one of %s - %s',
+                    tutil.taskTypeKeys().join(', '), util.inspect(ast.tasks[0]));
   t.deepEqual(validate(ast), [msg]);
   t.end();
 });
@@ -146,6 +146,17 @@ test('string functions maps to fn in locals', function (t) {
   t.end();
 });
 
+test('string functions maps to fn in inputs', function (t) {
+  var ast = {
+    inParams: ['a1', 'dog'], 
+    tasks: [{ f: 'dog.food', a: [], ret: 'bar' }],
+    outTask: { a: ['bar'] },
+    locals: { }
+  };
+  t.deepEqual(validate(ast), []);  
+  t.end();
+});
+
 test('string functions need to map to fn in locals or in params', function (t) {
   var ast = {
     inParams: ['a'], 
@@ -177,9 +188,7 @@ test('param obj exist func str needs map to fn in locals or in params', function
     outTask: { a: ['bar'] },
     locals: { }
   };
-  var msg = sprintf('function: %s not found in locals or input params - task[%s]', 
-                    'a.b', 0);
-  t.deepEqual(validate(ast), [msg]);  
+  t.deepEqual(validate(ast), []);  
   t.end();
 });
 

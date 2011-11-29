@@ -89,6 +89,80 @@ test('multi-step', function (t) {
   });
 });  
   
+test('objects', function (t) {
+  function retObj(a, b, cb) { cb(null, { bar: a + b }); }
+  function concat(a, b, cb) { cb(null, { result: a + b }); }
+  t.plan(4);
+  var fn = react();
+  var errors = fn.setAndValidateAST({
+    inParams: ['a', 'b'],
+    tasks: [    
+      { f: retObj, a: ['a.foo', 'b'], cb: ['c'] },
+      { f: concat, a: ['c.bar', 'b'], cb: ['d'] }
+    ],
+    outTask: { a: ['c', 'd.result'] }
+  });
+  t.deepEqual(errors, [], 'no validation errors');
+
+  fn({ foo: 'FOO' }, 'B', function (err, c, dresult) {
+    t.equal(err, null);
+    t.deepEqual(c, { bar: 'FOOB' });
+    t.equal(dresult, 'FOOBB');
+    t.end();
+  });
+});  
+
+test('objects from container', function (t) {
+  var C = {
+    retObj: function retObj(a, b, cb) { cb(null, { bar: a + b }); },
+    concat: function concat(a, b, cb) { cb(null, { result: a + b }); }
+  };
+  t.plan(4);
+  var fn = react();
+  var errors = fn.setAndValidateAST({
+    inParams: ['a', 'b'],
+    tasks: [    
+      { f: C.retObj, a: ['a.foo', 'b'], cb: ['c'] },
+      { f: C.concat, a: ['c.bar', 'b'], cb: ['d'] }
+    ],
+    outTask: { a: ['c', 'd.result'] }
+  });
+  t.deepEqual(errors, [], 'no validation errors');
+
+  fn({ foo: 'FOO' }, 'B', function (err, c, dresult) {
+    t.equal(err, null);
+    t.deepEqual(c, { bar: 'FOOB' });
+    t.equal(dresult, 'FOOBB');
+    t.end();
+  });
+});  
+
+test('objects from container input arg', function (t) {
+  var CONT = {
+    retObj: function retObj(a, b, cb) { cb(null, { bar: a + b }); },
+    concat: function concat(a, b, cb) { cb(null, { result: a + b }); }
+  };
+  t.plan(4);
+  var fn = react();
+  var errors = fn.setAndValidateAST({
+    inParams: ['a', 'b', 'CONT'],
+    tasks: [    
+      { f: 'CONT.retObj', a: ['a.foo', 'b'], cb: ['c'] },
+      { f: 'CONT.concat', a: ['c.bar', 'b'], cb: ['d'] }
+    ],
+    outTask: { a: ['c', 'd.result'] }
+  });
+  t.deepEqual(errors, [], 'no validation errors');
+
+  
+  fn({ foo: 'FOO' }, 'B', CONT, function (err, c, dresult) {
+    t.equal(err, null);
+    t.deepEqual(c, { bar: 'FOOB' });
+    t.equal(dresult, 'FOOBB');
+    t.end();
+  });
+});  
+  
 test('multi-step func throws, cb with error', function (t) {
   t.plan(2);
   var fn = react();

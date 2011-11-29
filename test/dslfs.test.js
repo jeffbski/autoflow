@@ -113,6 +113,28 @@ test('two inputs, two mixed tasks, two out params, opts', function (t) {
   t.end();  
 });
 
+
+// Object use
+test('object prop task params', function (t) {
+  var r = dslfs('a, b', [
+    falpha, 'a, b.cat -> err, c',
+    fbeta,  'c.dog, b -> returns d',
+    'd.egg', 'c -> e'
+  ], 'c, e');
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: falpha, a: ['a', 'b.cat'], cb: ['c'], type: 'cb', name: 'falpha'},
+    { f: fbeta,  a: ['c.dog', 'b'], ret: 'd', type: 'ret', name: 'fbeta'},
+    { f: 'd.egg', a: ['c'], cb: ['e'], type: 'cb', name: 'd.egg'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c', 'e'] });
+  t.end();  
+});
+
+
+
+
+
 test('extra arg throws error', function (t) {
   var fn = function () {
     var r = dslfs('a, b', [
