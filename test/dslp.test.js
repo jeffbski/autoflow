@@ -7,6 +7,7 @@ var dslp = require('../lib/dslp.js');
 
 function falpha() { }
 function fbeta() { }
+function fcharlie() { }
 
 test('module exports an object', function (t) {
   t.type(dslp, 'function', 'has define by DSL method');
@@ -118,6 +119,92 @@ test('var prefix two inputs, two mixed tasks, two out params', function (t) {
   t.deepEqual(r.ast.tasks, [
     { f: 'falpha', a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'falpha'},
     { f: 'fbeta',  a: ['a', 'b'], ret: 'd', type: 'ret', name: 'fbeta'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'] });
+  t.end();  
+});
+
+test('when single ret fn:done', function (t) {
+  var locals = { falpha: falpha, fbeta: fbeta };
+  var r = dslp('a, b', [
+    'c := falpha(a, b)',
+    'd = fbeta(a, b) when falpha:done',
+    'cb(err, c, d);'
+  ], locals);
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: 'falpha', a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'falpha'},
+    { f: 'fbeta',  a: ['a', 'b'], ret: 'd', type: 'ret', after: ['falpha'], name: 'fbeta'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'] });
+  t.end();  
+});
+
+test('when single cb fn:done', function (t) {
+  var locals = { falpha: falpha, fbeta: fbeta };
+  var r = dslp('a, b', [
+    'c := falpha(a, b) when fbeta:done',
+    'd = fbeta(a, b)',
+    'cb(err, c, d);'
+  ], locals);
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: 'falpha', a: ['a', 'b'], cb: ['c'], type: 'cb', after: ['fbeta'], name: 'falpha'},
+    { f: 'fbeta',  a: ['a', 'b'], ret: 'd', type: 'ret', name: 'fbeta'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'] });
+  t.end();  
+});
+
+test('when multiple fn:done cb', function (t) {
+  var locals = { falpha: falpha, fbeta: fbeta, fcharlie: fcharlie };
+  var r = dslp('a, b', [
+    'd = fbeta(a, b)',
+    'e = fcharlie(a, b)',
+    'c := falpha(a, b) when fbeta:done and fcharlie:done',
+    'cb(err, c, d);'
+  ], locals);
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: 'fbeta',  a: ['a', 'b'], ret: 'd', type: 'ret', name: 'fbeta'},
+    { f: 'fcharlie',  a: ['a', 'b'], ret: 'e', type: 'ret', name: 'fcharlie'},
+    { f: 'falpha', a: ['a', 'b'], cb: ['c'], type: 'cb', after: ['fbeta', 'fcharlie'], name: 'falpha'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'] });
+  t.end();  
+});
+
+test('when multiple fn:done ret', function (t) {
+  var locals = { falpha: falpha, fbeta: fbeta, fcharlie: fcharlie };
+  var r = dslp('a, b', [
+    'd = fbeta(a, b)',
+    'e = fcharlie(a, b)',
+    'c = falpha(a, b) when fbeta:done and fcharlie:done',
+    'cb(err, c, d);'
+  ], locals);
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: 'fbeta',  a: ['a', 'b'], ret: 'd', type: 'ret', name: 'fbeta'},
+    { f: 'fcharlie',  a: ['a', 'b'], ret: 'e', type: 'ret', name: 'fcharlie'},
+    { f: 'falpha', a: ['a', 'b'], ret: 'c', type: 'ret', after: ['fbeta', 'fcharlie'], name: 'falpha'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'] });
+  t.end();  
+});
+
+test('when mixed multiple fn:done', function (t) {
+  var locals = { falpha: falpha, fbeta: fbeta, fcharlie: fcharlie };
+  var r = dslp('a, b', [
+    'd = fbeta(a, b)',
+    'e = fcharlie(a, b) when fbeta;',
+    'c = falpha(a, b) when fbeta and fcharlie;',
+    'cb(err, c, d);'
+  ], locals);
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: 'fbeta',  a: ['a', 'b'], ret: 'd', type: 'ret', name: 'fbeta'},
+    { f: 'fcharlie',  a: ['a', 'b'], ret: 'e', type: 'ret', after: ['fbeta'], name: 'fcharlie'},
+    { f: 'falpha', a: ['a', 'b'], ret: 'c', type: 'ret', after: ['fbeta', 'fcharlie'], name: 'falpha'}
   ]);
   t.deepEqual(r.ast.outTask, { a: ['c', 'd'] });
   t.end();  
