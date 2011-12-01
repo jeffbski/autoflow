@@ -27,6 +27,23 @@ var loadAndSave = react('allStart, titlesFile, numQueries, numFactors, cb',
                         cat, 'baz -> err, zoo',
                         '-> err, allElapse, qTotal');
 
+var loadAndSave = react('allStart, titlesFile, numQueries, numFactors, cb', [
+                        foo, 'bar -> err, baz',
+                        cat, 'baz -> returns zoo'
+                        ], 'err, allElapse, qTotal');
+
+var loadAndSave = react('allStart, titlesFile, numQueries, numFactors, cb', [
+                        foo, 'bar => err, baz',
+                        cat, 'baz -> returns zoo'
+                        ], 'err, allElapse, qTotal');
+
+var loadAndSave = react('allStart, titlesFile, numQueries, numFactors, cb', [
+                        foo, 'bar -> err, baz',
+                        'zoo <- ', cat, 'baz',
+                        ], 'err, allElapse, qTotal');
+
+
+
 var loadAndSave = react('allStart, titlesFile, numQueries, numFactors, cb -> err, allElapse, qTotal',
                         foo, 'bar -> err, baz',
                         cat, 'baz -> err, zoo');

@@ -8,7 +8,7 @@ function multiply(x, y, cb) { cb(null, x * y); }
 function add(x, y, cb) { cb(null, x + y); }
 function badFunc(a, b, cb) { throw new Error('badFuncThrow'); }
 function badF2(a, b, cb) { cb('my-error'); }
-
+function fnRetsSum(a, b) { return a + b; }
 
 test('set and validate AST', function (t) {
   var fn = react();
@@ -88,7 +88,50 @@ test('multi-step', function (t) {
     t.end();
   });
 });  
-  
+
+
+test('sets obj values', function (t) {
+  t.plan(5);
+  var fn = react();
+  var errors = fn.setAndValidateAST({
+    inParams: ['a', 'b', 'c'],
+    tasks: [    
+      { f: multiply, a: ['a', 'b'], cb: ['c.mult'] },
+      { f: fnRetsSum, a: ['c.mult', 'b'], ret: 'c.sum' }
+    ],
+    outTask: { a: ['c.mult', 'c.sum', 'c'] }
+  });
+  t.deepEqual(errors, [], 'no validation errors');
+
+  fn(2, 3, { foo: 1 }, function (err, cmult, csum, c) {
+    t.deepEqual(err, null, 'should be no err');
+    t.equal(cmult, 6);
+    t.equal(csum, 9);
+    t.deepEqual(c, { foo: 1, mult: 6, sum: 9});
+    t.end();
+  });
+});  
+
+test('error when cant complete', function (t) {
+  t.plan(2);
+  var fn = react();
+  var errors = fn.setAndValidateAST({
+    inParams: ['a', 'b', 'c'],
+    tasks: [    
+      { f: multiply, a: ['a', 'b'], cb: ['c.mult'] },
+      { f: fnRetsSum, a: ['c.bad', 'b'], ret: 'c.sum' }
+    ],
+    outTask: { a: ['c.mult', 'c.sum', 'c'] }
+  });
+  t.deepEqual(errors, [], 'no validation errors');
+
+  fn(2, 3, { foo: 1 }, function (err, cmult, csum, c) {
+    t.equal(err.message, 'no tasks running, flow will not complete');
+    t.end();
+  });
+});
+
+
 test('objects', function (t) {
   function retObj(a, b, cb) { cb(null, { bar: a + b }); }
   function concat(a, b, cb) { cb(null, { result: a + b }); }
