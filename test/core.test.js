@@ -205,7 +205,33 @@ test('objects from container input arg', function (t) {
     t.end();
   });
 });  
-  
+
+test('use locals for functions', function (t) {
+  var locals = {
+    retObj: function retObj(a, b, cb) { cb(null, { bar: a + b }); },
+    concat: function concat(a, b, cb) { cb(null, { result: a + b }); }
+  };
+  t.plan(4);
+  var fn = react();
+  var errors = fn.setAndValidateAST({
+    inParams: ['a', 'b'],
+    tasks: [    
+      { f: 'retObj', a: ['a.foo', 'b'], cb: ['c'] },
+      { f: 'concat', a: ['c.bar', 'b'], cb: ['d'] }
+    ],
+    outTask: { a: ['c', 'd.result'] },
+    locals: locals
+  });
+  t.deepEqual(errors, [], 'no validation errors');
+
+  fn({ foo: 'FOO' }, 'B', function (err, c, dresult) {
+    t.equal(err, null);
+    t.deepEqual(c, { bar: 'FOOB' });
+    t.equal(dresult, 'FOOBB');
+    t.end();
+  });
+});  
+
 test('objects from locals', function (t) {
   var CONT = {
     retObj: function retObj(a, b, cb) { cb(null, { bar: a + b }); },

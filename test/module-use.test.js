@@ -78,7 +78,6 @@ test('use dslp from module', function (t) {
   ], locals);
   
   fn(2, 3, function (err, m, s) {
-    console.error(err); //TODO remove when done
     t.deepEqual(err, null, 'should not be any error');
     t.equal(m, 6);
     t.equal(s, 8);

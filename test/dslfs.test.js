@@ -71,6 +71,42 @@ test('single task, err and out params', function (t) {
   t.end();  
 });
 
+test('single task, ERR and out params', function (t) {
+  var r = dslfs('', [
+    falpha, 'a, b -> ERR, c'
+  ], 'ERR, c');
+  t.deepEqual(r.ast.inParams, []);
+  t.deepEqual(r.ast.tasks, [
+    { f: falpha, a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'falpha'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c'] });
+  t.end();  
+});
+
+test('cb used in defs is simply ignored', function (t) {
+  var r = dslfs('a, b, cb', [
+    falpha, 'a, b, cb -> err, c'
+  ], 'err, c');
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: falpha, a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'falpha'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c'] });
+  t.end();  
+});
+
+test('callback used in defs is simply ignored', function (t) {
+  var r = dslfs('a, b, callback', [
+    falpha, 'a, b, callback -> err, c'
+  ], 'err, c');
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: falpha, a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'falpha'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c'] });
+  t.end();  
+});
+
 test('two inputs, two tasks, two out params', function (t) {
   var r = dslfs('a, b', [
     falpha, 'a, b -> err, c',
@@ -89,6 +125,62 @@ test('two inputs, two mixed tasks, two out params', function (t) {
   var r = dslfs('a, b', [
     falpha, 'a, b -> err, c',
     fbeta,  'a, b -> returns d'
+  ], 'c, d');
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: falpha, a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'falpha'},
+    { f: fbeta,  a: ['a', 'b'], ret: 'd', type: 'ret', name: 'fbeta'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'] });
+  t.end();  
+});
+
+test('uses return', function (t) {
+  var r = dslfs('a, b', [
+    falpha, 'a, b -> err, c',
+    fbeta,  'a, b -> return d'
+  ], 'c, d');
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: falpha, a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'falpha'},
+    { f: fbeta,  a: ['a', 'b'], ret: 'd', type: 'ret', name: 'fbeta'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'] });
+  t.end();  
+});
+
+test('uses Return', function (t) {
+  var r = dslfs('a, b', [
+    falpha, 'a, b -> err, c',
+    fbeta,  'a, b -> Return d'
+  ], 'c, d');
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: falpha, a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'falpha'},
+    { f: fbeta,  a: ['a', 'b'], ret: 'd', type: 'ret', name: 'fbeta'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'] });
+  t.end();  
+});
+
+test('uses RETURN', function (t) {
+  var r = dslfs('a, b', [
+    falpha, 'a, b -> err, c',
+    fbeta,  'a, b -> RETURN d'
+  ], 'c, d');
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: falpha, a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'falpha'},
+    { f: fbeta,  a: ['a', 'b'], ret: 'd', type: 'ret', name: 'fbeta'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'] });
+  t.end();  
+});
+
+test('uses RETURNS', function (t) {
+  var r = dslfs('a, b', [
+    falpha, 'a, b -> err, c',
+    fbeta,  'a, b -> RETURNS d'
   ], 'c, d');
   t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
