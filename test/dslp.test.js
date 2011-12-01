@@ -108,6 +108,74 @@ test('two inputs, two mixed tasks, two out params', function (t) {
   t.end();  
 });
 
+test('allow cb in the definitions', function (t) {
+  var locals = { falpha: falpha, fbeta: fbeta };
+  var r = dslp('a, b, cb', [
+    'c := falpha(a, b, cb)',
+    'd = fbeta(a, b)',
+    'cb(err, c, d)'
+  ], locals);
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: 'falpha', a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'falpha'},
+    { f: 'fbeta',  a: ['a', 'b'], ret: 'd', type: 'ret', name: 'fbeta'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'] });
+  t.end();  
+});
+
+test('allow Cb in the definitions', function (t) {
+  var locals = { falpha: falpha, fbeta: fbeta };
+  var r = dslp('a, b, Cb', [
+    'c := falpha(a, b, Cb)',
+    'd = fbeta(a, b)',
+    'cb(err, c, d)'
+  ], locals);
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: 'falpha', a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'falpha'},
+    { f: 'fbeta',  a: ['a', 'b'], ret: 'd', type: 'ret', name: 'fbeta'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'] });
+  t.end();  
+});
+
+test('allow callback in the definitions', function (t) {
+  var locals = { falpha: falpha, fbeta: fbeta };
+  var r = dslp('a, b, callback', [
+    'c := falpha(a, b, callback)',
+    'd = fbeta(a, b)',
+    'callback(err, c, d)'
+  ], locals);
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: 'falpha', a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'falpha'},
+    { f: 'fbeta',  a: ['a', 'b'], ret: 'd', type: 'ret', name: 'fbeta'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'] });
+  t.end();  
+});
+
+test('allow Callback in the definitions', function (t) {
+  var locals = { falpha: falpha, fbeta: fbeta };
+  var r = dslp('a, b, Callback', [
+    'c := falpha(a, b, Callback)',
+    'd = fbeta(a, b)',
+    'Callback(err, c, d)'
+  ], locals);
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: 'falpha', a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'falpha'},
+    { f: 'fbeta',  a: ['a', 'b'], ret: 'd', type: 'ret', name: 'fbeta'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'] });
+  t.end();  
+});
+
+
+
+
+
 test('var prefix two inputs, two mixed tasks, two out params', function (t) {
   var locals = { falpha: falpha, fbeta: fbeta };
   var r = dslp('a, b', [

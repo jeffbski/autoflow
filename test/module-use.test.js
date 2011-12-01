@@ -29,6 +29,7 @@ test('module exports an function object with properties', function (t) {
   t.type(react, 'function', 'is a core constructor function');
   t.type(react.options, 'object', 'has property for global react options');
   t.type(react.dslfs, 'function', 'has fn property for using fs dsl');
+  t.type(react.dslfs, 'function', 'has fn property for using p dsl');
   t.end();
 });
 
@@ -62,4 +63,25 @@ test('setAndValidateAST sets the ast and validates returning errors', function (
   ]);
   t.deepEqual(r.ast.outTask, { a: ['c', 'd'] },      'should return obj just set'); 
   t.end();
+});
+
+
+test('use dslp from module', function (t) {
+  t.plan(3);
+  function multiply(a, b, cb) { cb(null, a * b); }
+  function add(a, b, cb) { cb(null, a + b); }
+  var locals = { multiply: multiply, add: add };
+  var fn = react.dslp('a, b, cb', [
+    'm := multiply(a, b)',
+    's := add(m, a)',
+    'cb(err, m, s)'
+  ], locals);
+  
+  fn(2, 3, function (err, m, s) {
+    console.error(err); //TODO remove when done
+    t.deepEqual(err, null, 'should not be any error');
+    t.equal(m, 6);
+    t.equal(s, 8);
+    t.end();
+  });
 });
