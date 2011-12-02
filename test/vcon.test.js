@@ -110,3 +110,43 @@ test('setVar with undefined key, will not set anything', function (t) {
   t.deepEqual(v.values, { foo: { bar: 1 }});
   t.end();  
 });
+
+test('saveResults will set values for params and :LAST_RESULTS', function (t) {
+  var v = VContext.create([], []);
+  v.saveResults(['foo', 'bar', 'cat'], [1, 'hello', null]);
+  t.deepEqual(v.values, { foo: 1, bar: 'hello', cat: null ,
+                          ':LAST_RESULTS': [1, 'hello', null] });
+  t.end();  
+});
+
+test('saveResults set :LAST_RESULT w/all even params is short', function (t) {
+  var v = VContext.create([], []);
+  v.saveResults(['foo'], [1, 'hello', null]);
+  t.deepEqual(v.values, { foo: 1,
+                          ':LAST_RESULTS': [1, 'hello', null] });
+  t.end();  
+});
+
+test('saveResults will set values for params and :LAST_RESULTS', function (t) {
+  var v = VContext.create([], []);
+  v.saveResults(['foo', 'bar', 'cat'], [1, 'hello', null]);
+  t.deepEqual(v.values, { foo: 1, bar: 'hello', cat: null ,
+                          ':LAST_RESULTS': [1, 'hello', null] });
+  t.end();  
+});
+
+test('saveResults upgrades undefined to null, but :LAST_RESULT is exact', function (t) {
+  var v = VContext.create([], []);
+  v.saveResults(['foo', 'bar', 'baz'], [1, undefined]);
+  t.deepEqual(v.values, { foo: 1, bar: null, baz: null, 
+                          ':LAST_RESULTS': [1, undefined] });
+  t.end();  
+});
+
+test('saveResults null params skips saving, :LAST_RESULT is exact', function (t) {
+  var v = VContext.create([], []);
+  v.saveResults(['foo', null], [1, 20]); //skip second param
+  t.deepEqual(v.values, { foo: 1, ':LAST_RESULTS': [1, 20] });
+  t.end();  
+});
+
