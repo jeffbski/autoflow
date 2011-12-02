@@ -66,7 +66,7 @@ test('setAndValidateAST sets the ast and validates returning errors', function (
     { f: foo, a: ['a'], cb: ['c'], type: 'cb', name: 'foo' },
     { f: bar, a: ['b'], cb: ['d'], type: 'cb', name: 'bar' }
   ]);
-  t.deepEqual(r.ast.outTask, { a: ['c', 'd'] },      'should return obj just set'); 
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' },      'should return obj just set'); 
   t.end();
 });
 

@@ -24,7 +24,7 @@ test('set and validate AST', function (t) {
   t.deepEqual(fn.ast.tasks, [
       { f: multiply, a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'multiply' }
     ]);
-  t.deepEqual(fn.ast.outTask, { a: ['c'] }); 
+  t.deepEqual(fn.ast.outTask, { a: ['c'], type: 'finalcb' }); 
   t.end();
 });
 

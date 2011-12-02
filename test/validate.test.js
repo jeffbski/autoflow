@@ -75,15 +75,15 @@ test('ast.outTask.a should be an array of string param names', function (t) {
   };
   ast.outTask = {}; //err a should be an arr
   var msg = sprintf('ast.outTask.a should be an array of string param names - %s',
-                    util.inspect(ast.outTask));
+                    util.inspect({ type: 'finalcb' }));
   t.deepEqual(validate(ast), [msg]);  
 
-  ast.outTask = { a: 'bar' }; //err a should be an arr
+  ast.outTask = { type: 'finalcb', a: 'bar' }; //err a should be an arr
   msg = sprintf('ast.outTask.a should be an array of string param names - %s',
                     util.inspect(ast.outTask));
   t.deepEqual(validate(ast), [msg]);  
 
-  ast.outTask = { a: ['bar', 1] }; //err a should be an arr of strings
+  ast.outTask = { type: 'finalcb', a: ['bar', 1] }; //err a should be an arr of strings
   msg = sprintf('ast.outTask.a should be an array of string param names - %s',
                     util.inspect(ast.outTask));
   t.deepEqual(validate(ast), [msg]);  
