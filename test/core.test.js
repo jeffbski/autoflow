@@ -298,3 +298,143 @@ test('multi-step func cb err, cb with error', function (t) {
   });
 });  
   
+
+test('selectFirst with first succeeding', function (t) {
+  t.plan(6);
+  var fn = react();
+  var errors = fn.setAndValidateAST({
+    inParams: ['a', 'b'],
+    tasks: [    
+      { f: multiply, a: ['a', 'b'], cb: ['c'] },
+      { f: add, a: ['a', 'b'], cb: ['c'], after: ['multiply'] }
+    ],
+    outTask: { type: 'finalcbFirst', a: ['c'] }
+  });
+  t.deepEqual(errors, [], 'no validation errors');
+
+  var events = []
+  function accumEvents(name, results, task) {
+    events.push( { name: name, results: results, task: task } );
+  }
+  fn.events.on('taskComplete', accumEvents);
+
+  fn(2, 3, function (err, c, d) {
+    t.equal(err, null);
+    t.equal(c, 6);
+    t.equal(events.length, 1, 'should have seen one task compl events');
+    t.equal(events[0].name, 'multiply', 'name matches');
+    t.deepEqual(events[0].results, [6], 'results match');
+    t.end();
+  });
+});  
+
+test('selectFirst with third succeeding', function (t) {
+  function noSuccess(a, b, cb) { cb(null); }; // returns undefined result
+  function noSuccessNull(a, b, cb) { cb(null, null); }; // returns null result
+  
+  t.plan(6);
+  var fn = react();
+  var errors = fn.setAndValidateAST({
+    inParams: ['a', 'b'],
+    tasks: [    
+      { f: noSuccess, a: ['a', 'b'], cb: ['c'] },
+      { f: noSuccessNull, a: ['a', 'b'], cb: ['c'], after: ['noSuccess'] },
+      { f: add, a: ['a', 'b'], cb: ['c'], after: ['noSuccessNull'] }
+    ],
+    outTask: { type: 'finalcbFirst', a: ['c'] }
+  });
+  t.deepEqual(errors, [], 'no validation errors');
+
+  var events = []
+  function accumEvents(name, results, task) {
+    events.push( { name: name, results: results, task: task } );
+  }
+  fn.events.on('taskComplete', accumEvents);
+
+  fn(2, 3, function (err, c, d) {
+    t.equal(err, null);
+    t.equal(c, 5);
+    t.equal(events.length, 3, 'should have seen three task compl events');
+    t.equal(events[2].name, 'add', 'name matches');
+    t.deepEqual(events[2].results, [5], 'results match');
+    t.end();
+  });
+});  
+
+
+test('selectFirst forces order with third succeeding', function (t) {
+  function noSuccess(a, b, cb) {
+    setTimeout(function () { cb(null); }, 100); // returns undefined result
+  }
+  function noSuccessNull(a, b, cb) { cb(null, null); }; // returns null result
+  
+  t.plan(8);
+  var fn = react();
+  var errors = fn.setAndValidateAST({
+    inParams: ['a', 'b'],
+    tasks: [    
+      { f: noSuccess, a: ['a', 'b'], cb: ['c'] },
+      { f: noSuccessNull, a: ['a', 'b'], cb: ['c'], after: ['noSuccess']},
+      { f: add, a: ['a', 'b'], cb: ['c'], after: ['noSuccessNull'] },
+      { f: noSuccess, a: ['a', 'b'], cb: ['c'], after: ['add'] }
+    ],
+    outTask: { type: 'finalcbFirst', a: ['c'] }
+  });
+  t.deepEqual(errors, [], 'no validation errors');
+
+  var events = []
+  function accumEvents(name, results, task) {
+    events.push( { name: name, results: results, task: task } );
+  }
+  fn.events.on('taskComplete', accumEvents);
+
+  fn(2, 3, function (err, c, d) {
+    t.equal(err, null);
+    t.equal(c, 5);
+    t.equal(events.length, 3, 'should have seen three task compl events');
+    t.equal(events[0].name, 'noSuccess', 'name matches');
+    t.equal(events[1].name, 'noSuccessNull', 'name matches');
+    t.equal(events[2].name, 'add', 'name matches');
+    t.deepEqual(events[2].results, [5], 'results match');
+    t.end();
+  });
+});  
+
+
+
+
+test('selectFirst using direct returns', function (t) {
+  function noSuccess(a, b) {  }; // returns undefined result
+  function noSuccessNull(a, b) { return null; }; // returns null result
+  function addRet(a, b) { return a + b; }
+  
+  t.plan(6);
+  var fn = react();
+  var errors = fn.setAndValidateAST({
+    inParams: ['a', 'b'],
+    tasks: [    
+      { f: noSuccess, a: ['a', 'b'], ret: 'c' },
+      { f: noSuccessNull, a: ['a', 'b'], ret: 'c', after: ['noSuccess'] },
+      { f: addRet, a: ['a', 'b'], ret: 'c', after: ['noSuccessNull'] }
+    ],
+    outTask: { type: 'finalcbFirst', a: ['c'] }
+  });
+  t.deepEqual(errors, [], 'no validation errors');
+
+  var events = []
+  function accumEvents(name, results, task) {
+    events.push( { name: name, results: results, task: task } );
+  }
+  fn.events.on('taskComplete', accumEvents);
+
+  fn(2, 3, function (err, c, d) {
+    t.equal(err, null);
+    t.equal(c, 5);
+    t.equal(events.length, 3, 'should have seen three task compl events');
+    t.equal(events[2].name, 'addRet', 'name matches');
+    t.deepEqual(events[2].results, [5], 'results match');
+    t.end();
+  });
+});  
+
+

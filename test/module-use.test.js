@@ -123,3 +123,40 @@ test('use dslp with events', function (t) {
     t.end();
   });
 });
+
+test('use dslp.selectFirst with events', function (t) {
+  t.plan(8);
+  function noSuccess(a, b, cb) {
+    setTimeout(function () { cb(null); }, 100); // returns undefined result
+  }
+  function noSuccessNull(a, b, cb) { cb(null, null); }; // returns null result
+  function add(a, b, cb) { cb(null, a + b); }
+
+  var events = []
+  function accumEvents(name, results, task) {
+    events.push( { name: name, results: results, task: task } );
+  }
+  
+  var locals = { noSuccess: noSuccess, noSuccessNull: noSuccessNull, add: add };
+  var fn = react.dslp.selectFirst('a, b, cb', [
+    'c := noSuccess(a, b)',
+    'c := noSuccessNull(a, b)',
+    'c := add(a, b)',
+    'c := noSuccess(a, b)',    
+    'cb(err, c)'
+  ], locals);
+
+  fn.events.on('taskComplete', accumEvents);
+  
+  fn(2, 3, function (err, c) {
+    t.deepEqual(err, null, 'should not be any error');
+    t.equal(c, 5);
+    t.equal(events.length, 3, 'should have seen two task compl events');
+    t.equal(events[0].name, 'noSuccess', 'name matches');
+    t.equal(events[1].name, 'noSuccessNull', 'name matches');
+    t.equal(events[2].name, 'add', 'name matches');
+    t.deepEqual(events[2].results, [5], 'results match');
+    t.type(events[2].task, BaseTask, 'instanceof BaseTask');
+    t.end();
+  });
+});

@@ -278,3 +278,21 @@ test('when mixed multiple fn:done', function (t) {
   t.end();  
 });
 
+
+/* selectFirst */
+
+test('selectFirst', function (t) {
+  var locals = { falpha: falpha, fbeta: fbeta, fcharlie: fcharlie };
+  var r = dslp.selectFirst('a, b', [
+    'c := falpha(a, b)',
+    'c = fbeta(a, b)',
+    'cb(err, c)'
+  ], locals);
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: 'falpha', a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'falpha'},
+    { f: 'fbeta',  a: ['a', 'b'], ret: 'c', type: 'ret', name: 'fbeta', after: ['falpha']}
+  ]);
+  t.deepEqual(r.ast.outTask, { type: 'finalcbFirst', a: ['c'] });
+  t.end();  
+});

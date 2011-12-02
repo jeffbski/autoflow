@@ -249,3 +249,21 @@ test('not enough args throws error', function (t) {
   t.throws(fn, new Error(sprintf('extra unmatched task arg: %s', fbeta)));
   t.end();  
 });
+
+
+
+/* selectFirst */
+
+test('selectFirst', function (t) {
+  var r = dslfs.selectFirst('a, b', [
+    falpha, 'a, b -> err, c',
+    fbeta,  'a, b -> returns c'
+  ], 'c');
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: falpha, a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'falpha'},
+    { f: fbeta,  a: ['a', 'b'], ret: 'c', type: 'ret', name: 'fbeta', after: ['falpha']}
+  ]);
+  t.deepEqual(r.ast.outTask, { type: 'finalcbFirst', a: ['c'] });
+  t.end();  
+});
