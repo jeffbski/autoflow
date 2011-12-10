@@ -6,5 +6,5 @@ module.exports = core;
 module.exports.options = core.options;
 
 // interfaces
-module.exports.dslfs = require('./lib/dslfs.js');
-module.exports.dslp = require('./lib/dslp.js');
+module.exports.fstr = require('./lib/fstr.js');
+module.exports.pcode = require('./lib/pcode.js');

@@ -3,18 +3,18 @@
 var test = require('tap').test;
 var sprintf = require('sprintf').sprintf;
 
-var dslfs = require('../lib/dslfs.js');
+var fstr = require('../lib/fstr.js');
 
 function falpha() { }
 function fbeta() { }
 
 test('module exports an object', function (t) {
-  t.type(dslfs, 'function', 'has define by DSL method');
+  t.type(fstr, 'function', 'has define by DSL method');
   t.end();
 });
 
 test('no arguments -> empty inParams, tasks, outTask', function (t) {
-  var r = dslfs();
+  var r = fstr();
   t.deepEqual(r.ast.inParams, []);
   t.deepEqual(r.ast.tasks, []);
   t.deepEqual(r.ast.outTask, { a: [], type: 'finalcb' });
@@ -22,7 +22,7 @@ test('no arguments -> empty inParams, tasks, outTask', function (t) {
 });
 
 test('empty first string -> empty inParams, tasks, outTask', function (t) {
-  var r = dslfs('');
+  var r = fstr('');
   t.deepEqual(r.ast.inParams, []);
   t.deepEqual(r.ast.tasks, []);
   t.deepEqual(r.ast.outTask, { a: [], type: 'finalcb' });
@@ -31,7 +31,7 @@ test('empty first string -> empty inParams, tasks, outTask', function (t) {
 
 
 test('single first string -> inParams["foo"], empty tasks, outTask', function (t) {
-  var r = dslfs('foo');
+  var r = fstr('foo');
   t.deepEqual(r.ast.inParams, ['foo']);
   t.deepEqual(r.ast.tasks, []);
   t.deepEqual(r.ast.outTask, { a: [], type: 'finalcb' });
@@ -40,7 +40,7 @@ test('single first string -> inParams["foo"], empty tasks, outTask', function (t
 
 test('triple first string -> inParams["foo", "bar", "baz"], empty tasks, outTask',
      function (t) {
-  var r = dslfs(' foo,   bar,baz  ');
+  var r = fstr(' foo,   bar,baz  ');
   t.deepEqual(r.ast.inParams, ['foo', 'bar', 'baz']);
   t.deepEqual(r.ast.tasks, []);
   t.deepEqual(r.ast.outTask, { a: [], type: 'finalcb' });
@@ -48,7 +48,7 @@ test('triple first string -> inParams["foo", "bar", "baz"], empty tasks, outTask
 });
 
 test('single task, single out params', function (t) {
-  var r = dslfs('', [
+  var r = fstr('', [
     falpha, 'a, b -> err, c'
   ], 'c');
   t.deepEqual(r.ast.inParams, []);
@@ -60,7 +60,7 @@ test('single task, single out params', function (t) {
 });
 
 test('single task, err and out params', function (t) {
-  var r = dslfs('', [
+  var r = fstr('', [
     falpha, 'a, b -> err, c'
   ], 'err, c');
   t.deepEqual(r.ast.inParams, []);
@@ -72,7 +72,7 @@ test('single task, err and out params', function (t) {
 });
 
 test('single task, ERR and out params', function (t) {
-  var r = dslfs('', [
+  var r = fstr('', [
     falpha, 'a, b -> ERR, c'
   ], 'ERR, c');
   t.deepEqual(r.ast.inParams, []);
@@ -84,7 +84,7 @@ test('single task, ERR and out params', function (t) {
 });
 
 test('cb used in defs is simply ignored', function (t) {
-  var r = dslfs('a, b, cb', [
+  var r = fstr('a, b, cb', [
     falpha, 'a, b, cb -> err, c'
   ], 'err, c');
   t.deepEqual(r.ast.inParams, ['a', 'b']);
@@ -96,7 +96,7 @@ test('cb used in defs is simply ignored', function (t) {
 });
 
 test('callback used in defs is simply ignored', function (t) {
-  var r = dslfs('a, b, callback', [
+  var r = fstr('a, b, callback', [
     falpha, 'a, b, callback -> err, c'
   ], 'err, c');
   t.deepEqual(r.ast.inParams, ['a', 'b']);
@@ -108,7 +108,7 @@ test('callback used in defs is simply ignored', function (t) {
 });
 
 test('two inputs, two tasks, two out params', function (t) {
-  var r = dslfs('a, b', [
+  var r = fstr('a, b', [
     falpha, 'a, b -> err, c',
     fbeta,  'a, b -> err, d, e'
   ], 'c, d');
@@ -122,7 +122,7 @@ test('two inputs, two tasks, two out params', function (t) {
 });
 
 test('two inputs, two mixed tasks, two out params', function (t) {
-  var r = dslfs('a, b', [
+  var r = fstr('a, b', [
     falpha, 'a, b -> err, c',
     fbeta,  'a, b -> returns d'
   ], 'c, d');
@@ -136,7 +136,7 @@ test('two inputs, two mixed tasks, two out params', function (t) {
 });
 
 test('uses return', function (t) {
-  var r = dslfs('a, b', [
+  var r = fstr('a, b', [
     falpha, 'a, b -> err, c',
     fbeta,  'a, b -> return d'
   ], 'c, d');
@@ -150,7 +150,7 @@ test('uses return', function (t) {
 });
 
 test('uses Return', function (t) {
-  var r = dslfs('a, b', [
+  var r = fstr('a, b', [
     falpha, 'a, b -> err, c',
     fbeta,  'a, b -> Return d'
   ], 'c, d');
@@ -164,7 +164,7 @@ test('uses Return', function (t) {
 });
 
 test('uses RETURN', function (t) {
-  var r = dslfs('a, b', [
+  var r = fstr('a, b', [
     falpha, 'a, b -> err, c',
     fbeta,  'a, b -> RETURN d'
   ], 'c, d');
@@ -178,7 +178,7 @@ test('uses RETURN', function (t) {
 });
 
 test('uses RETURNS', function (t) {
-  var r = dslfs('a, b', [
+  var r = fstr('a, b', [
     falpha, 'a, b -> err, c',
     fbeta,  'a, b -> RETURNS d'
   ], 'c, d');
@@ -192,7 +192,7 @@ test('uses RETURNS', function (t) {
 });
 
 test('two inputs, two mixed tasks, two out params, opts', function (t) {
-  var r = dslfs('a, b', [
+  var r = fstr('a, b', [
     falpha, 'a -> err, c', { after: fbeta },
     fbeta,  'a, b -> returns d'
   ], 'c, d');
@@ -208,7 +208,7 @@ test('two inputs, two mixed tasks, two out params, opts', function (t) {
 
 // Object use
 test('object prop task params', function (t) {
-  var r = dslfs('a, b', [
+  var r = fstr('a, b', [
     falpha, 'a, b.cat -> err, c',
     fbeta,  'c.dog, b -> returns d',
     'd.egg', 'c -> e'
@@ -229,7 +229,7 @@ test('object prop task params', function (t) {
 
 test('extra arg throws error', function (t) {
   var fn = function () {
-    var r = dslfs('a, b', [
+    var r = fstr('a, b', [
       falpha, 'a -> err, c', { after: fbeta },
       fbeta,  'a, b -> returns d',
       'extraBadArg'
@@ -241,7 +241,7 @@ test('extra arg throws error', function (t) {
 
 test('not enough args throws error', function (t) {
   var fn = function () {
-    var r = dslfs('a, b', [
+    var r = fstr('a, b', [
       falpha, 'a -> err, c', { after: fbeta },
       fbeta
     ], 'c, d');
@@ -255,7 +255,7 @@ test('not enough args throws error', function (t) {
 /* selectFirst */
 
 test('selectFirst', function (t) {
-  var r = dslfs.selectFirst('a, b', [
+  var r = fstr.selectFirst('a, b', [
     falpha, 'a, b -> err, c',
     fbeta,  'a, b -> returns c'
   ], 'c');

@@ -11,7 +11,7 @@ var react = require('../react');
   var react = require('react');
   react.options.an_option = 'something';
   
-  var loadAndSave = react.dslfs('one, two, cb -> err, result1, result2',
+  var loadAndSave = react.fstr('one, two, cb -> err, result1, result2',
     foo, 'one      -> err, cat',
     bar, 'two, cat -> err, dog',
     baz, 'dog      -> err, result1',
@@ -33,8 +33,8 @@ var react = require('../react');
 test('module exports an function object with properties', function (t) {
   t.type(react, 'function', 'is a core constructor function');
   t.type(react.options, 'object', 'has property for global react options');
-  t.type(react.dslfs, 'function', 'has fn property for using fs dsl');
-  t.type(react.dslp, 'function', 'has fn property for using p dsl');
+  t.type(react.fstr, 'function', 'has fn property for using fstr dsl');
+  t.type(react.pcode, 'function', 'has fn property for using pcode dsl');
   t.end();
 });
 
@@ -71,12 +71,12 @@ test('setAndValidateAST sets the ast and validates returning errors', function (
 });
 
 
-test('use dslp from module', function (t) {
+test('use pcode from module', function (t) {
   t.plan(3);
   function multiply(a, b, cb) { cb(null, a * b); }
   function add(a, b, cb) { cb(null, a + b); }
   var locals = { multiply: multiply, add: add };
-  var fn = react.dslp('a, b, cb', [
+  var fn = react.pcode('a, b, cb', [
     'm := multiply(a, b)',
     's := add(m, a)',
     'cb(err, m, s)'
@@ -90,7 +90,7 @@ test('use dslp from module', function (t) {
   });
 });
 
-test('use dslp with events', function (t) {
+test('use pcode with events', function (t) {
   t.plan(10);
   function multiply(a, b, cb) { cb(null, a * b); }
   function add(a, b, cb) { cb(null, a + b); }
@@ -101,7 +101,7 @@ test('use dslp with events', function (t) {
   }
   
   var locals = { multiply: multiply, add: add };
-  var fn = react.dslp('a, b, cb', [
+  var fn = react.pcode('a, b, cb', [
     'm := multiply(a, b)',
     's := add(m, a)',
     'cb(err, m, s)'
@@ -124,7 +124,7 @@ test('use dslp with events', function (t) {
   });
 });
 
-test('use dslp.selectFirst with events', function (t) {
+test('use pcode.selectFirst with events', function (t) {
   t.plan(8);
   function noSuccess(a, b, cb) {
     setTimeout(function () { cb(null); }, 100); // returns undefined result
@@ -138,7 +138,7 @@ test('use dslp.selectFirst with events', function (t) {
   }
   
   var locals = { noSuccess: noSuccess, noSuccessNull: noSuccessNull, add: add };
-  var fn = react.dslp.selectFirst('a, b, cb', [
+  var fn = react.pcode.selectFirst('a, b, cb', [
     'c := noSuccess(a, b)',
     'c := noSuccessNull(a, b)',
     'c := add(a, b)',
