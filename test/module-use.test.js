@@ -51,6 +51,14 @@ test('calling react constructor function creates new function with ast', functio
   t.end();
 });
 
+test('deprecated react API should throw to help debugging', function (t) {
+  function badUse() { 
+    var r = react('filename, uid, outDirname, cb'); //this should throw
+  }
+  t.throws(badUse, new Error('react() takes no args, check API'));
+  t.end();
+});
+
 test('setAndValidateAST sets the ast and validates returning errors', function (t) {
   var r = react();
   var errors = r.setAndValidateAST({
