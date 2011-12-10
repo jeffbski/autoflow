@@ -9,13 +9,13 @@ var validate = require('../lib/validate.js');
 function foo() { }
 
 
-test('cbTask requires f, a, cb', function (t) {
+test('cbTask requires f, in, out', function (t) {
   var ast = {
     inParams: ['a'], 
     tasks: [{ type: 'cb' }],
-    outTask: { a: ['bar'] }
+    outTask: { in: ['bar'] }
   };
-  var msg = sprintf('cbTask requires f, a, cb - %s',
+  var msg = sprintf('cbTask requires f, in, out - %s',
                     util.inspect(ast.tasks[0]));
   t.deepEqual(validate(ast), [msg]);  
   t.end();
@@ -24,8 +24,8 @@ test('cbTask requires f, a, cb', function (t) {
 test('cbTask verifies f type', function (t) {
   var ast = {
     inParams: ['a'], 
-    tasks: [{ type: 'cb', f: foo, a: [], cb: [] }],
-    outTask: { a: ['bar'] }
+    tasks: [{ type: 'cb', f: foo, in: [], out: [] }],
+    outTask: { in: ['bar'] }
   };
   ast.tasks[0].f = 123; //err should be fn or string
   var msg = sprintf('cbTask requires f to be a function or string - %s',
@@ -34,39 +34,39 @@ test('cbTask verifies f type', function (t) {
   t.end();
 });
 
-test('cbTask verifies a type', function (t) {
+test('cbTask verifies in type', function (t) {
   var ast = {
     inParams: ['a'], 
-    tasks: [{ type: 'cb', f: foo, a: [], cb: [] }],
-    outTask: { a: ['bar'] }
+    tasks: [{ type: 'cb', f: foo, in: [], out: [] }],
+    outTask: { in: ['bar'] }
   };
-  ast.tasks[0].a = 'foo'; //err should be arr of strings
-  var msg = sprintf('cbTask requires a to be an array of string param names - %s',
+  ast.tasks[0].in = 'foo'; //err should be arr of strings
+  var msg = sprintf('cbTask requires in to be an array of string param names - %s',
                     util.inspect(ast.tasks[0]));
   t.deepEqual(validate(ast), [msg]);  
 
   ast = Object.create(ast);
-  ast.tasks[0].a = ['foo', 1]; //err should be arr of strings
-  msg = sprintf('cbTask requires a to be an array of string param names - %s',
+  ast.tasks[0].in = ['foo', 1]; //err should be arr of strings
+  msg = sprintf('cbTask requires in to be an array of string param names - %s',
                     util.inspect(ast.tasks[0]));
   t.deepEqual(validate(ast), [msg]);  
   t.end();
 });
 
-test('cbTask verifies cb type', function (t) {
+test('cbTask verifies out type', function (t) {
   var ast = {
     inParams: ['a'], 
-    tasks: [{ type: 'cb', f: foo, a: [], cb: [] }],
-    outTask: { a: ['bar'] }
+    tasks: [{ type: 'cb', f: foo, in: [], out: [] }],
+    outTask: { in: ['bar'] }
   };
-  ast.tasks[0].cb = 'foo'; //err should be arr of strings
-  var msg = sprintf('cbTask requires cb to be an array of string param names - %s',
+  ast.tasks[0].out = 'foo'; //err should be arr of strings
+  var msg = sprintf('cbTask requires out to be an array of string param names - %s',
                     util.inspect(ast.tasks[0]));
   t.deepEqual(validate(ast), [msg]);  
 
   ast = Object.create(ast);
-  ast.tasks[0].cb = ['foo', 1]; //err should be arr of strings
-  msg = sprintf('cbTask requires cb to be an array of string param names - %s',
+  ast.tasks[0].out = ['foo', 1]; //err should be arr of strings
+  msg = sprintf('cbTask requires out to be an array of string param names - %s',
                     util.inspect(ast.tasks[0]));
   t.deepEqual(validate(ast), [msg]);  
   t.end();

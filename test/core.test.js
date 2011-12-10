@@ -15,16 +15,16 @@ test('set and validate AST', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [
-      { f: multiply, a: ['a', 'b'], cb: ['c'] }
+      { f: multiply, in: ['a', 'b'], out: ['c'] }
     ],
-    outTask: { a: ['c'] }
+    outTask: { in: ['c'] }
   });
   t.deepEqual(errors, [], 'should set and validate as true');
   t.deepEqual(fn.ast.inParams, ['a', 'b']);
   t.deepEqual(fn.ast.tasks, [
-      { f: multiply, a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'multiply' }
+      { f: multiply, in: ['a', 'b'], out: ['c'], type: 'cb', name: 'multiply' }
     ]);
-  t.deepEqual(fn.ast.outTask, { a: ['c'], type: 'finalcb' }); 
+  t.deepEqual(fn.ast.outTask, { in: ['c'], type: 'finalcb' }); 
   t.end();
 });
 
@@ -33,19 +33,19 @@ test('unnamed tasks will be assigned unique names', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [
-      { f: multiply, a: ['a', 'b'], cb: ['c'] },
-      { f: multiply, a: ['a', 'b'], cb: ['d'], name: 'multiply' },
-      { f: multiply, a: ['a', 'b'], cb: ['e'], name: 'times' },
-      { f: multiply, a: ['a', 'b'], cb: ['f'] }
+      { f: multiply, in: ['a', 'b'], out: ['c'] },
+      { f: multiply, in: ['a', 'b'], out: ['d'], name: 'multiply' },
+      { f: multiply, in: ['a', 'b'], out: ['e'], name: 'times' },
+      { f: multiply, in: ['a', 'b'], out: ['f'] }
     ],
-    outTask: { a: ['c'] }
+    outTask: { in: ['c'] }
   });
   t.deepEqual(errors, [], 'should set and validate as true');
   t.deepEqual(fn.ast.tasks, [
-      { f: multiply, a: ['a', 'b'], cb: ['c'], type: 'cb', name: 'multiply_0' },
-      { f: multiply, a: ['a', 'b'], cb: ['d'], name: 'multiply', type: 'cb' },
-      { f: multiply, a: ['a', 'b'], cb: ['e'], name: 'times', type: 'cb' },
-      { f: multiply, a: ['a', 'b'], cb: ['f'], type: 'cb', name: 'multiply_3' }
+      { f: multiply, in: ['a', 'b'], out: ['c'], type: 'cb', name: 'multiply_0' },
+      { f: multiply, in: ['a', 'b'], out: ['d'], name: 'multiply', type: 'cb' },
+      { f: multiply, in: ['a', 'b'], out: ['e'], name: 'times', type: 'cb' },
+      { f: multiply, in: ['a', 'b'], out: ['f'], type: 'cb', name: 'multiply_3' }
     ]);
   t.end();
 });
@@ -56,9 +56,9 @@ test('execution with no errors should call callback with result', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [
-      { f: multiply, a: ['a', 'b'], cb: ['c'] }
+      { f: multiply, in: ['a', 'b'], out: ['c'] }
     ],
-    outTask: { a: ['c'] }
+    outTask: { in: ['c'] }
   });
   t.deepEqual(errors, [], 'no validation errors');
   fn(2, 3, function (err, c) {
@@ -74,10 +74,10 @@ test('multi-step', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [    
-      { f: multiply, a: ['a', 'b'], cb: ['c'] },
-      { f: add, a: ['c', 'b'], cb: ['d'] }
+      { f: multiply, in: ['a', 'b'], out: ['c'] },
+      { f: add, in: ['c', 'b'], out: ['d'] }
     ],
-    outTask: { a: ['c', 'd'] }
+    outTask: { in: ['c', 'd'] }
   });
   t.deepEqual(errors, [], 'no validation errors');
 
@@ -96,10 +96,10 @@ test('sets obj values', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b', 'c'],
     tasks: [    
-      { f: multiply, a: ['a', 'b'], cb: ['c.mult'] },
-      { f: fnRetsSum, a: ['c.mult', 'b'], ret: 'c.sum' }
+      { f: multiply, in: ['a', 'b'], out: ['c.mult'] },
+      { f: fnRetsSum, in: ['c.mult', 'b'], out: ['c.sum'], type: 'ret' }
     ],
-    outTask: { a: ['c.mult', 'c.sum', 'c'] }
+    outTask: { in: ['c.mult', 'c.sum', 'c'] }
   });
   t.deepEqual(errors, [], 'no validation errors');
 
@@ -118,10 +118,10 @@ test('error when cant complete', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b', 'c'],
     tasks: [    
-      { f: multiply, a: ['a', 'b'], cb: ['c.mult'] },
-      { f: fnRetsSum, a: ['c.bad', 'b'], ret: 'c.sum' }
+      { f: multiply, in: ['a', 'b'], out: ['c.mult'] },
+      { f: fnRetsSum, in: ['c.bad', 'b'], out: ['c.sum'], type: 'ret' }
     ],
-    outTask: { a: ['c.mult', 'c.sum', 'c'] }
+    outTask: { in: ['c.mult', 'c.sum', 'c'] }
   });
   t.deepEqual(errors, [], 'no validation errors');
 
@@ -140,10 +140,10 @@ test('objects', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [    
-      { f: retObj, a: ['a.foo', 'b'], cb: ['c'] },
-      { f: concat, a: ['c.bar', 'b'], cb: ['d'] }
+      { f: retObj, in: ['a.foo', 'b'], out: ['c'] },
+      { f: concat, in: ['c.bar', 'b'], out: ['d'] }
     ],
-    outTask: { a: ['c', 'd.result'] }
+    outTask: { in: ['c', 'd.result'] }
   });
   t.deepEqual(errors, [], 'no validation errors');
 
@@ -165,10 +165,10 @@ test('objects from container', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [    
-      { f: C.retObj, a: ['a.foo', 'b'], cb: ['c'] },
-      { f: C.concat, a: ['c.bar', 'b'], cb: ['d'] }
+      { f: C.retObj, in: ['a.foo', 'b'], out: ['c'] },
+      { f: C.concat, in: ['c.bar', 'b'], out: ['d'] }
     ],
-    outTask: { a: ['c', 'd.result'] }
+    outTask: { in: ['c', 'd.result'] }
   });
   t.deepEqual(errors, [], 'no validation errors');
 
@@ -190,10 +190,10 @@ test('objects from container input arg', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b', 'CONT'],
     tasks: [    
-      { f: 'CONT.retObj', a: ['a.foo', 'b'], cb: ['c'] },
-      { f: 'CONT.concat', a: ['c.bar', 'b'], cb: ['d'] }
+      { f: 'CONT.retObj', in: ['a.foo', 'b'], out: ['c'] },
+      { f: 'CONT.concat', in: ['c.bar', 'b'], out: ['d'] }
     ],
-    outTask: { a: ['c', 'd.result'] }
+    outTask: { in: ['c', 'd.result'] }
   });
   t.deepEqual(errors, [], 'no validation errors');
 
@@ -216,10 +216,10 @@ test('use locals for functions', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [    
-      { f: 'retObj', a: ['a.foo', 'b'], cb: ['c'] },
-      { f: 'concat', a: ['c.bar', 'b'], cb: ['d'] }
+      { f: 'retObj', in: ['a.foo', 'b'], out: ['c'] },
+      { f: 'concat', in: ['c.bar', 'b'], out: ['d'] }
     ],
-    outTask: { a: ['c', 'd.result'] },
+    outTask: { in: ['c', 'd.result'] },
     locals: locals
   });
   t.deepEqual(errors, [], 'no validation errors');
@@ -242,10 +242,10 @@ test('objects from locals', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [    
-      { f: 'CONT.retObj', a: ['a.foo', 'b'], cb: ['c'] },
-      { f: 'CONT.concat', a: ['c.bar', 'b'], cb: ['d'] }
+      { f: 'CONT.retObj', in: ['a.foo', 'b'], out: ['c'] },
+      { f: 'CONT.concat', in: ['c.bar', 'b'], out: ['d'] }
     ],
-    outTask: { a: ['c', 'd.result'] },
+    outTask: { in: ['c', 'd.result'] },
     locals: { CONT: CONT }
   });
   t.deepEqual(errors, [], 'no validation errors');
@@ -265,10 +265,10 @@ test('multi-step func throws, cb with error', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [    
-      { f: multiply, a: ['a', 'b'], cb: ['c'] },
-      { f: badFunc, a: ['c', 'b'], cb: ['d'] }
+      { f: multiply, in: ['a', 'b'], out: ['c'] },
+      { f: badFunc, in: ['c', 'b'], out: ['d'] }
     ],
-    outTask: { a: ['c', 'd'] }
+    outTask: { in: ['c', 'd'] }
   });
   t.deepEqual(errors, [], 'no validation errors');
 
@@ -284,11 +284,11 @@ test('multi-step func cb err, cb with error', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [    
-      { f: multiply, a: ['a', 'b'], cb: ['c'] },
-      { f: badF2, a: ['c', 'b'], cb: ['d'] },
-      { f: add, a: ['d', 'b'], cb: ['e'] }
+      { f: multiply, in: ['a', 'b'], out: ['c'] },
+      { f: badF2, in: ['c', 'b'], out: ['d'] },
+      { f: add, in: ['d', 'b'], out: ['e'] }
     ],
-    outTask: { a: ['c', 'e'] }
+    outTask: { in: ['c', 'e'] }
   });
   t.deepEqual(errors, [], 'no validation errors');
 
@@ -305,10 +305,10 @@ test('selectFirst with first succeeding', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [    
-      { f: multiply, a: ['a', 'b'], cb: ['c'] },
-      { f: add, a: ['a', 'b'], cb: ['c'], after: ['multiply'] }
+      { f: multiply, in: ['a', 'b'], out: ['c'] },
+      { f: add, in: ['a', 'b'], out: ['c'], after: ['multiply'] }
     ],
-    outTask: { type: 'finalcbFirst', a: ['c'] }
+    outTask: { type: 'finalcbFirst', in: ['c'] }
   });
   t.deepEqual(errors, [], 'no validation errors');
 
@@ -337,11 +337,11 @@ test('selectFirst with third succeeding', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [    
-      { f: noSuccess, a: ['a', 'b'], cb: ['c'] },
-      { f: noSuccessNull, a: ['a', 'b'], cb: ['c'], after: ['noSuccess'] },
-      { f: add, a: ['a', 'b'], cb: ['c'], after: ['noSuccessNull'] }
+      { f: noSuccess, in: ['a', 'b'], out: ['c'] },
+      { f: noSuccessNull, in: ['a', 'b'], out: ['c'], after: ['noSuccess'] },
+      { f: add, in: ['a', 'b'], out: ['c'], after: ['noSuccessNull'] }
     ],
-    outTask: { type: 'finalcbFirst', a: ['c'] }
+    outTask: { type: 'finalcbFirst', in: ['c'] }
   });
   t.deepEqual(errors, [], 'no validation errors');
 
@@ -373,12 +373,12 @@ test('selectFirst forces order with third succeeding', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [    
-      { f: noSuccess, a: ['a', 'b'], cb: ['c'] },
-      { f: noSuccessNull, a: ['a', 'b'], cb: ['c'], after: ['noSuccess']},
-      { f: add, a: ['a', 'b'], cb: ['c'], after: ['noSuccessNull'] },
-      { f: noSuccess, a: ['a', 'b'], cb: ['c'], after: ['add'] }
+      { f: noSuccess, in: ['a', 'b'], out: ['c'] },
+      { f: noSuccessNull, in: ['a', 'b'], out: ['c'], after: ['noSuccess']},
+      { f: add, in: ['a', 'b'], out: ['c'], after: ['noSuccessNull'] },
+      { f: noSuccess, in: ['a', 'b'], out: ['c'], after: ['add'] }
     ],
-    outTask: { type: 'finalcbFirst', a: ['c'] }
+    outTask: { type: 'finalcbFirst', in: ['c'] }
   });
   t.deepEqual(errors, [], 'no validation errors');
 
@@ -413,11 +413,11 @@ test('selectFirst using direct returns', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [    
-      { f: noSuccess, a: ['a', 'b'], ret: 'c' },
-      { f: noSuccessNull, a: ['a', 'b'], ret: 'c', after: ['noSuccess'] },
-      { f: addRet, a: ['a', 'b'], ret: 'c', after: ['noSuccessNull'] }
+      { f: noSuccess, in: ['a', 'b'], out: ['c'], type: 'ret' },
+      { f: noSuccessNull, in: ['a', 'b'], out: ['c'], type: 'ret', after: ['noSuccess'] },
+      { f: addRet, in: ['a', 'b'], out: ['c'], type: 'ret', after: ['noSuccessNull'] }
     ],
-    outTask: { type: 'finalcbFirst', a: ['c'] }
+    outTask: { type: 'finalcbFirst', in: ['c'] }
   });
   t.deepEqual(errors, [], 'no validation errors');
 
