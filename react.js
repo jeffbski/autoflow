@@ -7,5 +7,5 @@ module.exports.options = core.options;
 
 // interfaces
 module.exports.fstrDefine = require('./lib/fstr.js');
-module.exports.pcode = require('./lib/pcode.js');
+module.exports.pcodeDefine = require('./lib/pcode.js');
 module.exports.chainDefine = require('./lib/chain.js');
