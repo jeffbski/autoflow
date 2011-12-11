@@ -12,9 +12,9 @@ test('execOptions as first param', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [    
-      { f: multiply, in: ['a', 'b'], out: ['c'] }
+      { f: multiply, a: ['a', 'b'], out: ['c'] }
     ],
-    outTask: { in: ['c'] }
+    outTask: { a: ['c'] }
   });
   t.deepEqual(errors, [], 'no validation errors');
 

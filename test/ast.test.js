@@ -17,12 +17,12 @@ test('mixed', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['res', 'prefstr', 'poststr'],
     tasks: [
-      { f: load,    in: ['res'],              out: ['lres'] },
-      { f: upper,   in: ['lres'],             out: ['ulres'], type: 'ret'  },
-      { f: prefix,  in: ['prefstr', 'ulres'], out: ['plres'] },
-      { f: postfix, in: ['plres', 'poststr'], out: ['plresp'] }
+      { f: load,    a: ['res'],              out: ['lres'] },
+      { f: upper,   a: ['lres'],             out: ['ulres'], type: 'ret'  },
+      { f: prefix,  a: ['prefstr', 'ulres'], out: ['plres'] },
+      { f: postfix, a: ['plres', 'poststr'], out: ['plresp'] }
     ],
-    outTask: { in: ['plresp'] }
+    outTask: { a: ['plresp'] }
   });
 
   t.deepEqual(errors, []);
@@ -45,13 +45,13 @@ test('cb with err', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['res', 'prefstr', 'poststr'],
     tasks: [
-      { f: load,      in: ['res'],               out: ['lres'] },
-      { f: upper,     in: ['lres'],              out: ['ulres'], type: 'ret' },
-      { f: makeError, in: ['ulres'],             out: ['na']  },
-      { f: prefix,    in: ['prefstr', 'na'],     out: ['plres'] },
-      { f: postfix,   in: ['plres', 'poststr'],  out: ['plresp'] }
+      { f: load,      a: ['res'],               out: ['lres'] },
+      { f: upper,     a: ['lres'],              out: ['ulres'], type: 'ret' },
+      { f: makeError, a: ['ulres'],             out: ['na']  },
+      { f: prefix,    a: ['prefstr', 'na'],     out: ['plres'] },
+      { f: postfix,   a: ['plres', 'poststr'],  out: ['plresp'] }
     ],
-    outTask: { in: ['plresp'] }
+    outTask: { a: ['plresp'] }
   });
 
   t.deepEqual(errors, []);

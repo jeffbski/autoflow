@@ -10,31 +10,31 @@ function bar() { }
 function cat() { }
 
 test('new task is not complete', function (t) {
-  var task = new RetTask({ type: 'ret', f: foo, in: [], out: [] });
+  var task = new RetTask({ type: 'ret', f: foo, a: [], out: [] });
   t.equal(task.isComplete(), false);
   t.end();
 });
 
 test('ready task is not complete', function (t) {
-  var task = new RetTask({ type: 'ret', f: foo, in: [], out: [], status: 'ready'});
+  var task = new RetTask({ type: 'ret', f: foo, a: [], out: [], status: 'ready'});
   t.equal(task.isComplete(), false);
   t.end();
 });
 
 test('running task is not complete', function (t) {
-  var task = new RetTask({ type: 'ret', f: foo, in: [], out: [], status: 'running'});
+  var task = new RetTask({ type: 'ret', f: foo, a: [], out: [], status: 'running'});
   t.equal(task.isComplete(), false);
   t.end();
 });
 
 test('complete task is complete', function (t) {
-  var task = new RetTask({ type: 'ret', f: foo, in: [], out: [], status: 'complete' });
+  var task = new RetTask({ type: 'ret', f: foo, a: [], out: [], status: 'complete' });
   t.equal(task.isComplete(), true);
   t.end();
 });
 
 test('task with any status is not ready', function (t) {
-  var task = new RetTask({ type: 'ret', f: foo, in: [], out: [], status: 'complete' });
+  var task = new RetTask({ type: 'ret', f: foo, a: [], out: [], status: 'complete' });
   var vCon = VContext.create([], []);
   var tasksByName = { foo: task };
   t.equal(task.isReady(vCon, tasksByName), false);
@@ -48,7 +48,7 @@ test('task with any status is not ready', function (t) {
 });
 
 test('no args defined, no after -> not ready', function (t) {
-  var task = new RetTask({ type: 'ret', f: foo, in: ['b'], out: [] });
+  var task = new RetTask({ type: 'ret', f: foo, a: ['b'], out: [] });
   var vCon = VContext.create([], []);
   var tasksByName = { foo: task };
   t.equal(task.isReady(vCon, tasksByName), false);
@@ -56,7 +56,7 @@ test('no args defined, no after -> not ready', function (t) {
 });
 
 test('obj prop undefined -> NOT ready', function (t) {
-  var task = new RetTask({ type: 'ret', f: foo, in: ['b', 'c.prop'], out: [] });
+  var task = new RetTask({ type: 'ret', f: foo, a: ['b', 'c.prop'], out: [] });
   var vCon = VContext.create([1, {}], ['b', 'c']);
   var tasksByName = { foo: task };
   t.equal(task.isReady(vCon, tasksByName), false);
@@ -64,7 +64,7 @@ test('obj prop undefined -> NOT ready', function (t) {
 });
 
 test('all args defined, no after, out no obj parent -> NOT ready', function (t) {
-  var task = new RetTask({ type: 'ret', f: foo, in: ['b', 'c'], out: ['d.e'] });
+  var task = new RetTask({ type: 'ret', f: foo, a: ['b', 'c'], out: ['d.e'] });
   var vCon = VContext.create([1, null], ['b', 'c']);
   var tasksByName = { foo: task };
   t.equal(task.isReady(vCon, tasksByName), false, 'false if out objparent undef');  
@@ -72,7 +72,7 @@ test('all args defined, no after, out no obj parent -> NOT ready', function (t) 
 });
 
 test('all args defined, no after, out no obj.par.par -> NOT ready', function (t) {
-  var task = new RetTask({ type: 'ret', f: foo, in: ['b', 'c'], out: ['c.e.f'] });
+  var task = new RetTask({ type: 'ret', f: foo, a: ['b', 'c'], out: ['c.e.f'] });
   var vCon = VContext.create([1, { }], ['b', 'c']);
   var tasksByName = { foo: task };
   t.equal(task.isReady(vCon, tasksByName), false, 'false if out objparent undef');  
@@ -80,7 +80,7 @@ test('all args defined, no after, out no obj.par.par -> NOT ready', function (t)
 });
 
 test('all args defined, no after, out null obj parent -> NOT ready', function (t) {
-  var task = new RetTask({ type: 'ret', f: foo, in: ['b', 'c'], out: ['c.e'] });
+  var task = new RetTask({ type: 'ret', f: foo, a: ['b', 'c'], out: ['c.e'] });
   var vCon = VContext.create([1, null], ['b', 'c']);
   var tasksByName = { foo: task };
   t.equal(task.isReady(vCon, tasksByName), false, 'false if out objparent null');  
@@ -88,7 +88,7 @@ test('all args defined, no after, out null obj parent -> NOT ready', function (t
 });
 
 test('all args defined, no after, out null obj.par.par -> NOT ready', function (t) {
-  var task = new RetTask({ type: 'ret', f: foo, in: ['b', 'c'], out: ['c.e.f'] });
+  var task = new RetTask({ type: 'ret', f: foo, a: ['b', 'c'], out: ['c.e.f'] });
   var vCon = VContext.create([1, { e: null }], ['b', 'c']);
   var tasksByName = { foo: task };
   t.equal(task.isReady(vCon, tasksByName), false, 'false if out objparent null');  
@@ -96,7 +96,7 @@ test('all args defined, no after, out null obj.par.par -> NOT ready', function (
 });
 
 test('all args defined, no after -> ready', function (t) {
-  var task = new RetTask({ type: 'ret', f: foo, in: ['b', 'c'], out: [] });
+  var task = new RetTask({ type: 'ret', f: foo, a: ['b', 'c'], out: [] });
   var vCon = VContext.create([1, null], ['b', 'c']);
   var tasksByName = { foo: task };
   t.equal(task.isReady(vCon, tasksByName), true);
@@ -104,7 +104,7 @@ test('all args defined, no after -> ready', function (t) {
 });
 
 test('all args defined, obj prop null, no after -> ready', function (t) {
-  var task = new RetTask({ type: 'ret', f: foo, in: ['b', 'c.prop'], out: [] });
+  var task = new RetTask({ type: 'ret', f: foo, a: ['b', 'c.prop'], out: [] });
   var vCon = VContext.create([1, { prop: null }], ['b', 'c']);
   var tasksByName = { foo: task };
   t.equal(task.isReady(vCon, tasksByName), true);
@@ -112,10 +112,10 @@ test('all args defined, obj prop null, no after -> ready', function (t) {
 });
 
 test('all args defined, after not complete -> NOT ready', function (t) {
-  var tcat = new RetTask({ type: 'ret', f: cat, in: [], out: [], status: 'complete' });
-  var tbar = new RetTask({ type: 'ret', f: bar, in: [], out: [], status: 'running' });
+  var tcat = new RetTask({ type: 'ret', f: cat, a: [], out: [], status: 'complete' });
+  var tbar = new RetTask({ type: 'ret', f: bar, a: [], out: [], status: 'running' });
   var task = new RetTask(
-    { type: 'ret', f: foo, in: ['b', 'c'], out: [], after: ['cat', 'bar']});
+    { type: 'ret', f: foo, a: ['b', 'c'], out: [], after: ['cat', 'bar']});
   var vCon = VContext.create([1, 2], ['b', 'c']);
   var tasksByName = { foo: task, bar: tbar, cat: tcat };
   t.equal(task.isReady(vCon, tasksByName), false);  
@@ -123,10 +123,10 @@ test('all args defined, after not complete -> NOT ready', function (t) {
 });
 
 test('all args defined, after all complete -> ready', function (t) {
-  var tcat = new RetTask({ type: 'ret', f: cat, in: [], out: [], status: 'complete' });
-  var tbar = new RetTask({ type: 'ret', f: bar, in: [], out: [], status: 'complete' });
+  var tcat = new RetTask({ type: 'ret', f: cat, a: [], out: [], status: 'complete' });
+  var tbar = new RetTask({ type: 'ret', f: bar, a: [], out: [], status: 'complete' });
   var task = new RetTask(
-    { type: 'ret', f: foo, in: ['b', 'c'], out: [], after: ['cat', 'bar']});
+    { type: 'ret', f: foo, a: ['b', 'c'], out: [], after: ['cat', 'bar']});
   var vCon = VContext.create([1, 2], ['b', 'c']);
   var tasksByName = { foo: task, bar: tbar, cat: tcat };
   t.equal(task.isReady(vCon, tasksByName), true);  
@@ -134,7 +134,7 @@ test('all args defined, after all complete -> ready', function (t) {
 });
 
 test('string without . is not method call', function (t) {
-  var task = new RetTask({ type: 'ret', f: 'foo', in: [], out: ['b'] });
+  var task = new RetTask({ type: 'ret', f: 'foo', a: [], out: ['b'] });
   t.equal(task.isMethodCall(), false);
   task.f = null;
   t.equal(task.isMethodCall(), false);
@@ -142,7 +142,7 @@ test('string without . is not method call', function (t) {
 });
 
 test('string with . is method call', function (t) {
-  var task = new RetTask({ type: 'ret', f: 'foo.bar', in: [], out: ['b'] });
+  var task = new RetTask({ type: 'ret', f: 'foo.bar', a: [], out: ['b'] });
   t.equal(task.isMethodCall(), true);
   task.f = 'foo.bar.baz';
   t.equal(task.isMethodCall(), true);
@@ -150,7 +150,7 @@ test('string with . is method call', function (t) {
 });
 
 test('undefined or null fn - functionExists', function (t) {
-  var task = new RetTask({ type: 'ret', f: 'foo', in: [], out: ['b'] });
+  var task = new RetTask({ type: 'ret', f: 'foo', a: [], out: ['b'] });
   var vCon = VContext.create([], []);
   task.f = null;
   t.notOk(task.functionExists(vCon));
@@ -165,14 +165,14 @@ test('undefined or null fn - functionExists', function (t) {
 });
 
 test('functionExists', function (t) {
-  var task = new RetTask({ type: 'ret', f: foo, in: [], out: ['b'] });
+  var task = new RetTask({ type: 'ret', f: foo, a: [], out: ['b'] });
   var vCon = VContext.create([], []);
   t.ok(task.functionExists(vCon));
   t.end();
 });
 
 test('method functionExists', function (t) {
-  var task = new RetTask({ type: 'ret', f: 'foo.b', in: [], out: ['b'] });
+  var task = new RetTask({ type: 'ret', f: 'foo.b', a: [], out: ['b'] });
   var vCon = VContext.create([{b: bar}], ['foo']);
   t.ok(task.functionExists(vCon));
   task.f = 'foo.bar.cat';
@@ -182,14 +182,14 @@ test('method functionExists', function (t) {
 });
 
 test('getMethodObj non-existent return undefined', function (t) {
-  var task = new RetTask({ type: 'ret', f: 'foo.b.c', in: [], out: ['b'] });
+  var task = new RetTask({ type: 'ret', f: 'foo.b.c', a: [], out: ['b'] });
   var vCon = VContext.create([{}], ['foo']);
   t.equal(task.getMethodObj(vCon), undefined);
   t.end();
 });
 
 test('getMethodObj returns object', function (t) {
-  var task = new RetTask({ type: 'ret', f: 'foo.b', in: [], out: ['b'] });
+  var task = new RetTask({ type: 'ret', f: 'foo.b', a: [], out: ['b'] });
   var vCon = VContext.create([{b: bar}], ['foo']);
   t.deepEqual(task.getMethodObj(vCon), { b: bar});
   t.end();

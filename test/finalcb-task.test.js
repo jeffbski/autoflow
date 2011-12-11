@@ -30,8 +30,8 @@ test('cb needs to be a function or throws exception', function (t) {
 
 test('valid fn creates outTask', function (t) {
   function foo() { }
-  var finalTask = FinalCbTask.create({ in: ['bar', 'baz']}, foo);
+  var finalTask = FinalCbTask.create({ a: ['bar', 'baz']}, foo);
   t.equal(finalTask.f, foo);
-  t.deepEqual(finalTask.in, ['bar', 'baz']);
+  t.deepEqual(finalTask.a, ['bar', 'baz']);
   t.end();
 });

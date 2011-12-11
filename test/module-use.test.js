@@ -64,17 +64,17 @@ test('setAndValidateAST sets the ast and validates returning errors', function (
   var errors = r.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [
-      { f: foo, in: ['a'], out: ['c'] },
-      { f: bar, in: ['b'], out: ['d'] }
+      { f: foo, a: ['a'], out: ['c'] },
+      { f: bar, a: ['b'], out: ['d'] }
     ],
-    outTask: { in: ['c', 'd'] }
+    outTask: { a: ['c', 'd'] }
   });
   t.deepEqual(r.ast.inParams, ['a', 'b'],      'ast.inParams() should match array just set');
   t.deepEqual(r.ast.tasks, [
-    { f: foo, in: ['a'], out: ['c'], type: 'cb', name: 'foo' },
-    { f: bar, in: ['b'], out: ['d'], type: 'cb', name: 'bar' }
+    { f: foo, a: ['a'], out: ['c'], type: 'cb', name: 'foo' },
+    { f: bar, a: ['b'], out: ['d'], type: 'cb', name: 'bar' }
   ]);
-  t.deepEqual(r.ast.outTask, { in: ['c', 'd'], type: 'finalcb' },      'should return obj just set'); 
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' },      'should return obj just set'); 
   t.end();
 });
 

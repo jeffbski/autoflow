@@ -17,7 +17,7 @@ test('no arguments -> empty inParams, tasks, outTask', function (t) {
   var r = fstr();
   t.deepEqual(r.ast.inParams, []);
   t.deepEqual(r.ast.tasks, []);
-  t.deepEqual(r.ast.outTask, { in: [], type: 'finalcb' });
+  t.deepEqual(r.ast.outTask, { a: [], type: 'finalcb' });
   t.end();
 });
 
@@ -25,7 +25,7 @@ test('empty first string -> empty inParams, tasks, outTask', function (t) {
   var r = fstr('');
   t.deepEqual(r.ast.inParams, []);
   t.deepEqual(r.ast.tasks, []);
-  t.deepEqual(r.ast.outTask, { in: [], type: 'finalcb' });
+  t.deepEqual(r.ast.outTask, { a: [], type: 'finalcb' });
   t.end();
 });
 
@@ -34,7 +34,7 @@ test('single first string -> inParams["foo"], empty tasks, outTask', function (t
   var r = fstr('foo');
   t.deepEqual(r.ast.inParams, ['foo']);
   t.deepEqual(r.ast.tasks, []);
-  t.deepEqual(r.ast.outTask, { in: [], type: 'finalcb' });
+  t.deepEqual(r.ast.outTask, { a: [], type: 'finalcb' });
   t.end();
 });
 
@@ -43,7 +43,7 @@ test('triple first string -> inParams["foo", "bar", "baz"], empty tasks, outTask
   var r = fstr(' foo,   bar,baz  ');
   t.deepEqual(r.ast.inParams, ['foo', 'bar', 'baz']);
   t.deepEqual(r.ast.tasks, []);
-  t.deepEqual(r.ast.outTask, { in: [], type: 'finalcb' });
+  t.deepEqual(r.ast.outTask, { a: [], type: 'finalcb' });
   t.end();
 });
 
@@ -53,9 +53,9 @@ test('single task, single out params', function (t) {
   ], 'c');
   t.deepEqual(r.ast.inParams, []);
   t.deepEqual(r.ast.tasks, [
-    { f: falpha, in: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
+    { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
   ]);
-  t.deepEqual(r.ast.outTask, { in: ['c'], type: 'finalcb' });
+  t.deepEqual(r.ast.outTask, { a: ['c'], type: 'finalcb' });
   t.end();  
 });
 
@@ -65,9 +65,9 @@ test('single task, err and out params', function (t) {
   ], 'err, c');
   t.deepEqual(r.ast.inParams, []);
   t.deepEqual(r.ast.tasks, [
-    { f: falpha, in: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
+    { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
   ]);
-  t.deepEqual(r.ast.outTask, { in: ['c'], type: 'finalcb' });
+  t.deepEqual(r.ast.outTask, { a: ['c'], type: 'finalcb' });
   t.end();  
 });
 
@@ -77,9 +77,9 @@ test('single task, ERR and out params', function (t) {
   ], 'ERR, c');
   t.deepEqual(r.ast.inParams, []);
   t.deepEqual(r.ast.tasks, [
-    { f: falpha, in: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
+    { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
   ]);
-  t.deepEqual(r.ast.outTask, { in: ['c'], type: 'finalcb' });
+  t.deepEqual(r.ast.outTask, { a: ['c'], type: 'finalcb' });
   t.end();  
 });
 
@@ -89,9 +89,9 @@ test('cb used in defs is simply ignored', function (t) {
   ], 'err, c');
   t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
-    { f: falpha, in: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
+    { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
   ]);
-  t.deepEqual(r.ast.outTask, { in: ['c'], type: 'finalcb' });
+  t.deepEqual(r.ast.outTask, { a: ['c'], type: 'finalcb' });
   t.end();  
 });
 
@@ -101,9 +101,9 @@ test('callback used in defs is simply ignored', function (t) {
   ], 'err, c');
   t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
-    { f: falpha, in: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
+    { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
   ]);
-  t.deepEqual(r.ast.outTask, { in: ['c'], type: 'finalcb' });
+  t.deepEqual(r.ast.outTask, { a: ['c'], type: 'finalcb' });
   t.end();  
 });
 
@@ -114,10 +114,10 @@ test('two inputs, two tasks, two out params', function (t) {
   ], 'c, d');
   t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
-    { f: falpha, in: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
-    { f: fbeta,  in: ['a', 'b'], out: ['d', 'e'], type: 'cb', name: 'fbeta'}
+    { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
+    { f: fbeta,  a: ['a', 'b'], out: ['d', 'e'], type: 'cb', name: 'fbeta'}
   ]);
-  t.deepEqual(r.ast.outTask, { in: ['c', 'd'], type: 'finalcb' });
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' });
   t.end();  
 });
 
@@ -128,10 +128,10 @@ test('two inputs, two mixed tasks, two out params', function (t) {
   ], 'c, d');
   t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
-    { f: falpha, in: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
-    { f: fbeta,  in: ['a', 'b'], out: ['d'], type: 'ret', name: 'fbeta'}
+    { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
+    { f: fbeta,  a: ['a', 'b'], out: ['d'], type: 'ret', name: 'fbeta'}
   ]);
-  t.deepEqual(r.ast.outTask, { in: ['c', 'd'], type: 'finalcb' });
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' });
   t.end();  
 });
 
@@ -142,10 +142,10 @@ test('uses return', function (t) {
   ], 'c, d');
   t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
-    { f: falpha, in: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
-    { f: fbeta,  in: ['a', 'b'], out: ['d'], type: 'ret', name: 'fbeta'}
+    { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
+    { f: fbeta,  a: ['a', 'b'], out: ['d'], type: 'ret', name: 'fbeta'}
   ]);
-  t.deepEqual(r.ast.outTask, { in: ['c', 'd'], type: 'finalcb' });
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' });
   t.end();  
 });
 
@@ -156,10 +156,10 @@ test('uses Return', function (t) {
   ], 'c, d');
   t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
-    { f: falpha, in: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
-    { f: fbeta,  in: ['a', 'b'], out: ['d'], type: 'ret', name: 'fbeta'}
+    { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
+    { f: fbeta,  a: ['a', 'b'], out: ['d'], type: 'ret', name: 'fbeta'}
   ]);
-  t.deepEqual(r.ast.outTask, { in: ['c', 'd'], type: 'finalcb' });
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' });
   t.end();  
 });
 
@@ -170,10 +170,10 @@ test('uses RETURN', function (t) {
   ], 'c, d');
   t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
-    { f: falpha, in: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
-    { f: fbeta,  in: ['a', 'b'], out: ['d'], type: 'ret', name: 'fbeta'}
+    { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
+    { f: fbeta,  a: ['a', 'b'], out: ['d'], type: 'ret', name: 'fbeta'}
   ]);
-  t.deepEqual(r.ast.outTask, { in: ['c', 'd'], type: 'finalcb' });
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' });
   t.end();  
 });
 
@@ -184,10 +184,10 @@ test('uses RETURNS', function (t) {
   ], 'c, d');
   t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
-    { f: falpha, in: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
-    { f: fbeta,  in: ['a', 'b'], out: ['d'], type: 'ret', name: 'fbeta'}
+    { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
+    { f: fbeta,  a: ['a', 'b'], out: ['d'], type: 'ret', name: 'fbeta'}
   ]);
-  t.deepEqual(r.ast.outTask, { in: ['c', 'd'], type: 'finalcb' });
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' });
   t.end();  
 });
 
@@ -198,10 +198,10 @@ test('two inputs, two mixed tasks, two out params, opts', function (t) {
   ], 'c, d');
   t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
-    { after: fbeta, f: falpha, in: ['a'], out: ['c'], type: 'cb', name: 'falpha'},
-    { f: fbeta,  in: ['a', 'b'], out: ['d'], type: 'ret', name: 'fbeta'}
+    { after: fbeta, f: falpha, a: ['a'], out: ['c'], type: 'cb', name: 'falpha'},
+    { f: fbeta,  a: ['a', 'b'], out: ['d'], type: 'ret', name: 'fbeta'}
   ]);
-  t.deepEqual(r.ast.outTask, { in: ['c', 'd'], type: 'finalcb' });
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' });
   t.end();  
 });
 
@@ -215,11 +215,11 @@ test('object prop task params', function (t) {
   ], 'c, e');
   t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
-    { f: falpha, in: ['a', 'b.cat'], out: ['c'], type: 'cb', name: 'falpha'},
-    { f: fbeta,  in: ['c.dog', 'b'], out: ['d'], type: 'ret', name: 'fbeta'},
-    { f: 'd.egg', in: ['c'], out: ['e'], type: 'cb', name: 'd.egg'}
+    { f: falpha, a: ['a', 'b.cat'], out: ['c'], type: 'cb', name: 'falpha'},
+    { f: fbeta,  a: ['c.dog', 'b'], out: ['d'], type: 'ret', name: 'fbeta'},
+    { f: 'd.egg', a: ['c'], out: ['e'], type: 'cb', name: 'd.egg'}
   ]);
-  t.deepEqual(r.ast.outTask, { in: ['c', 'e'], type: 'finalcb' });
+  t.deepEqual(r.ast.outTask, { a: ['c', 'e'], type: 'finalcb' });
   t.end();  
 });
 
@@ -261,9 +261,9 @@ test('selectFirst', function (t) {
   ], 'c');
   t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
-    { f: falpha, in: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
-    { f: fbeta,  in: ['a', 'b'], out: ['c'], type: 'ret', name: 'fbeta', after: ['falpha']}
+    { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
+    { f: fbeta,  a: ['a', 'b'], out: ['c'], type: 'ret', name: 'fbeta', after: ['falpha']}
   ]);
-  t.deepEqual(r.ast.outTask, { type: 'finalcbFirst', in: ['c'] });
+  t.deepEqual(r.ast.outTask, { type: 'finalcbFirst', a: ['c'] });
   t.end();  
 });
