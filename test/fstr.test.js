@@ -214,7 +214,7 @@ test('two inputs, two mixed tasks, two out params, opts', function (t) {
   ], 'c, d');
   t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
-    { after: fbeta, f: falpha, a: ['a'], out: ['c'], type: 'cb', name: 'falpha'},
+    { after: ['fbeta'], f: falpha, a: ['a'], out: ['c'], type: 'cb', name: 'falpha'},
     { f: fbeta,  a: ['a', 'b'], out: ['d'], type: 'ret', name: 'fbeta'}
   ]);
   t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' });

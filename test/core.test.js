@@ -94,6 +94,36 @@ test('multi-step', function (t) {
   });
 });  
 
+test('multi-step with after as nonarr fn', function (t) {
+  t.plan(7);
+  var fn = react();
+  var errors = fn.setAndValidateAST({
+    inParams: ['a', 'b'],
+    tasks: [    
+      { f: multiply, a: ['a', 'b'], out: ['c'], after: add },
+      { f: add, a: ['a', 'b'], out: ['d'] }
+    ],
+    outTask: { a: ['c', 'd'] }
+  });
+  t.deepEqual(errors, [], 'no validation errors');
+
+  var events = [];
+  function accumEvents(name, results, task) {
+    events.push({ name: name, results: results, task: task });
+  }
+  fn.events.on('taskComplete', accumEvents);
+  
+  fn(2, 3, function (err, c, d) {
+    t.equal(err, null);
+    t.equal(c, 6);
+    t.equal(d, 5);
+    t.equal(events.length, 2, 'should have seen one task compl events');
+    t.equal(events[0].name, 'add', 'name matches');
+    t.equal(events[1].name, 'multiply', 'name matches');
+    t.end();
+  });
+});  
+
 
 test('sets obj values', function (t) {
   t.plan(5);
