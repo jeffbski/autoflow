@@ -104,9 +104,9 @@ test('use pcode with events', function (t) {
   function multiply(a, b, cb) { cb(null, a * b); }
   function add(a, b, cb) { cb(null, a + b); }
 
-  var events = []
+  var events = [];
   function accumEvents(name, results, task) {
-    events.push( { name: name, results: results, task: task } );
+    events.push({ name: name, results: results, task: task });
   }
   
   var locals = { multiply: multiply, add: add };
@@ -138,12 +138,12 @@ test('use pcode.selectFirst with events', function (t) {
   function noSuccess(a, b, cb) {
     setTimeout(function () { cb(null); }, 100); // returns undefined result
   }
-  function noSuccessNull(a, b, cb) { cb(null, null); }; // returns null result
+  function noSuccessNull(a, b, cb) { cb(null, null); } // returns null result
   function add(a, b, cb) { cb(null, a + b); }
 
-  var events = []
+  var events = [];
   function accumEvents(name, results, task) {
-    events.push( { name: name, results: results, task: task } );
+    events.push({ name: name, results: results, task: task });
   }
   
   var locals = { noSuccess: noSuccess, noSuccessNull: noSuccessNull, add: add };
@@ -169,3 +169,77 @@ test('use pcode.selectFirst with events', function (t) {
     t.end();
   });
 });
+
+
+test('chainDefine use', function (t) {
+  t.plan(10);
+  function multiply(a, b, cb) { cb(null, a * b); }
+  function add(a, b, cb) { cb(null, a + b); }
+
+  var events = [];
+  function accumEvents(name, results, task) {
+    events.push({ name: name, results: results, task: task });
+  }
+  
+  var fn = react.chainDefine()
+    .in('a', 'b', 'cb')
+    .out('err', 'm', 's')
+    .async(multiply).in('a', 'b', 'cb').out('err', 'm')
+    .async(add).in('m', 'a', 'cb').out('err', 's')
+    .end();
+
+  fn.events.on('taskComplete', accumEvents);
+  
+  fn(2, 3, function (err, m, s) {
+    t.deepEqual(err, null, 'should not be any error');
+    t.equal(m, 6);
+    t.equal(s, 8);
+    t.equal(events.length, 2, 'should have seen two task compl events');
+    t.equal(events[0].name, 'multiply', 'name matches');
+    t.deepEqual(events[0].results, [6], 'results match');
+    t.type(events[0].task, BaseTask, 'instanceof BaseTask');
+    t.equal(events[1].name, 'add', 'name matches');
+    t.deepEqual(events[1].results, [8], 'results match');
+    t.type(events[1].task, BaseTask, 'instanceof BaseTask');
+    t.end();
+  });
+});
+
+test('use chainDefine selectFirst with events', function (t) {
+  t.plan(8);
+  function noSuccess(a, b, cb) {
+    setTimeout(function () { cb(null); }, 100); // returns undefined result
+  }
+  function noSuccessNull(a, b, cb) { cb(null, null); } // returns null result
+  function add(a, b, cb) { cb(null, a + b); }
+
+  var events = [];
+  function accumEvents(name, results, task) {
+    events.push({ name: name, results: results, task: task });
+  }
+
+  var fn = react.chainDefine()
+    .selectFirst()
+    .in('a', 'b', 'cb')
+    .out('err', 'c')
+    .async(noSuccess).in('a', 'b', 'cb').out('err', 'c')
+    .async(noSuccessNull).in('a', 'b', 'cb').out('err', 'c')
+    .async(add).in('a', 'b', 'cb').out('err', 'c')
+    .async(noSuccess).in('a', 'b', 'cb').out('err', 'c')
+    .end();
+  
+  fn.events.on('taskComplete', accumEvents);
+  
+  fn(2, 3, function (err, c) {
+    t.deepEqual(err, null, 'should not be any error');
+    t.equal(c, 5);
+    t.equal(events.length, 3, 'should have seen two task compl events');
+    t.equal(events[0].name, 'noSuccess', 'name matches');
+    t.equal(events[1].name, 'noSuccessNull', 'name matches');
+    t.equal(events[2].name, 'add', 'name matches');
+    t.deepEqual(events[2].results, [5], 'results match');
+    t.type(events[2].task, BaseTask, 'instanceof BaseTask');
+    t.end();
+  });
+});
+
