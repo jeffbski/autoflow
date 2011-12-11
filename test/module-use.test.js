@@ -11,7 +11,7 @@ var react = require('../react');
   var react = require('react');
   react.options.an_option = 'something';
   
-  var loadAndSave = react.fstr('one, two, cb -> err, result1, result2',
+  var loadAndSave = react.fstrDefine('one, two, cb -> err, result1, result2',
     foo, 'one      -> err, cat',
     bar, 'two, cat -> err, dog',
     baz, 'dog      -> err, result1',
@@ -33,7 +33,7 @@ var react = require('../react');
 test('module exports an function object with properties', function (t) {
   t.type(react, 'function', 'is a core constructor function');
   t.type(react.options, 'object', 'has property for global react options');
-  t.type(react.fstr, 'function', 'has fn property for using fstr dsl');
+  t.type(react.fstrDefine, 'function', 'has fn property for using fstr dsl');
   t.type(react.pcode, 'function', 'has fn property for using pcode dsl');
   t.type(react.chainDefine, 'function', 'has fn property for chain define');
   t.end();
