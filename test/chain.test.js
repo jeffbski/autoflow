@@ -144,6 +144,27 @@ test('two inputs, two tasks, two out params', function (t) {
   t.end();  
 });
 
+test('two inputs, two tasks, two out params, name, options', function (t) {
+  var fn = chainDefine()
+    .name('myflow')
+    .in('a', 'b', 'cb')
+    .out('err', 'c', 'd')
+    .options({ otherOptFoo: 'foo'})
+    .async(falpha).in('a', 'b', 'cb').out('err', 'c').name('myalpha')
+    .async(fbeta).in('a', 'b', 'cb').out('err', 'd', 'e').options({ bar: 'bar'})
+    .end();
+  t.deepEqual(fn.ast.inParams, ['a', 'b']);
+  t.deepEqual(fn.ast.tasks, [
+    { f: falpha, type: 'cb', a: ['a', 'b'], out: ['c'], name: 'myalpha'},
+    { f: fbeta, type: 'cb', a: ['a', 'b'], out: ['d', 'e'],
+      bar: 'bar', name: 'fbeta' }
+  ]);
+  t.deepEqual(fn.ast.outTask, { a: ['c', 'd'], type: 'finalcb' });
+  t.equal(fn.ast.name, 'myflow', 'name should match if supplied');
+  t.equal(fn.ast.otherOptFoo, 'foo', 'other options should pass through');
+  t.end();  
+});
+
 test('two inputs, two mixed tasks, two out params', function (t) {
   var fn = chainDefine()
     .in('a', 'b', 'cb')

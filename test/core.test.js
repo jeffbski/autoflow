@@ -13,18 +13,23 @@ function fnRetsSum(a, b) { return a + b; }
 test('set and validate AST', function (t) {
   var fn = react();
   var errors = fn.setAndValidateAST({
+    name: 'myflow',
     inParams: ['a', 'b'],
     tasks: [
       { f: multiply, a: ['a', 'b'], out: ['c'] }
     ],
-    outTask: { a: ['c'] }
+    outTask: { a: ['c'] },
+    otherOpt: 'foo',
+    otherOpt2: 'bar'
   });
   t.deepEqual(errors, [], 'should set and validate as true');
   t.deepEqual(fn.ast.inParams, ['a', 'b']);
   t.deepEqual(fn.ast.tasks, [
       { f: multiply, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'multiply' }
     ]);
-  t.deepEqual(fn.ast.outTask, { a: ['c'], type: 'finalcb' }); 
+  t.deepEqual(fn.ast.outTask, { a: ['c'], type: 'finalcb' });
+  t.equal(fn.ast.name, 'myflow', 'name should match if set');
+  t.equal(fn.ast.otherOpt, 'foo', 'any additional options should pass through');
   t.end();
 });
 

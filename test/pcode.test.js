@@ -92,6 +92,26 @@ test('two inputs, two tasks, two out params', function (t) {
   t.end();  
 });
 
+test('two inputs, two tasks, two out params, options', function (t) {
+  var locals = { falpha: falpha, fbeta: fbeta };
+  var r = pcode('a, b', [
+    'c := falpha(a, b)',
+    'd, e := fbeta(a, b)',
+    'cb(err, c, d)'
+  ], locals, { name: 'myflow', otherOptFoo: 'foo'});
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: 'falpha', a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
+    { f: 'fbeta',  a: ['a', 'b'], out: ['d', 'e'], type: 'cb', name: 'fbeta'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' });
+  t.equal(r.ast.name, 'myflow', 'name should match if supplied');
+  t.equal(r.ast.otherOptFoo, 'foo', 'other options should pass through');
+  t.end();  
+});
+
+
+
 test('two inputs, two mixed tasks, two out params', function (t) {
   var locals = { falpha: falpha, fbeta: fbeta };
   var r = pcode('a, b', [
@@ -287,12 +307,15 @@ test('selectFirst', function (t) {
     'c := falpha(a, b)',
     'c = fbeta(a, b)',
     'cb(err, c)'
-  ], locals);
+  ], locals, { name: 'myflow', otherOptFoo: 'foo'});
   t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
     { f: 'falpha', a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
     { f: 'fbeta',  a: ['a', 'b'], out: ['c'], type: 'ret', name: 'fbeta', after: ['falpha']}
   ]);
   t.deepEqual(r.ast.outTask, { type: 'finalcbFirst', a: ['c'] });
+  t.equal(r.ast.name, 'myflow', 'name should match if supplied');
+  t.equal(r.ast.otherOptFoo, 'foo', 'other options should pass through');
   t.end();  
 });
+

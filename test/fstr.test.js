@@ -121,6 +121,22 @@ test('two inputs, two tasks, two out params', function (t) {
   t.end();  
 });
 
+test('two inputs, two tasks, two out params, options', function (t) {
+  var r = fstrDefine('a, b', [
+    falpha, 'a, b -> err, c',
+    fbeta,  'a, b -> err, d, e'
+  ], 'c, d', { name: 'myflow', otherOptFoo: 'foo'});
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
+  t.deepEqual(r.ast.tasks, [
+    { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
+    { f: fbeta,  a: ['a', 'b'], out: ['d', 'e'], type: 'cb', name: 'fbeta'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' });
+  t.equal(r.ast.name, 'myflow', 'name should match if supplied');
+  t.equal(r.ast.otherOptFoo, 'foo', 'other options should pass through');
+  t.end();  
+});
+
 test('two inputs, two mixed tasks, two out params', function (t) {
   var r = fstrDefine('a, b', [
     falpha, 'a, b -> err, c',
@@ -258,12 +274,15 @@ test('selectFirst', function (t) {
   var r = fstrDefine.selectFirst('a, b', [
     falpha, 'a, b -> err, c',
     fbeta,  'a, b -> returns c'
-  ], 'c');
+  ], 'c', { name: 'myflow', otherOptFoo: 'foo'});
   t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
     { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'},
     { f: fbeta,  a: ['a', 'b'], out: ['c'], type: 'ret', name: 'fbeta', after: ['falpha']}
   ]);
   t.deepEqual(r.ast.outTask, { type: 'finalcbFirst', a: ['c'] });
+  t.equal(r.ast.name, 'myflow', 'name should match if supplied');
+  t.equal(r.ast.otherOptFoo, 'foo', 'other options should pass through');
   t.end();  
 });
+
