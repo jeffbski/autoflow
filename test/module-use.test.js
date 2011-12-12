@@ -1,7 +1,6 @@
 'use strict';
 
 var test = require('tap').test;
-var EventEmitter = require('events').EventEmitter;
 var BaseTask = require('../lib/base-task.js');
 
 var react = require('../react');
