@@ -30,6 +30,14 @@ test('create with locals is merged with args taking precedence', function (t) {
   t.end();
 });
 
+test('create with locals should not modify original locals', function (t) {
+  var locals = { a: 11, c: 30 };
+  t.deepEqual(VContext.create([1, 2], ['a', 'b'], locals).values,
+              { a: 1, c: 30, b: 2 }, 'should have merge of values');
+  t.deepEqual(locals, { a: 11, c: 30 }, 'should not modify original locals object');
+  t.end();
+});
+
 test('getVar on null returns null', function (t) {
   t.equal(VContext.create([null], ['a']).getVar('a'), null);
   t.equal(VContext.create([{ b: null }], ['a']).getVar('a.b'), null);
