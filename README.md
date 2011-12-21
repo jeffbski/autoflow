@@ -1,18 +1,28 @@
 # React.js
 
-React is a javascript module to make it easier to work with asynchronous code, 
+React is a javascript module to make it easier to work with asynchronous code,
 by reducing boilerplate code and improving error and exception handling while
-allowing variable and task dependencies when defining flow.
+allowing variable and task dependencies when defining flow. This project is
+applying the concepts of Reactive programming or Dataflow to controlling
+application flow.
 
-This async flow control module is initially designed to work with Node.js but 
+This async flow control module is initially designed to work with Node.js but
 is planned to be extended to browser and other environments.
 
-It takes inspiration from several projects including: 
+It takes inspiration from several projects including:
 
  - Tim Caswell and Elijah Insua's [conductor](https://github.com/creationix/conductor) - [Article](http://howtonode.org/step-of-conductor)
  - Caolan McMahon's [async](https://github.com/caolan/async)
 
 React gets its name from similarities with how "chain reactions" work in the physical world. You start the reaction and then it cascades and continues until complete.
+
+Also "Reactive Programming" or "Dataflow" describe defining flow which reacts to the data similar to how a spreadsheet updates cells. These are good examples of how React controls flow based on when data is available
+
+ - Reactive programming - <http://en.wikipedia.org/wiki/Reactive_programming>
+ - Dataflow programming - <http://en.wikipedia.org/wiki/Dataflow>
+ - Dataflow Programming: Handling Huge Data Loads Without Adding Complexity (Dr. Dobb's Sept 19, 2011) - <http://drdobbs.com/database/231400148>
+
+
 
 ## Goals
 
@@ -24,9 +34,20 @@ React gets its name from similarities with how "chain reactions" work in the phy
  - Allow the mixing of pure functions, method calls, and callback style functions in the flow
  - Minimize the need to customize your code simply to use async flow control. The use of a flow control module ideally should not affect the way you write your code, it should only help take over some of the burden.
 
+## Supports
+
+ - async node-style callback(err, arg...) functions
+ - sync functions which directly return value
+ - object instance method calls
+ - class method calls
+ - (planned) promise style functions - also automatic resolution of promise inputs
+ - (planned) use of resulting flow function as callback style or promise style (if no callback provided)
+ - (planned) iteration on arrays, streams, sockets
+ - (planned) event emitter integration
+
 ## Concept
 
-Borrowing heavily from Tim and Elijah's ideas for conductor, this async flow control module provides a way to construct a flow from a collection of functions or methods (referred to as _tasks_ in this module). It allows dependencies to be defined between the tasks so they can run in parallel as their dependencies are satisfied. React can us both variable dependencies and task dependencies. 
+Borrowing heavily from Tim and Elijah's ideas for conductor, this async flow control module provides a way to construct a flow from a collection of functions or methods (referred to as _tasks_ in this module). It allows dependencies to be defined between the tasks so they can run in parallel as their dependencies are satisfied. React can us both variable dependencies and task dependencies.
 
 As tasks complete, React watches the dependencies and kicks off additional tasks that have all their dependencies met and are ready to execute. This allows the flow to run at maximum speed without needing to arbitrarily block tasks into groups of parallel and serial flow.
 
@@ -38,103 +59,145 @@ To reduce the boilerplate code needed and improve error handling, React automati
 
 ## Design
 
- - Optional parse step to create flow AST (TODO allow pluggable parsers to allow many interfaces)
- - Validate the flow AST - determine if dependencies can all be met as defined such that flow will complete (TODO)
- - Execute the flow AST
+ - Parse and validate ad module load time
+ - Validate the flow AST at module load time - determine if dependencies can all be met as defined
+ - Execute the flow AST by calling the function with params
 
 ## Installing
 
     npm install react
 
-OR 
-   
+OR
+
 Pull from github - http://github.com/jeffbski/react
 
 ## Examples
 
  1. [Direct AST](#directAST)
- 2. [Using Simple DSL](#simpleDSL)
+ 2. [Using Function Str DSL](#fstr)
+ 3. [Using pseudocode DSL](#pcode)
+ 4. [Using jquery-like chaining DSL](#chain)
 
 <a name="directAST"/>
 ### Example directly using AST
 
 ```javascript
-    var react = require('react').react;
+var react = require('react');
 
-    function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
-    function loadFile(filename, cb){ setTimeout(cb, 100, null, 'Filedata'+filename); }
-    function markdown(filedata) { return 'html'+filedata; }
-    function prepareDirectory(outDirname, cb){ setTimeout(cb, 200, null, 'dircreated-'+outDirname); }
-    function writeOutput(html, user, cb){  setTimeout(cb, 300, null, html+'_bytesWritten'); }
-    function loadEmailTemplate(cb) { setTimeout(cb, 50, null, 'emailmd'); }
-    function customizeEmail(user, emailHtml, cb) { return 'cust-'+user+emailHtml; }
-    function deliverEmail(custEmailHtml, cb) { setTimeout(cb, 100, null, 'delivered-'+custEmailHtml); }
+function load(res, cb) { setTimeout(cb, 100, null, res + '-loaded'); }
+function prefix(prefstr, str, cb) { setTimeout(cb, 100, null, prefstr + str); }
+function postfix(str, poststr, cb) { setTimeout(cb, 100, null, str + poststr); }
+function upper(str) { return str.toUpperCase(); }
 
-    function useHtml(err, html, user, bytesWritten) {
-      if(err) {
-        console.log('***Error: %s', err);
-        return;
-      }
-      console.log('final result: %s, user: %s, written:%s', html, user, bytesWritten);     
-    }
+var fn = react();
+var errors = fn.setAndValidateAST({
+  inParams: ['res', 'prefstr', 'poststr'],
+  tasks: [
+    { f: load,    a: ['res'],              out: ['lres'] },
+    { f: upper,   a: ['lres'],             out: ['ulres'], type: 'ret'  },
+    { f: prefix,  a: ['prefstr', 'ulres'], out: ['plres'] },
+    { f: postfix, a: ['plres', 'poststr'], out: ['plresp'] }
+  ],
+  outTask: { a: ['plresp'] }
+});
+console.error('errors:', errors); // []
 
-    var r = react();
-    r.ast.inputNames = ['filename', 'uid', 'outDirname', 'cb'];
-    r.ast.taskDefs = [
-      { f:loadUser,          a:['uid'],               cb:['user'] },
-      { f:loadFile,          a:['filename'],          cb:['filedata'] },
-      { f:markdown,          a:['filedata'],          ret:['html'] },
-      { f:prepareDirectory,  a:['outDirname'],        cb:['dircreated'] },
-      { f:writeOutput,       a:['html', 'user'],      cb:['bytesWritten'],   after:['prepareDirectory'] },
-      { f:loadEmailTemplate, a:[],                    cb:['emailmd'] },
-      { f:markdown,          a:['emailmd'],           ret:['emailHtml'] },
-      { f:customizeEmail,    a:['user', 'emailHtml'], ret:['custEmailHtml'] },
-      { f:deliverEmail,      a:['custEmailHtml'],     cb:['deliveredEmail'], after:['writeOutput'] }
-    ];
-    r.ast.finalOutputNames = ['html', 'user', 'bytesWritten'];
-
-    r.exec("hello.txt", 100, 'outHello', useHtml);
-    r.exec("small.txt", 200, 'outSmall', useHtml);
+fn('foo', 'pre-', '-post', function cb(err, lres) {
+  console.error('err:', err);  // null
+  console.error('lres:', lres); // pre-FOO-LOADED-post
+});
 ```
 
-<a name="simpleDSL"/>
-### Example using simple DSL interface
+<a name="fstr"/>
+### Example using Function String DSL interface
 
 ```javascript
-    var react = require('react').react;
+var react = require('react');
 
-    function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
-    function loadFile(filename, cb){ setTimeout(cb, 100, null, 'Filedata'+filename); }
-    function markdown(filedata) { return 'html'+filedata; }
-    function prepareDirectory(outDirname, cb){ setTimeout(cb, 200, null, 'dircreated-'+outDirname); }
-    function writeOutput(html, user, cb){  setTimeout(cb, 300, null, html+'_bytesWritten'); }
-    function loadEmailTemplate(cb) { setTimeout(cb, 50, null, 'emailmd'); }
-    function customizeEmail(user, emailHtml, cb) { return 'cust-'+user+emailHtml; }
-    function deliverEmail(custEmailHtml, cb) { setTimeout(cb, 100, null, 'delivered-'+custEmailHtml); }
+function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
+function loadFile(filename, cb){ setTimeout(cb, 100, null, 'Filedata'+filename); }
+function markdown(filedata) { return 'html'+filedata; }
+function prepareDirectory(outDirname, cb){ setTimeout(cb, 200, null, 'dircreated-'+outDirname); }
+function writeOutput(html, user, cb){  setTimeout(cb, 300, null, html+'_bytesWritten'); }
+function loadEmailTemplate(cb) { setTimeout(cb, 50, null, 'emailmd'); }
+function customizeEmail(user, emailHtml, cb) { return 'cust-'+user+emailHtml; }
+function deliverEmail(custEmailHtml, cb) { setTimeout(cb, 100, null, 'delivered-'+custEmailHtml); }
 
-    function useHtml(err, html, user, bytesWritten) {
-      if(err) {
-        console.log('***Error: %s', err);
-        return;
-      }
-      console.log('final result: %s, user: %s, written:%s', html, user, bytesWritten);     
-    }
+function useHtml(err, html, user, bytesWritten) {
+  if(err) {
+    console.log('***Error: %s', err);
+    return;
+  }
+  console.log('final result: %s, user: %s, written:%s', html, user, bytesWritten);
+}
 
-    var r = react('filename, uid, outDirname, cb').define(
-        loadUser,         'uid              -> err, user',
-        loadFile,         'filename         -> err, filedata',
-        markdown,         'filedata         -> returns html',
-        prepareDirectory, 'outDirname       -> err, dircreated', 
-        writeOutput,      'html, user       -> err, bytesWritten', { after:prepareDirectory },
-        loadEmailTemplate,'                 -> err, emailmd',
-        markdown,         'emailmd          -> returns emailHtml',
-        customizeEmail,   'user, emailHtml  -> returns custEmailHtml',
-        deliverEmail,     'custEmailHtml    -> err, deliveredEmail', { after: writeOutput }
-    ).callbackDef('err, html, user, bytesWritten');
+var loadAndSave = react.fstrDefine('filename, uid, outDirname, cb', [  // input params
+  loadUser,         'uid              -> err, user',     // calling async fn loadUser with uid, callback is called with err and user
+  loadFile,         'filename         -> err, filedata',
+  markdown,         'filedata         -> returns html',    // using a sync function
+  prepareDirectory, 'outDirname       -> err, dircreated',
+  writeOutput,      'html, user       -> err, bytesWritten', { after: prepareDirectory },  // only after prepareDirectory done
+  loadEmailTemplate, '                 -> err, emailmd',
+  markdown,         'emailmd          -> returns emailHtml',   // using a sync function
+  customizeEmail,   'user, emailHtml  -> returns custEmailHtml',
+  deliverEmail,     'custEmailHtml    -> err, deliveredEmail', { after: writeOutput }  // only after writeOutput is done
+], 'err, html, user, bytesWritten');   // callback output params
+
+loadAndSave('file.md', 100, '/tmp/foo', useHtml);  // executing the flow
+```
+
+<a name="pcode"/>
+### Example using pseudocode DSL interface
+
+```javascript
+var react = require('react');
+
+function multiply(a, b, cb) { cb(null, a * b); }
+function add(a, b) { return a + b; }
+var locals = {   // since pcodeDefine uses strings, need references to functions passed into react
+  multiply: multiply,
+  add: add
+};
+
+var fn = react.pcodeDefine('a, b, cb', [  // input params
+  'm := multiply(a, b)',   // using a callback function, use :=
+  's = add(m, a)',        // using a sync function, use =
+  'cb(err, m, s)'     // output params for final callback
+], locals);    // hash of functions that will be used
+
+fn(2, 3, function (err, m, s) {
+  console.error('err:', err); // null
+  console.error('m:', m);  // 2 * 3 = 6
+  console.error('s:', s);  // 6 + 2 = 8
+});
+```
+
+<a name="chain"/>
+### Example using jquery-like chaining DSL interface
+
+```javascript
+var react = require('react');
+
+function multiply(a, b, cb) { cb(null, a * b); }
+function add(a, b) { return a + b; }
+
+var fn = react.chainDefine()
+  .in('a', 'b', 'cb')                                   // input params
+  .out('err', 'm', 's')                                 // final callback output params
+  .async(multiply).in('a', 'b', 'cb').out('err', 'm')   // task def - async fn, in params, callback out params
+  .sync(add).in('m', 'a').out('s')                      // task def - sync fn, in params, return value
+  .end();
+
+fn(2, 3, function (err, m, s) {
+  console.error('err:', err); // null
+  console.error('m:', m);  // 2 * 3 = 6
+  console.error('s:', s);  // 6 + 2 = 8
+});
 ```
 
 ## Status
 
+ - 2011-12-21 - Refactor from ground up with tests, changes to the interfaces
  - 2011-10-26 - React is in active development and interface may change frequently in these early stages. Current code is functional but does not perform validation yet.  Additional interfaces are planned to make it easy to define flows in a variety of ways. Documentation and examples forthcoming.
 
 ## License
@@ -149,4 +212,5 @@ Pull from github - http://github.com/jeffbski/react
 
  - Source code repository: http://github.com/jeffbski/react
  - Ideas and pull requests are encouraged  - http://github.com/jeffbski/react/issues
- - You may contact me at @jeffbski or through github at http://github.com/jeffbski
+
+- You may contact me at @jeffbski or through github at http://github.com/jeffbski
