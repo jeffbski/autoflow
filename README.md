@@ -9,11 +9,6 @@ application flow.
 This async flow control module is initially designed to work with Node.js but
 is planned to be extended to browser and other environments.
 
-It takes inspiration from several projects including:
-
- - Tim Caswell and Elijah Insua's [conductor](https://github.com/creationix/conductor) - [Article](http://howtonode.org/step-of-conductor)
- - Caolan McMahon's [async](https://github.com/caolan/async)
-
 React gets its name from similarities with how "chain reactions" work in the physical world. You start the reaction and then it cascades and continues until complete.
 
 Also "Reactive Programming" or "Dataflow" describe defining flow which reacts to the data similar to how a spreadsheet updates cells. These are good examples of how React controls flow based on when data is available
@@ -22,6 +17,10 @@ Also "Reactive Programming" or "Dataflow" describe defining flow which reacts to
  - Dataflow programming - <http://en.wikipedia.org/wiki/Dataflow>
  - Dataflow Programming: Handling Huge Data Loads Without Adding Complexity (Dr. Dobb's Sept 19, 2011) - <http://drdobbs.com/database/231400148>
 
+It takes inspiration from several projects including:
+
+ - Tim Caswell and Elijah Insua's [conductor](https://github.com/creationix/conductor) - [Article](http://howtonode.org/step-of-conductor)
+ - Caolan McMahon's [async](https://github.com/caolan/async)
 
 
 ## Goals
