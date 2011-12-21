@@ -1,10 +1,10 @@
 {
   "name": "react",
   "description": "React is a javascript module to make it easier to work with asynchronous code, by reducing boilerplate code and improving error and exception handling while allowing variable and task dependencies when defining flow.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Jeff Barczewski <jeff.barczewski@gmail.com>",
-  "repository": { "type": "git", "url": "http://github.com/jeffbski/react.git" }, 
-  "bugs" : { "url": "http://github.com/jeffbski/react/issues" }, 
+  "repository": { "type": "git", "url": "http://github.com/jeffbski/react.git" },
+  "bugs" : { "url": "http://github.com/jeffbski/react/issues" },
   "licenses": [{ "type": "MIT", "url" : "http://github.com/jeffbski/react/raw/master/LICENSE" }],
   "main": "react",
   "engines": { "node": "*" },
