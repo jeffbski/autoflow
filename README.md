@@ -40,10 +40,13 @@ Also "Reactive Programming" or "Dataflow" describe defining flow which reacts to
  - sync functions which directly return value
  - object instance method calls
  - class method calls
+ - selectFirst flow where the first task that returns defined, non-null value is used
  - (planned) promise style functions - also automatic resolution of promise inputs
  - (planned) use of resulting flow function as callback style or promise style (if no callback provided)
  - (planned) iteration on arrays, streams, sockets
  - (planned) event emitter integration
+
+The tasks can be mixed, meaning you can use async, sync, object method calls, class method calls, etc in the same flow.
 
 ## Concept
 
@@ -77,6 +80,11 @@ Pull from github - http://github.com/jeffbski/react
  2. [Using Function Str DSL](#fstr)
  3. [Using pseudocode DSL](#pcode)
  4. [Using jquery-like chaining DSL](#chain)
+
+
+These live in the examples folder so they are ready to run.
+Also see test/module-use.test.js for more examples as well
+as the specific tests for the DSL you want to use.
 
 <a name="directAST"/>
 ### Example directly using AST
@@ -199,6 +207,31 @@ fn(2, 3, function (err, m, s) {
 
  - 2011-12-21 - Refactor from ground up with tests, changes to the interfaces
  - 2011-10-26 - React is in active development and interface may change frequently in these early stages. Current code is functional but does not perform validation yet.  Additional interfaces are planned to make it easy to define flows in a variety of ways. Documentation and examples forthcoming.
+
+## Test Results
+
+```bash
+ok ast.test.js .................... 10/10
+ok cb-task.test.js ................ 31/31
+ok chain.test.js .................. 56/56
+ok core.test.js ................... 98/98
+ok event-manager.test.js .......... 13/13
+ok exec-options.test.js ............. 3/3
+ok finalcb-task.test.js ............. 5/5
+ok fstr.test.js ................... 64/64
+ok input-parser.test.js ........... 15/15
+ok module-use.test.js ............. 55/55
+ok pcode.test.js .................. 65/65
+ok ret-task.test.js ............... 31/31
+ok task.test.js ..................... 1/1
+ok validate-cb-task.test.js ......... 6/6
+ok validate-ret-task.test.js ........ 7/7
+ok validate.test.js ............... 26/26
+ok vcon.test.js ................... 42/42
+total ........................... 545/545
+
+ok
+```
 
 ## License
 
