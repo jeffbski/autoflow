@@ -242,7 +242,7 @@ fn(2, 3, function (err, m, s) {
 
 ## Status
 
- - 2012-01-10 - Create default DSL for react(), create error for missing variables
+ - 2012-01-10 - Create default DSL for react(), create error for missing variables, list remaining tasks when flow won't complete
  - 2011-12-21 - Refactor from ground up with tests, changes to the interfaces
  - 2011-10-26 - React is in active development and interface may change frequently in these early stages. Current code is functional but does not perform validation yet.  Additional interfaces are planned to make it easy to define flows in a variety of ways. Documentation and examples forthcoming.
 

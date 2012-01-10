@@ -198,14 +198,15 @@ test('error when cant complete', function (t) {
     inParams: ['a', 'b', 'c'],
     tasks: [    
       { f: multiply, a: ['a', 'b'], out: ['c.mult'] },
-      { f: fnRetsSum, a: ['c.bad', 'b'], out: ['c.sum'], type: 'ret' }
+      { f: fnRetsSum, a: ['c.bad', 'b'], out: ['c.sum'], type: 'ret' },
+      { f: add, a: ['c.sum', 'a'], out: ['d']}
     ],
-    outTask: { a: ['c.mult', 'c.sum', 'c'] }
+    outTask: { a: ['c.mult', 'c.sum', 'd'] }
   });
   t.deepEqual(errors, [], 'no validation errors');
 
-  fn(2, 3, { foo: 1 }, function (err, cmult, csum, c) {
-    t.equal(err.message, 'no tasks running, flow will not complete');
+  fn(2, 3, { foo: 1 }, function (err, cmult, csum, d) {
+    t.equal(err.message, 'no tasks running, flow will not complete, remaining tasks: fnRetsSum, add');
     t.end();
   });
 });
