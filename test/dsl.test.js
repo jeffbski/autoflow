@@ -129,9 +129,9 @@ test('two inputs, two tasks, two out params', function (t) {
 
 test('two inputs, two tasks, two out params, options', function (t) {
   var r = react('myName', 'a, b, cb -> err, c, d',
+    { otherOptFoo: 'foo'},  // main flow options
     falpha, 'a, b, cb -> err, c',
-    fbeta,  'a, b, cb -> err, d, e',
-    { name: 'myflow', otherOptFoo: 'foo'}
+    fbeta,  'a, b, cb -> err, d, e'
   );
   t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
@@ -139,7 +139,7 @@ test('two inputs, two tasks, two out params, options', function (t) {
     { f: fbeta,  a: ['a', 'b'], out: ['d', 'e'], type: 'cb', name: 'fbeta'}
   ]);
   t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' });
-  t.equal(r.ast.name, 'myflow', 'name should match if supplied');
+  t.equal(r.ast.name, 'myName', 'name should match');
   t.equal(r.ast.otherOptFoo, 'foo', 'other options should pass through');
   t.end();  
 });
@@ -220,9 +220,9 @@ test('not enough args throws error', function (t) {
 
 test('selectFirst', function (t) {
   var r = react.selectFirst('myName', 'a, b, cb -> c',
+    { otherOptFoo: 'foo'},  // main options                            
     falpha, 'a, b, cb -> err, c',
-    fbeta,  'a, b -> c',
-    { otherOptFoo: 'foo'}
+    fbeta,  'a, b -> c'
   );
   t.equal(r.ast.name, 'myName');
   t.deepEqual(r.ast.inParams, ['a', 'b']);

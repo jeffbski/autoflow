@@ -3,6 +3,21 @@
 
 var react = require('../'); // require('react');
 
+//output events as tasks start and complete
+react.events.on('*', function (obj) {
+  var time = new Date();
+  time.setTime(obj.time);
+  var eventTimeStr = time.toISOString();
+  var argsNoCb = obj.args.filter(function (a) { return (typeof(a) !== 'function'); });
+  if (obj.event === 'task.complete') {
+    console.error('%s: %s \tmsecs:(%s) \n\targs:(%s) \n\tresults:(%s)\n',
+                  obj.event, obj.name, obj.elapsedTime, argsNoCb, obj.results);
+  } else {
+    console.error('%s: %s \n\targs:(%s)\n', obj.event, obj.name, argsNoCb);
+  }
+});
+                
+
 function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
 function loadFile(filename, cb){ setTimeout(cb, 100, null, 'Filedata'+filename); }
 function markdown(filedata) { return 'html'+filedata; }
@@ -20,21 +35,18 @@ function useHtml(err, html, user, bytesWritten) {
   console.log('final result: %s, user: %s, written:%s', html, user, bytesWritten);
 }
 
-// define fn, glue together with react, it will parallelize
-// starts with name and in/out params, then the tasks
-var loadAndSave = react('loadAndSave', 'fName, uid, outDir, cb -> err, html, user, bytes',  
-  loadUser,         'uid, cb          -> err, user',     // calling async loadUser with uid, cb called with err and user
+var loadAndSave = react('loadAndSave', 'filename, uid, outDirname, cb -> err, html, user, bytesWritten',  // name, in/out params
+  loadUser,         'uid, cb          -> err, user',     // calling async fn loadUser with uid, callback is called with err and user
   loadFile,         'filename, cb     -> err, filedata',
   markdown,         'filedata         -> html',    // using a sync function
   prepareDirectory, 'outDirname, cb   -> err, dircreated',
   writeOutput,      'html, user, cb   -> err, bytesWritten', { after: prepareDirectory },  // only after prepareDirectory done
   loadEmailTemplate, 'cb              -> err, emailmd',
   markdown,         'emailmd          -> emailHtml',   // using a sync function
-  customizeEmail,   'user, emailHtml, cb  -> custEmailHtml',
-  deliverEmail,     'custEmailHtml, cb    -> err, deliveredEmail', { after: writeOutput }  // only after writeOutput is done
-);
+  customizeEmail,   'user, emailHtml, cb -> err, custEmailHtml',
+  deliverEmail,     'custEmailHtml, cb -> err, deliveredEmail', { after: writeOutput }  // only after writeOutput is done
+); 
 
-//in another module you can use this as any other exported fn
 loadAndSave('file.md', 100, '/tmp/foo', useHtml);  // executing the flow
 
 
