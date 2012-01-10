@@ -214,7 +214,35 @@ test('not enough args throws error', function (t) {
   t.end();  
 });
 
-
+test('long example', function (t) {
+  t.plan(4);
+  function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
+  function loadFile(filename, cb){ setTimeout(cb, 100, null, 'Filedata'+filename); }
+  function markdown(filedata) { return 'html'+filedata; }
+  function prepareDirectory(outDirname, cb){ setTimeout(cb, 200, null, 'dircreated-'+outDirname); }
+  function writeOutput(html, user, cb){  setTimeout(cb, 300, null, html+'_bytesWritten'); }
+  function loadEmailTemplate(cb) { setTimeout(cb, 50, null, 'emailmd'); }
+  function customizeEmail(user, emailHtml) { return 'cust-'+user+emailHtml; }
+  function deliverEmail(custEmailHtml, cb) { setTimeout(cb, 100, null, 'delivered-'+custEmailHtml); }
+  var loadAndSave = react('loadAndSave', 'filename, uid, outDirname, cb -> err, html, user, bytesWritten',  // name, in/out params
+    loadUser,         'uid, cb          -> err, user',     // calling async fn loadUser with uid, callback is called with err and user
+    loadFile,         'filename, cb     -> err, filedata',
+    markdown,         'filedata         -> html',    // using a sync function
+    prepareDirectory, 'outDirname, cb   -> err, dircreated',
+    writeOutput,      'html, user, cb   -> err, bytesWritten', { after: prepareDirectory },  // only after prepareDirectory done
+    loadEmailTemplate, 'cb              -> err, emailmd',
+    markdown,         'emailmd          -> emailHtml',   // using a sync function
+    customizeEmail,   'user, emailHtml  -> custEmailHtml',
+    deliverEmail,     'custEmailHtml, cb -> err, deliveredEmail', { after: writeOutput }  // only after writeOutput is done
+  );
+  loadAndSave('file.md', 100, '/tmp/foo', function (err, html, user, bytesWritten) {  // executing the flow
+    t.equal(err, null);
+    t.equal(html, 'htmlFiledatafile.md');
+    t.equal(user, 'User100');
+    t.equal(bytesWritten, 'htmlFiledatafile.md_bytesWritten');
+    t.end();
+  });
+});
 
 // selectFirst 
 

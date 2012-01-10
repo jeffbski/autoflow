@@ -24,7 +24,7 @@ function markdown(filedata) { return 'html'+filedata; }
 function prepareDirectory(outDirname, cb){ setTimeout(cb, 200, null, 'dircreated-'+outDirname); }
 function writeOutput(html, user, cb){  setTimeout(cb, 300, null, html+'_bytesWritten'); }
 function loadEmailTemplate(cb) { setTimeout(cb, 50, null, 'emailmd'); }
-function customizeEmail(user, emailHtml, cb) { return 'cust-'+user+emailHtml; }
+function customizeEmail(user, emailHtml) { return 'cust-'+user+emailHtml; }
 function deliverEmail(custEmailHtml, cb) { setTimeout(cb, 100, null, 'delivered-'+custEmailHtml); }
 
 function useHtml(err, html, user, bytesWritten) {
@@ -43,9 +43,9 @@ var loadAndSave = react('loadAndSave', 'filename, uid, outDirname, cb -> err, ht
   writeOutput,      'html, user, cb   -> err, bytesWritten', { after: prepareDirectory },  // only after prepareDirectory done
   loadEmailTemplate, 'cb              -> err, emailmd',
   markdown,         'emailmd          -> emailHtml',   // using a sync function
-  customizeEmail,   'user, emailHtml, cb -> err, custEmailHtml',
+  customizeEmail,   'user, emailHtml  -> err, custEmailHtml', // sync fn
   deliverEmail,     'custEmailHtml, cb -> err, deliveredEmail', { after: writeOutput }  // only after writeOutput is done
-); 
+);
 
 loadAndSave('file.md', 100, '/tmp/foo', useHtml);  // executing the flow
 
