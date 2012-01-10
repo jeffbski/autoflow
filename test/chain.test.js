@@ -63,10 +63,11 @@ test('in triple first param -> inParams["foo", "bar", "baz"]', function (t) {
 
 test('single task, single out params', function (t) {
   var fn = chainDefine()
+    .in('a', 'b')
     .out('c')
     .async(falpha).in('a', 'b').out('c')
     .end();
-  t.deepEqual(fn.ast.inParams, []);
+  t.deepEqual(fn.ast.inParams, ['a', 'b']);
   t.deepEqual(fn.ast.tasks, [
     { f: falpha, type: 'cb', a: ['a', 'b'], out: ['c'], name: 'falpha' }
   ]);
@@ -77,11 +78,11 @@ test('single task, single out params', function (t) {
 test('single task, err and out params', function (t) {
   var fn = chainDefine()
     .out('err', 'c')
-    .async(falpha).in('a', 'b').out('err', 'c')
+    .async(falpha).in().out('err', 'c')
     .end();
   t.deepEqual(fn.ast.inParams, []);
   t.deepEqual(fn.ast.tasks, [
-    { f: falpha, type: 'cb', a: ['a', 'b'], out: ['c'], name: 'falpha' }
+    { f: falpha, type: 'cb', a: [], out: ['c'], name: 'falpha' }
   ]);
   t.deepEqual(fn.ast.outTask, { a: ['c'], type: 'finalcb' });
   t.end();  
@@ -90,11 +91,11 @@ test('single task, err and out params', function (t) {
 test('single task, ERR and out params', function (t) {
   var fn = chainDefine()
     .out('ERR', 'c')
-    .async(falpha).in('a', 'b').out('ERR', 'c')
+    .async(falpha).in().out('ERR', 'c')
     .end();
   t.deepEqual(fn.ast.inParams, []);
   t.deepEqual(fn.ast.tasks, [
-    { f: falpha, type: 'cb', a: ['a', 'b'], out: ['c'], name: 'falpha' }
+    { f: falpha, type: 'cb', a: [], out: ['c'], name: 'falpha' }
   ]);
   t.deepEqual(fn.ast.outTask, { a: ['c'], type: 'finalcb' });
   t.end();  

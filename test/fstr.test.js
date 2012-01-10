@@ -48,10 +48,10 @@ test('triple first string -> inParams["foo", "bar", "baz"], empty tasks, outTask
 });
 
 test('single task, single out params', function (t) {
-  var r = fstrDefine('', [
+  var r = fstrDefine('a, b', [
     falpha, 'a, b -> err, c'
   ], 'c');
-  t.deepEqual(r.ast.inParams, []);
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
     { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
   ]);
@@ -60,10 +60,10 @@ test('single task, single out params', function (t) {
 });
 
 test('single task, err and out params', function (t) {
-  var r = fstrDefine('', [
+  var r = fstrDefine('a, b', [
     falpha, 'a, b -> err, c'
   ], 'err, c');
-  t.deepEqual(r.ast.inParams, []);
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
     { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
   ]);
@@ -72,10 +72,10 @@ test('single task, err and out params', function (t) {
 });
 
 test('single task, ERR and out params', function (t) {
-  var r = fstrDefine('', [
+  var r = fstrDefine('a, b', [
     falpha, 'a, b -> ERR, c'
   ], 'ERR, c');
-  t.deepEqual(r.ast.inParams, []);
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
     { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
   ]);

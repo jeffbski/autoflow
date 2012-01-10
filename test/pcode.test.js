@@ -50,11 +50,11 @@ test('triple first string -> inParams["foo", "bar", "baz"], empty tasks, outTask
 
 test('single task, single out params', function (t) {
   var locals = { falpha: falpha };
-  var r = pcode('', [
+  var r = pcode('a, b', [
     'c := falpha(a, b)',
     'cb(err, c)'
   ], locals);
-  t.deepEqual(r.ast.inParams, []);
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
     { f: 'falpha', a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
   ]);
@@ -64,11 +64,11 @@ test('single task, single out params', function (t) {
 
 test('single task, err and out params', function (t) {
   var locals = { falpha: falpha };
-  var r = pcode('', [
+  var r = pcode('a, b', [
     'c := falpha(a, b)',
     'cb(err, c)'
   ], locals);
-  t.deepEqual(r.ast.inParams, []);
+  t.deepEqual(r.ast.inParams, ['a', 'b']);
   t.deepEqual(r.ast.tasks, [
     { f: 'falpha', a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
   ]);

@@ -210,9 +210,57 @@ test('multiple tasks output the same param, must be unique', function (t) {
       { f: foo, a: [], out: ['baz', 'c'] },
       { f: bar, a: [], out: ['c'] }
     ], 
-    outTask: { a: ['bar'] }
+    outTask: { a: ['baz'] }
   };
   var msg = 'multiple tasks output the same param, must be unique. param: c';
   t.deepEqual(validate(ast), [msg]);  
   t.end();
+});
+
+test('missing or mispelled input variable', function (t) {
+  var ast = {
+    inParams: [], 
+    tasks: [
+      { f: foo, a: [], out: [] },
+      { f: bar, a: ['abc'], out: [] }
+    ], 
+    outTask: { a: [] }
+  };
+  var msg = 'missing or mispelled variable referenced in flow definition: abc';
+  t.deepEqual(validate(ast), [msg]);  
+  t.end();  
+});
+
+test('missing or mispelled input variables', function (t) {
+  var ast = {
+    inParams: ['aaa', 'bbb'], 
+    tasks: [
+      { f: foo, a: ['aaa', 'cat'], out: ['ccc'] },
+      { f: bar, a: ['abc', 'bbb', 'ccc'], out: [] }
+    ], 
+    outTask: { a: [] }
+  };
+  var messages = [
+    'missing or mispelled variable referenced in flow definition: cat',
+    'missing or mispelled variable referenced in flow definition: abc'
+  ];
+  t.deepEqual(validate(ast), messages);  
+  t.end();  
+});
+
+test('missing or mispelled final output variables', function (t) {
+  var ast = {
+    inParams: ['aaa'], 
+    tasks: [
+      { f: foo, a: ['aaa'], out: ['bbb'] },
+      { f: bar, a: ['bbb'], out: ['ccc'] }
+    ], 
+    outTask: { a: ['ccc', 'ddd', 'eee'] }
+  };
+  var messages = [
+    'missing or mispelled variable referenced in flow definition: ddd',
+    'missing or mispelled variable referenced in flow definition: eee'
+  ];
+  t.deepEqual(validate(ast), messages);  
+  t.end();  
 });

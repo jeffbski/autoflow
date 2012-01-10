@@ -55,11 +55,11 @@ test('triple first string -> inParams["foo", "bar", "baz"], empty tasks, outTask
 
 test('single task, single out params', function (t) {
   var r = react('myName', 'cb -> err, c',
-    falpha, 'a, b, cb -> err, c'
+    falpha, 'cb -> err, c'
   );
   t.deepEqual(r.ast.inParams, []);
   t.deepEqual(r.ast.tasks, [
-    { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
+    { f: falpha, a: [], out: ['c'], type: 'cb', name: 'falpha'}
   ]);
   t.deepEqual(r.ast.outTask, { a: ['c'], type: 'finalcb' });
   t.end();  
@@ -67,11 +67,11 @@ test('single task, single out params', function (t) {
 
 test('single task, err and out params', function (t) {
   var r = react('myName', 'cb -> err, c',
-    falpha, 'a, b, cb -> err, c'
+    falpha, 'cb -> err, c'
   );
   t.deepEqual(r.ast.inParams, []);
   t.deepEqual(r.ast.tasks, [
-    { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
+    { f: falpha, a: [], out: ['c'], type: 'cb', name: 'falpha'}
   ]);
   t.deepEqual(r.ast.outTask, { a: ['c'], type: 'finalcb' });
   t.end();  
@@ -79,11 +79,11 @@ test('single task, err and out params', function (t) {
 
 test('single task, ERR and out params', function (t) {
   var r = react('myName', 'cb -> ERR, c', 
-    falpha, 'a, b, cb -> ERR, c'
+    falpha, 'cb -> ERR, c'
   );
   t.deepEqual(r.ast.inParams, []);
   t.deepEqual(r.ast.tasks, [
-    { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
+    { f: falpha, a: [], out: ['c'], type: 'cb', name: 'falpha'}
   ]);
   t.deepEqual(r.ast.outTask, { a: ['c'], type: 'finalcb' });
   t.end();  
