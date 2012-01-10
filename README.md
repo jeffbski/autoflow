@@ -85,7 +85,7 @@ These live in the examples folder so they are ready to run.
 Also see test/module-use.test.js for more examples as well
 as the specific tests for the DSL you want to use.
 
-<a name="defaultDSL/>
+<a name="defaultDSL"/>
 ### Example using default DSL
 
 ```javascript
