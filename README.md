@@ -25,13 +25,13 @@ It takes inspiration from several projects including:
 
 ## Goals
 
+ - Minimize boilerplate code needed for working with asynchronous functions
+ - Minimize the need to customize your code simply to use async flow control. The use of a flow control module ideally should not affect the way you write your code, it should only help take over some of the burden.
  - Improved error and exception handling
  - Provide useful stack traces and context information for easier debugging
- - Minimize boilerplate code needed for working with asynchronous functions
  - Make code more readable and easier to understand which should translate to less defects
  - Provide the right level of abstraction to make it easier to refactor code, without being too magical
  - Allow the mixing of pure functions, method calls, and callback style functions in the flow
- - Minimize the need to customize your code simply to use async flow control. The use of a flow control module ideally should not affect the way you write your code, it should only help take over some of the burden.
 
 ## Supports
 
@@ -61,9 +61,9 @@ To reduce the boilerplate code needed and improve error handling, React automati
 
 ## Design
 
- - Parse and validate ad module load time
+ - Parse and validate DSL rules at module load time
  - Validate the flow AST at module load time - determine if dependencies can all be met as defined
- - Execute the flow AST by calling the function with params
+ - Execute the flow AST by calling the function with arguments
 
 ## Installing
 
@@ -75,8 +75,8 @@ Pull from github - http://github.com/jeffbski/react
 
 ## Examples
 
- 1. [Direct AST](#directAST)
- 2. [Using Function Str DSL](#fstr)
+ 1. [Default DSL](#defaultDSL)
+ 2. [Direct AST](#directAST)
  3. [Using pseudocode DSL](#pcode)
  4. [Using jquery-like chaining DSL](#chain)
 
@@ -84,6 +84,44 @@ Pull from github - http://github.com/jeffbski/react
 These live in the examples folder so they are ready to run.
 Also see test/module-use.test.js for more examples as well
 as the specific tests for the DSL you want to use.
+
+<a name="defaultDSL/>
+### Example using default DSL
+
+```javascript
+// in your foo module
+var react = require('react');
+
+// some normal async and sync functions
+function loadUser(uid, cb){ }
+function loadFile(filename, cb){ }
+function markdown(filedata) { }
+function writeOutput(html, user, cb){  }
+function loadEmailTemplate(cb) { }
+function customizeEmail(user, emailHtml, cb) { }
+function deliverEmail(custEmailHtml, cb) { }
+
+// define fn, glue together with react, it will parallelize
+// starts with name and in/out params, then the tasks
+var loadAndSend = react('loadAndSend', 'uid, filename, cb -> err, user',
+  loadUser, 'uid, cb -> err, user',
+  loadFile, 'filename, cb -> err, filemd',
+  markdown, 'filemd -> html',  // no cb, implies sync fn
+  writeOutput, 'html, user, cb -> err, htmlBytesWritten',
+  loadEmailTemplate, 'cb -> err, emailmd',
+  markdown, 'emailmd -> emailHtml',  // no cb, implies sync fn
+  customizeEmail, 'user, emailHtml, cb -> err, custEHtml',
+  deliverEmail, 'custEHtml, cb -> err, custBytesWritten'
+);
+exports.loadAndSend = loadAndSend; // is a normal fn created by react
+
+// in a different module far far away, use this as any other node function
+var foo = require('foo');
+foo.loadAndSend(100, 'bar.md', function (err, user) {
+  // tasks were parallelized based on their depedencies
+}
+```
+
 
 <a name="directAST"/>
 ### Example directly using AST
