@@ -191,6 +191,19 @@ test('object prop task params', function (t) {
   t.end();  
 });
 
+// Errors
+
+test('missing name, throws error', function (t) {
+  var fn = function () {
+    var r = react('cb -> err, c',
+                  falpha, 'cb -> err, c'
+                 );
+  };
+  t.throws(fn, new Error('param[0] should be the flow name, instead found in/out def: cb -> err, c'));
+  t.end();
+});
+
+
 test('extra arg throws error', function (t) {
   var fn = function () {
     var r = react('myName', 'a, b, cb -> err, c, d', 
