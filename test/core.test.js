@@ -398,7 +398,7 @@ test('selectFirst with first succeeding', function (t) {
   }
   fn.events.on('task.complete', accumEvents);
 
-  fn(2, 3, function (err, c, d) {
+  fn(2, 3, function (err, c) {
     t.equal(err, null);
     t.equal(c, 6);
     t.equal(events.length, 1, 'should have seen one task compl events');
@@ -431,7 +431,7 @@ test('selectFirst with third succeeding', function (t) {
   }
   fn.events.on('task.complete', accumEvents);
 
-  fn(2, 3, function (err, c, d) {
+  fn(2, 3, function (err, c) {
     t.equal(err, null);
     t.equal(c, 5);
     t.equal(events.length, 3, 'should have seen three task compl events');
@@ -468,7 +468,7 @@ test('selectFirst forces order with third succeeding', function (t) {
   }
   fn.events.on('task.complete', accumEvents);
 
-  fn(2, 3, function (err, c, d) {
+  fn(2, 3, function (err, c) {
     t.equal(err, null);
     t.equal(c, 5);
     t.equal(events.length, 3, 'should have seen three task compl events');
@@ -507,7 +507,7 @@ test('selectFirst using direct returns', function (t) {
   }
   fn.events.on('task.complete', accumEvents);
 
-  fn(2, 3, function (err, c, d) {
+  fn(2, 3, function (err, c) {
     t.equal(err, null);
     t.equal(c, 5);
     t.equal(events.length, 3, 'should have seen three task compl events');

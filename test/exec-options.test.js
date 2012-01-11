@@ -20,7 +20,7 @@ test('execOptions as first param', function (t) {
 
   var execOptions = {
     reactExecOptions: true,
-    outputStyle: 'callback'
+    outputStyle: 'cb'
   };
   
   fn(execOptions, 2, 3, function (err, c) {
@@ -29,4 +29,5 @@ test('execOptions as first param', function (t) {
     t.end();
   });
 });  
+
 
