@@ -242,7 +242,7 @@ fn(2, 3, function (err, m, s) {
 
 ## Status
 
- - 2012-01-11 - Provide warning/error when name is skipped in default DSL (v0.2.4)
+ - 2012-01-11 - Provide warning/error when name is skipped in default DSL, literal check in validate (v0.2.5)
  - 2012-01-10 - Create default DSL for react(), create error for missing variables, list remaining tasks when flow won't complete
  - 2011-12-21 - Refactor from ground up with tests, changes to the interfaces
  - 2011-10-26 - React is in active development and interface may change frequently in these early stages. Current code is functional but does not perform validation yet.  Additional interfaces are planned to make it easy to define flows in a variety of ways. Documentation and examples forthcoming.
@@ -254,7 +254,7 @@ ok ast.test.js .................... 10/10
 ok cb-task.test.js ................ 31/31
 ok chain.test.js .................. 56/56
 ok core.test.js ................... 98/98
-ok dsl.test.js .................... 58/58
+ok dsl.test.js .................... 63/63
 ok event-manager.test.js .......... 13/13
 ok exec-options.test.js ............. 3/3
 ok finalcb-task.test.js ............. 5/5
@@ -266,9 +266,9 @@ ok ret-task.test.js ............... 31/31
 ok task.test.js ..................... 1/1
 ok validate-cb-task.test.js ......... 6/6
 ok validate-ret-task.test.js ........ 7/7
-ok validate.test.js ............... 26/26
+ok validate.test.js ............... 31/31
 ok vcon.test.js ................... 42/42
-total ........................... 613/613
+total ........................... 623/623
 
 ok
 ```

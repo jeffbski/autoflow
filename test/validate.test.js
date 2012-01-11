@@ -264,3 +264,29 @@ test('missing or mispelled final output variables', function (t) {
   t.deepEqual(validate(ast), messages);  
   t.end();  
 });
+
+test('missing or mispelled validation ignores properties', function (t) {
+  var ast = {
+    inParams: ['obj'], 
+    tasks: [
+      { f: foo, a: ['obj.foo'], out: [] },
+      { f: bar, a: ['obj.bar'], out: [] }
+    ], 
+    outTask: { a: ['obj.cat'] }
+  };
+  t.deepEqual(validate(ast), []);  
+  t.end();  
+});
+
+test('missing or mispelled validation ignores literals', function (t) {
+  var ast = {
+    inParams: [], 
+    tasks: [
+      { f: foo, a: ['true', 'false', '123', '123.1'], out: [] },
+      { f: bar, a: ['-123', '-123.4', '"wow"', "'hey'"], out: [] }
+    ], 
+    outTask: { a: [] }
+  };
+  t.deepEqual(validate(ast), []);  
+  t.end();  
+});
