@@ -290,3 +290,4 @@ test('missing or mispelled validation ignores literals', function (t) {
   t.deepEqual(validate(ast), []);  
   t.end();  
 });
+

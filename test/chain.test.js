@@ -75,6 +75,19 @@ test('single task, single out params', function (t) {
   t.end();  
 });
 
+test('single task, err params', function (t) {
+  var fn = chainDefine()
+    .out('err')
+    .async(falpha).in().out('err', 'c')
+    .end();
+  t.deepEqual(fn.ast.inParams, []);
+  t.deepEqual(fn.ast.tasks, [
+    { f: falpha, type: 'cb', a: [], out: ['c'], name: 'falpha' }
+  ]);
+  t.deepEqual(fn.ast.outTask, { a: [], type: 'finalcb' });
+  t.end();  
+});
+
 test('single task, err and out params', function (t) {
   var fn = chainDefine()
     .out('err', 'c')

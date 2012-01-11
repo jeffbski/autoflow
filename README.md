@@ -252,23 +252,23 @@ fn(2, 3, function (err, m, s) {
 ```bash
 ok ast.test.js .................... 10/10
 ok cb-task.test.js ................ 31/31
-ok chain.test.js .................. 56/56
+ok chain.test.js .................. 59/59
 ok core.test.js ................... 98/98
 ok dsl.test.js .................... 63/63
 ok event-manager.test.js .......... 13/13
 ok exec-options.test.js ............. 3/3
 ok finalcb-task.test.js ............. 5/5
-ok fstr.test.js ................... 64/64
+ok fstr.test.js ................... 67/67
 ok input-parser.test.js ........... 15/15
 ok module-use.test.js ............. 64/64
-ok pcode.test.js .................. 65/65
+ok pcode.test.js .................. 68/68
 ok ret-task.test.js ............... 31/31
 ok task.test.js ..................... 1/1
 ok validate-cb-task.test.js ......... 6/6
 ok validate-ret-task.test.js ........ 7/7
 ok validate.test.js ............... 31/31
 ok vcon.test.js ................... 42/42
-total ........................... 623/623
+total ........................... 632/632
 
 ok
 ```
