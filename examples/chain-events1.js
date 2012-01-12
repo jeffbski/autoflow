@@ -3,7 +3,7 @@
 var react = require('../'); // require('react');
 
 //output events as tasks start and complete
-react.events.on('*', function (obj) {
+react.events.on('task.*', function (obj) {
   var time = new Date();
   time.setTime(obj.time);
   var eventTimeStr = time.toISOString();

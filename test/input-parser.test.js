@@ -64,9 +64,3 @@ test('parser pulls react exec options off arg list and merges from left to right
   t.end();
 });
 
-test('automatically change to promise output style if cb arg is not a function', function (t) {
-  var ast = { inParams: ['a', 'b'] };
-  var parsedInput = inputParser([10, 20], ast);
-  t.equal(parsedInput.options.outputStyle, 'promise');
-  t.end();  
-});

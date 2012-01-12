@@ -3,7 +3,7 @@
 var test = require('tap').test;
 var BaseTask = require('../lib/base-task.js');
 
-var react = require('../react');
+var react = require('../'); // require('react');
 
 /**
   @example
