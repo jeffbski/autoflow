@@ -15,7 +15,9 @@
   },
   "devDependencies": {
     "tap" : "~0.1.0",
-    "tapr" : "~0.1.0"
+    "tapr" : "~0.1.0",
+    "promised-io" : "~0.3.0",
+    "Deferred" : "~0.1.1"
   },
   "scripts": {
     "test": "node_modules/.bin/tapr test"
