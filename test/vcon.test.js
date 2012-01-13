@@ -67,10 +67,18 @@ test('simple getVar returns existing value', function (t) {
 test('getVar on literals returns the literal', function (t) {
   t.equal(VContext.create([], []).getVar(true), true);
   t.equal(VContext.create([], []).getVar(false), false);
+  t.equal(VContext.create([], []).getVar(null), null);  
+  t.equal(VContext.create([], []).getVar('true'), true);
+  t.equal(VContext.create([], []).getVar('false'), false);
+  t.equal(VContext.create([], []).getVar('null'), null);  
   t.equal(VContext.create([], []).getVar(-100), -100);
   t.equal(VContext.create([], []).getVar(100), 100);
   t.equal(VContext.create([], []).getVar(123.4), 123.4);
   t.equal(VContext.create([], []).getVar(-987.6), -987.6);
+  t.equal(VContext.create([], []).getVar('-100'), -100);
+  t.equal(VContext.create([], []).getVar('100'), 100);
+  t.equal(VContext.create([], []).getVar('123.4'), 123.4);
+  t.equal(VContext.create([], []).getVar('-987.6'), -987.6);
   t.equal(VContext.create([], []).getVar('"foo"'), 'foo');
   t.equal(VContext.create([], []).getVar("'foo'"), 'foo');
   t.end();
