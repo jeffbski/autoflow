@@ -1,15 +1,16 @@
 'use strict';
 
+/**
+   Test core PromiseTasks using Deferred - jquery style promises
+  */
+
+
 var test = require('tap').test;
 var Deferred = require('Deferred');
 //var when = Deferred.when;
 
 
 var react = require('../');  //require('react');
-
-/**
-   Test core PromiseTasks using Deferred - jquery style promises
-  */
 
 function multiply(x, y) {
   var deferred = new Deferred();
@@ -45,8 +46,8 @@ test('multi-step', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [    
-      { f: multiply, a: ['a', 'b'], out: ['c'], type:'promise' },
-      { f: add, a: ['c', 'b'], out: ['d'], type:'promise' }
+      { f: multiply, a: ['a', 'b'], out: ['c'], type: 'promise' },
+      { f: add, a: ['c', 'b'], out: ['d'], type: 'promise' }
     ],
     outTask: { a: ['c', 'd'] }
   });
@@ -66,8 +67,8 @@ test('throws error', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [    
-      { f: badFunc, a: ['a', 'b'], out: ['c'], type:'promise' },
-      { f: add, a: ['c', 'b'], out: ['d'], type:'promise' }
+      { f: badFunc, a: ['a', 'b'], out: ['c'], type: 'promise' },
+      { f: add, a: ['c', 'b'], out: ['d'], type: 'promise' }
     ],
     outTask: { a: ['c', 'd'] }
   });
@@ -85,8 +86,8 @@ test('rejects with error', function (t) {
   var errors = fn.setAndValidateAST({
     inParams: ['a', 'b'],
     tasks: [    
-      { f: badF2, a: ['a', 'b'], out: ['c'], type:'promise' },
-      { f: add, a: ['c', 'b'], out: ['d'], type:'promise' }
+      { f: badF2, a: ['a', 'b'], out: ['c'], type: 'promise' },
+      { f: add, a: ['c', 'b'], out: ['d'], type: 'promise' }
     ],
     outTask: { a: ['c', 'd'] }
   });
