@@ -40,7 +40,7 @@ It takes inspiration from several projects including:
  - object instance method calls
  - class method calls
  - selectFirst flow where the first task that returns defined, non-null value is used
- - (planned) promise style functions - also automatic resolution of promise inputs
+ - promise style functions - also automatic resolution of promise inputs (optional require('react/promise-resolve');)
  - (planned) use of resulting flow function as callback style or promise style (if no callback provided)
  - (planned) iteration on arrays, streams, sockets
  - (planned) event emitter integration

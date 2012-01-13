@@ -9,7 +9,8 @@
     - creates WhenTask which resolves param__promise into param
   */
 
-var react = require('../');  // require('react');
+
+var react = require('./');  // require('react');
 
 var PROMISE_SUFFIX = '__promise';  // added to param names that are promises
 
