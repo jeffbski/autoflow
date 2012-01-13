@@ -81,6 +81,9 @@ test('getVar on literals returns the literal', function (t) {
   t.equal(VContext.create([], []).getVar('-987.6'), -987.6);
   t.equal(VContext.create([], []).getVar('"foo"'), 'foo');
   t.equal(VContext.create([], []).getVar("'foo'"), 'foo');
+  t.equal(VContext.create([], []).getVar("'foo.bar'"), 'foo.bar');
+  t.equal(VContext.create([], []).getVar("'foo-bar'"), 'foo-bar');
+  t.deepEqual(VContext.create([], [], null, { a: 1}).getVar('this'), { a: 1});
   t.end();
 });
 

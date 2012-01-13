@@ -60,6 +60,39 @@ test('multi-step', function (t) {
   });
 });  
 
+test('using "this" in a cb function', function (t) {
+  t.plan(3);
+  function getA(cb) {
+    /*jshint validthis: true */
+    var deferred = new Deferred();
+    var self = this;
+    setTimeout(function () {
+      deferred.resolve(self.a);
+    }, 10);
+    return deferred.promise;
+  }
+  
+  var fn = react();
+  var errors = fn.setAndValidateAST({
+    inParams: [],
+    tasks: [    
+      { f: getA, a: [], out: ['a'], type: 'promise' }
+    ],
+    outTask: { a: ['a'] }
+  });
+  t.deepEqual(errors, [], 'no validation errors');
+
+  var obj = {
+      a: 100
+  };
+
+  fn.apply(obj, [function (err, a) {
+    t.equal(err, null);
+    t.equal(a, 100);
+    t.end();
+  }]);
+});
+
 test('throws error', function (t) {
   t.plan(2);
   var fn = react();

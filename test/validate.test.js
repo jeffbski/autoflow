@@ -283,7 +283,9 @@ test('missing or mispelled validation ignores literals', function (t) {
     inParams: [], 
     tasks: [
       { f: foo, a: ['true', 'false', '123', '123.1', 'null'], out: [] },
-      { f: bar, a: ['-123', '-123.4', '"wow"', "'hey'"], out: [] }
+      { f: bar, a: ['-123', '-123.4', '"wow"', "'hey'"], out: [] },
+      { f: foo, a: ['"two-words"', "'also-two'", '"two.words"', "'also.two'"], out: [] },
+      { f: foo, a: ['this'], out: [] }
     ], 
     outTask: { a: [] }
   };

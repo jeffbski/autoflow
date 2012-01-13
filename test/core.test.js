@@ -377,7 +377,66 @@ test('multi-step func cb err, cb with error', function (t) {
     t.end();
   });
 });  
+
+test('using "this" in a cb function', function (t) {
+  t.plan(3);
+  function getA(cb) {
+    /*jshint validthis: true */
+    cb(null, this.a);
+  }
   
+  var fn = react();
+  var errors = fn.setAndValidateAST({
+    inParams: [],
+    tasks: [    
+      { f: getA, a: [], out: ['a'] }
+    ],
+    outTask: { a: ['a'] }
+  });
+  t.deepEqual(errors, [], 'no validation errors');
+
+  var obj = {
+      a: 100
+  };
+
+  fn.apply(obj, [function (err, a) {
+    t.equal(err, null);
+    t.equal(a, 100);
+    t.end();
+  }]);
+});
+
+test('using "this" in a sync function', function (t) {
+  t.plan(3);
+  function getA(cb) {
+    /*jshint validthis: true */
+    return this.a;
+  }
+  
+  var fn = react();
+  var errors = fn.setAndValidateAST({
+    inParams: [],
+    tasks: [    
+      { f: getA, a: [], out: ['a'], type: 'ret' }
+    ],
+    outTask: { a: ['a'] }
+  });
+  t.deepEqual(errors, [], 'no validation errors');
+
+  var obj = {
+      a: 100
+  };
+
+  fn.apply(obj, [function (err, a) {
+    t.equal(err, null);
+    t.equal(a, 100);
+    t.end();
+  }]);
+});
+
+
+// Select first tests
+
 
 test('selectFirst with first succeeding', function (t) {
   t.plan(6);
