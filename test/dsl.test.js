@@ -77,6 +77,18 @@ test('single task, err and out params', function (t) {
   t.end();  
 });
 
+test('using - with literal string', function (t) {
+  var r = react('myName', '"hello-world", cb -> err, c',
+    falpha, '"another-string", cb -> err, c'
+  );
+  t.deepEqual(r.ast.inParams, ['"hello-world"']);
+  t.deepEqual(r.ast.tasks, [
+    { f: falpha, a: ['"another-string"'], out: ['c'], type: 'cb', name: 'falpha'}
+  ]);
+  t.deepEqual(r.ast.outTask, { a: ['c'], type: 'finalcb' });
+  t.end();  
+});
+
 test('single task, ERR and out params', function (t) {
   var r = react('myName', 'cb -> ERR, c', 
     falpha, 'cb -> ERR, c'
