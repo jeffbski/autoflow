@@ -211,7 +211,7 @@ test('missing name, throws error', function (t) {
                   falpha, 'cb -> err, c'
                  );
   };
-  t.throws(fn, new Error('param[0] should be the flow name, instead found in/out def: cb -> err, c'));
+  t.throws(fn, new Error('first flow parameter should be the flow name, but found in/out def: cb -> err, c'));
   t.end();
 });
 
@@ -240,6 +240,7 @@ test('not enough args throws error', function (t) {
 });
 
 test('long example', function (t) {
+  /*jshint white: false */
   t.plan(4);
   function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
   function loadFile(filename, cb){ setTimeout(cb, 100, null, 'Filedata'+filename); }
