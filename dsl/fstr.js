@@ -117,3 +117,5 @@ function selectFirst(inParamStr, taskDefArr, outParamStr, options) {
 
 module.exports = fstrDefine;
 module.exports.selectFirst = selectFirst;
+module.exports.options = core.options;
+module.exports.events = core.events;

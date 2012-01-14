@@ -3,7 +3,7 @@
 var test = require('tap').test;
 var sprintf = require('sprintf').sprintf;
 
-var pcode = require('../lib/pcode.js');
+var pcode = require('../../dsl/pcode'); // require('react/dsl/pcode');
 
 function falpha() { }
 function fbeta() { }
@@ -331,5 +331,126 @@ test('selectFirst', function (t) {
   t.equal(r.ast.name, 'myflow', 'name should match if supplied');
   t.equal(r.ast.otherOptFoo, 'foo', 'other options should pass through');
   t.end();  
+});
+
+// full integration tests
+
+test('use pcodeDefine from module', function (t) {
+  t.plan(3);
+  function multiply(a, b, cb) { cb(null, a * b); }
+  function add(a, b, cb) { cb(null, a + b); }
+  var locals = { multiply: multiply, add: add };
+  var fn = pcode('a, b, cb', [
+    'm := multiply(a, b)',
+    's := add(m, a)',
+    'cb(err, m, s)'
+  ], locals);
+  
+  fn(2, 3, function (err, m, s) {
+    t.deepEqual(err, null, 'should not be any error');
+    t.equal(m, 6);
+    t.equal(s, 8);
+    t.end();
+  });
+});
+
+test('use pcodeDefine with events', function (t) {
+  t.plan(8);
+  function multiply(a, b, cb) { cb(null, a * b); }
+  function add(a, b, cb) { cb(null, a + b); }
+
+  var events = [];
+  function accumEvents(task) {
+    events.push(task);
+  }
+  
+  var locals = { multiply: multiply, add: add };
+  var fn = pcode('a, b, cb', [
+    'm := multiply(a, b)',
+    's := add(m, a)',
+    'cb(err, m, s)'
+  ], locals);
+
+  fn.events.on('task.complete', accumEvents);
+  
+  fn(2, 3, function (err, m, s) {
+    t.deepEqual(err, null, 'should not be any error');
+    t.equal(m, 6);
+    t.equal(s, 8);
+    t.equal(events.length, 2, 'should have seen two task compl events');
+    t.equal(events[0].name, 'multiply', 'name matches');
+    t.deepEqual(events[0].results, [6], 'results match');
+    t.equal(events[1].name, 'add', 'name matches');
+    t.deepEqual(events[1].results, [8], 'results match');
+    t.end();
+  });
+});
+
+test('use pcodeDefine.selectFirst with events', function (t) {
+  t.plan(7);
+  function noSuccess(a, b, cb) {
+    setTimeout(function () { cb(null); }, 100); // returns undefined result
+  }
+  function noSuccessNull(a, b, cb) { cb(null, null); } // returns null result
+  function add(a, b, cb) { cb(null, a + b); }
+
+  var events = [];
+  function accumEvents(task) {
+    events.push(task);
+  }
+  
+  var locals = { noSuccess: noSuccess, noSuccessNull: noSuccessNull, add: add };
+  var fn = pcode.selectFirst('a, b, cb', [
+    'c := noSuccess(a, b)',
+    'c := noSuccessNull(a, b)',
+    'c := add(a, b)',
+    'c := noSuccess(a, b)',    
+    'cb(err, c)'
+  ], locals);
+
+  fn.events.on('task.complete', accumEvents);
+  
+  fn(2, 3, function (err, c) {
+    t.deepEqual(err, null, 'should not be any error');
+    t.equal(c, 5);
+    t.equal(events.length, 3, 'should have seen two task compl events');
+    t.equal(events[0].name, 'noSuccess', 'name matches');
+    t.equal(events[1].name, 'noSuccessNull', 'name matches');
+    t.equal(events[2].name, 'add', 'name matches');
+    t.deepEqual(events[2].results, [5], 'results match');
+    t.end();
+  });
+});
+
+test('use pcodeDefine events emit to global emitter', function (t) {
+  t.plan(8);
+  function multiply(a, b, cb) { cb(null, a * b); }
+  function add(a, b, cb) { cb(null, a + b); }
+
+  var events = [];
+  function accumEvents(task) {
+    events.push(task);
+  }
+  
+  var locals = { multiply: multiply, add: add };
+  var fn = pcode('a, b, cb', [
+    'm := multiply(a, b)',
+    's := add(m, a)',
+    'cb(err, m, s)'
+  ], locals);
+
+  pcode.events.on('task.complete', accumEvents);  // the global react emitter
+  
+  fn(2, 3, function (err, m, s) {
+    t.deepEqual(err, null, 'should not be any error');
+    t.equal(m, 6);
+    t.equal(s, 8);
+    t.equal(events.length, 2, 'should have seen two task compl events');
+    t.equal(events[0].name, 'multiply', 'name matches');
+    t.deepEqual(events[0].results, [6], 'results match');
+    t.equal(events[1].name, 'add', 'name matches');
+    t.deepEqual(events[1].results, [8], 'results match');
+    t.end();
+  });
 });
 

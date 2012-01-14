@@ -2,9 +2,9 @@
 /*jshint regexp: false */
 
 var sprintf = require('sprintf').sprintf;
-var core = require('./core.js');
-var parse = require('./parse.js');
-var tutil = require('./task.js');
+var core = require('../lib/core.js');
+var parse = require('../lib/parse.js');
+var tutil = require('../lib/task.js');
 
 var INPARAMS_NO_MATCH = 'input params in wrong format, wanted "foo, bar, cb" -  found: %s';
 var OUTPARAMS_NO_MATCH = 'output params in wrong format, wanted "cb(err, foo)" - found: %s';
@@ -171,3 +171,5 @@ function selectFirst(inParamStr, taskStrArr, locals, options) {
 
 module.exports = pcodeDefine;
 module.exports.selectFirst = selectFirst;
+module.exports.options = core.options;
+module.exports.events = core.events;
