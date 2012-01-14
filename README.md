@@ -242,7 +242,7 @@ fn(2, 3, function (err, m, s) {
 
 ## Status
 
- - 2012-01-13 - Add promise tasks, promise resolution, refactor alternate DSL interfaces as optional requires (v0.2.7)
+ - 2012-01-13 - Add promise tasks, promise resolution, refactor alternate DSL interfaces as optional requires (v0.3.0)
  - 2012-01-11 - Provide warning/error when name is skipped in default DSL, literal check in validate (v0.2.5)
  - 2012-01-10 - Create default DSL for react(), create error for missing variables, list remaining tasks when flow won't complete
  - 2011-12-21 - Refactor from ground up with tests, changes to the interfaces
