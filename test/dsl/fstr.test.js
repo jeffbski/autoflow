@@ -3,7 +3,7 @@
 var test = require('tap').test;
 var sprintf = require('sprintf').sprintf;
 
-var fstrDefine = require('../lib/fstr.js');
+var fstrDefine = require('../../dsl/fstr'); // require('react/dsl/fstr');
 
 function falpha() { }
 function fbeta() { }

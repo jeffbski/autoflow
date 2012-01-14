@@ -35,7 +35,6 @@ var react = require('../'); // require('react');
 test('module exports an function object with properties', function (t) {
   t.type(react, 'function', 'is a core constructor and default dsl function');
   t.type(react.options, 'object', 'has property for global react options');
-  t.type(react.fstrDefine, 'function', 'has fn property for using fstr dsl');
   t.type(react.pcodeDefine, 'function', 'has fn property for using pcode dsl');
   t.type(react.chainDefine, 'function', 'has fn property for chain define');
   t.end();

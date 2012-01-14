@@ -7,6 +7,5 @@ module.exports.options = core.options; // global react options
 module.exports.events = core.events;   // global react event emitter
 
 // additional interfaces
-module.exports.fstrDefine = require('./lib/fstr.js');
 module.exports.pcodeDefine = require('./lib/pcode.js');
 module.exports.chainDefine = require('./lib/chain.js');
