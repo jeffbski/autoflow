@@ -215,11 +215,50 @@ test('missing name, throws error', function (t) {
   t.end();
 });
 
+test('missing err in flow in/out - force for consistency, throw error', function (t) {
+  var fn = function () {
+    var r = react('myname', 'cb -> c',  // missing err
+                  falpha, 'cb -> err, c'
+                 );
+  };
+  t.throws(fn, new Error('callback specified, but first out param was not "err", use for clarity. Found in/out def: cb -> c'));
+  t.end();
+});
+
+test('missing err in task in/out - force for consistency, throw error', function (t) {
+  var fn = function () {
+    var r = react('myname', 'cb -> err, c',
+                  falpha, 'cb -> c'  // missing err
+                 );
+  };
+  t.throws(fn, new Error('callback specified, but first out param was not "err", use for clarity. Found in/out def: cb -> c'));
+  t.end();
+});
+
+test('found err, but missing cb/callback in flow in/out - force for consistency, throw error', function (t) {
+  var fn = function () {
+    var r = react('myname', 'a -> err, c', // missing cb
+                  falpha, 'cb -> err, c'
+                 );
+  };
+  t.throws(fn, new Error('found err param, but cb/callback is not specified, is this cb-style async or sync function? Found in/out def: a -> err, c'));
+  t.end();
+});
+
+test('found err, but missing cb/callback in task in/out - force for consistency, throw error', function (t) {
+  var fn = function () {
+    var r = react('myname', 'cb -> err, c',
+                  falpha, 'a -> err, c'  // missing cb
+                 );
+  };
+  t.throws(fn, new Error('found err param, but cb/callback is not specified, is this cb-style async or sync function? Found in/out def: a -> err, c'));
+  t.end();
+});
 
 test('extra arg throws error', function (t) {
   var fn = function () {
     var r = react('myName', 'a, b, cb -> err, c, d', 
-      falpha, 'a -> err, c', { after: fbeta },
+      falpha, 'a, cb -> err, c', { after: fbeta },
       fbeta,  'a, b -> returns d',
       'extraBadArg'
     );
@@ -230,8 +269,8 @@ test('extra arg throws error', function (t) {
 
 test('not enough args throws error', function (t) {
   var fn = function () {
-    var r = react('myName', 'a, b, cb -> c, d', 
-      falpha, 'a -> err, c', { after: fbeta },
+    var r = react('myName', 'a, b, cb -> err, c, d', 
+      falpha, 'a, cb -> err, c', { after: fbeta },
       fbeta
     );
   };
@@ -273,7 +312,7 @@ test('long example', function (t) {
 // selectFirst 
 
 test('selectFirst', function (t) {
-  var r = react.selectFirst('myName', 'a, b, cb -> c',
+  var r = react.selectFirst('myName', 'a, b, cb -> err, c',
     { otherOptFoo: 'foo'},  // main options                            
     falpha, 'a, b, cb -> err, c',
     fbeta,  'a, b -> c'
