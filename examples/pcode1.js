@@ -1,6 +1,6 @@
 'use strict';
 
-var react = require('../'); // require('react');
+var pcodeDefine = require('../dsl/pcode'); // require('react/dsl/pcode');
 
 function multiply(a, b, cb) { cb(null, a * b); }
 function add(a, b) { return a + b; }
@@ -9,7 +9,7 @@ var locals = {   // since pcodeDefine uses strings, need references to functions
   add: add
 };
 
-var fn = react.pcodeDefine('a, b, cb', [  // input params
+var fn = pcodeDefine('a, b, cb', [  // input params
   'm := multiply(a, b)',   // using a callback function, use :=
   's = add(m, a)',        // using a sync function, use =
   'cb(err, m, s)'     // output params for final callback

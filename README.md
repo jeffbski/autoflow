@@ -157,7 +157,7 @@ fn('foo', 'pre-', '-post', function cb(err, lres) {
 ### Example using Function String DSL interface
 
 ```javascript
-var react = require('react');
+var fstrDefine = require('react/dsl/fstr');
 
 function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
 function loadFile(filename, cb){ setTimeout(cb, 100, null, 'Filedata'+filename); }
@@ -176,7 +176,7 @@ function useHtml(err, html, user, bytesWritten) {
   console.log('final result: %s, user: %s, written:%s', html, user, bytesWritten);
 }
 
-var loadAndSave = react.fstrDefine('filename, uid, outDirname, cb', [  // input params
+var loadAndSave = fstrDefine('filename, uid, outDirname, cb', [  // input params
   loadUser,         'uid              -> err, user',     // calling async fn loadUser with uid, callback is called with err and user
   loadFile,         'filename         -> err, filedata',
   markdown,         'filedata         -> returns html',    // using a sync function
@@ -195,7 +195,7 @@ loadAndSave('file.md', 100, '/tmp/foo', useHtml);  // executing the flow
 ### Example using pseudocode DSL interface
 
 ```javascript
-var react = require('react');
+var pcodeDefine = require('react/dsl/pcode');
 
 function multiply(a, b, cb) { cb(null, a * b); }
 function add(a, b) { return a + b; }
@@ -204,7 +204,7 @@ var locals = {   // since pcodeDefine uses strings, need references to functions
   add: add
 };
 
-var fn = react.pcodeDefine('a, b, cb', [  // input params
+var fn = pcodeDefine('a, b, cb', [  // input params
   'm := multiply(a, b)',   // using a callback function, use :=
   's = add(m, a)',        // using a sync function, use =
   'cb(err, m, s)'     // output params for final callback
@@ -221,12 +221,12 @@ fn(2, 3, function (err, m, s) {
 ### Example using jquery-like chaining DSL interface
 
 ```javascript
-var react = require('react');
+var chainDefine = require('react/dsl/chain');
 
 function multiply(a, b, cb) { cb(null, a * b); }
 function add(a, b) { return a + b; }
 
-var fn = react.chainDefine()
+var fn = chainDefine()
   .in('a', 'b', 'cb')                                   // input params
   .out('err', 'm', 's')                                 // final callback output params
   .async(multiply).in('a', 'b', 'cb').out('err', 'm')   // task def - async fn, in params, callback out params
@@ -242,6 +242,7 @@ fn(2, 3, function (err, m, s) {
 
 ## Status
 
+ - 2012-01-13 - Add promise tasks, promise resolution, refactor alternate DSL interfaces as optional requires (v0.2.7)
  - 2012-01-11 - Provide warning/error when name is skipped in default DSL, literal check in validate (v0.2.5)
  - 2012-01-10 - Create default DSL for react(), create error for missing variables, list remaining tasks when flow won't complete
  - 2011-12-21 - Refactor from ground up with tests, changes to the interfaces

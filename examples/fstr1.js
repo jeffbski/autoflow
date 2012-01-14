@@ -1,6 +1,7 @@
 'use strict';
+/*jshint white: false */
 
-var react = require('../'); // require('react');
+var fstr = require('../dsl/fstr'); // require('react/dsl/fstr');
 
 function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
 function loadFile(filename, cb){ setTimeout(cb, 100, null, 'Filedata'+filename); }
@@ -19,7 +20,7 @@ function useHtml(err, html, user, bytesWritten) {
   console.log('final result: %s, user: %s, written:%s', html, user, bytesWritten);
 }
 
-var loadAndSave = react.fstrDefine('filename, uid, outDirname, cb', [  // input params
+var loadAndSave = fstr('filename, uid, outDirname, cb', [  // input params
   loadUser,         'uid              -> err, user',     // calling async fn loadUser with uid, callback is called with err and user
   loadFile,         'filename         -> err, filedata',
   markdown,         'filedata         -> returns html',    // using a sync function

@@ -1,11 +1,11 @@
 'use strict';
 
-var react = require('../'); // require('react');
+var chainDefine = require('../dsl/chain'); // require('react/dsl/chain');
 
 function multiply(a, b, cb) { cb(null, a * b); }
 function add(a, b) { return a + b; }
 
-var fn = react.chainDefine()
+var fn = chainDefine()
   .in('a', 'b', 'cb')                                   // input params
   .out('err', 'm', 's')                                 // final callback output params
   .async(multiply).in('a', 'b', 'cb').out('err', 'm')   // task def - async fn, in params, callback out params

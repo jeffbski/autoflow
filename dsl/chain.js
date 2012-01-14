@@ -1,8 +1,8 @@
 'use strict';
 
 var sprintf = require('sprintf').sprintf;
-var core = require('./core.js');
-var tutil = require('./task.js');
+var core = require('../lib/core.js');
+var tutil = require('../lib/task.js');
 
 // err for task type cb is implied and thus optional, but allow for clarity. 
 var ERROR_NAMES_RE = /^err$/i;  // first out param matching this is skipped as being the err object
@@ -146,3 +146,5 @@ FlowBuilder.prototype.end = function end() {
 };
 
 module.exports = chainDefine;
+module.exports.options = core.options;
+module.exports.events = core.events;
