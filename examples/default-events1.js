@@ -43,7 +43,7 @@ var loadAndSave = react('loadAndSave', 'filename, uid, outDirname, cb -> err, ht
   writeOutput,      'html, user, cb   -> err, bytesWritten', { after: prepareDirectory },  // only after prepareDirectory done
   loadEmailTemplate, 'cb              -> err, emailmd',
   markdown,         'emailmd          -> emailHtml',   // using a sync function
-  customizeEmail,   'user, emailHtml  -> err, custEmailHtml', // sync fn
+  customizeEmail,   'user, emailHtml  -> custEmailHtml', // sync fn
   deliverEmail,     'custEmailHtml, cb -> err, deliveredEmail', { after: writeOutput }  // only after writeOutput is done
 );
 
