@@ -2,6 +2,7 @@
 /*jshint white: false */
 
 var react = require('../'); // require('react');
+require('../lib/track-tasks');  // require('react/lib/track-tasks'); // turn on tracking
 
 //output events as tasks start and complete
 react.events.on('task.*', function (obj) {

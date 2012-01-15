@@ -2,6 +2,7 @@
 /*jshint white: false */
 
 var fstr = require('../dsl/fstr'); // require('react/dsl/fstr');
+require('../lib/track-tasks');  // require('react/lib/track-tasks'); // turn on tracking
 
 //output events as tasks start and complete
 fstr.events.on('task.*', function (obj) {

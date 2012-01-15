@@ -4,6 +4,7 @@ var test = require('tap').test;
 var sprintf = require('sprintf').sprintf;
 
 var chainDefine = require('../../dsl/chain'); // require('react/dsl/chain');
+require('../../lib/track-tasks');  // require('react/lib/track-tasks'); // turn on tracking
 
 function falpha() { }
 function fbeta() { }

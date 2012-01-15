@@ -3,6 +3,7 @@
 var test = require('tap').test;
 
 var react = require('../react');
+require('../lib/track-tasks');  // require('react/lib/track-tasks'); // turn on tracking
 
 function multiply(x, y, cb) { cb(null, x * y); }
 function add(x, y, cb) { cb(null, x + y); }

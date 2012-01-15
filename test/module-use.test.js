@@ -4,6 +4,7 @@ var test = require('tap').test;
 var BaseTask = require('../lib/base-task.js');
 
 var react = require('../'); // require('react');
+require('../lib/track-tasks');  // require('react/lib/track-tasks'); // turn on tracking
 
 /**
   @example

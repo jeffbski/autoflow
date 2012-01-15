@@ -4,6 +4,7 @@ var test = require('tap').test;
 var sprintf = require('sprintf').sprintf;
 
 var pcode = require('../../dsl/pcode'); // require('react/dsl/pcode');
+require('../../lib/track-tasks');  // require('react/lib/track-tasks'); // turn on tracking
 
 function falpha() { }
 function fbeta() { }
