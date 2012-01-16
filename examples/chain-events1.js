@@ -1,7 +1,7 @@
 'use strict';
 
 var chainDefine = require('../dsl/chain'); // require('react/dsl/chain');
-require('../lib/track-tasks');  // require('react/lib/track-tasks'); // turn on tracking
+var EventCollector = require('../lib/track-tasks').EventCollector;  // require('react/lib/track-tasks'); // turn on tracking
 
 //output events as tasks start and complete
 chainDefine.events.on('task.*', function (obj) {

@@ -6,18 +6,23 @@ require('../lib/track-tasks');  // require('react/lib/track-tasks'); // turn on 
 
 //output events as tasks start and complete
 react.events.on('task.*', function (obj) {
+  /*jshint validthis: true */
   var time = new Date();
   time.setTime(obj.time);
   var eventTimeStr = time.toISOString();
   var argsNoCb = obj.args.filter(function (a) { return (typeof(a) !== 'function'); });
+  var event = this.event;
   if (obj.event === 'task.complete') {
     console.error('%s: %s \tmsecs:(%s) \n\targs:(%s) \n\tresults:(%s)\n',
-                  obj.event, obj.name, obj.elapsedTime, argsNoCb, obj.results);
+                  event, obj.name, obj.elapsedTime, argsNoCb, obj.results);
   } else {
-    console.error('%s: %s \n\targs:(%s)\n', obj.event, obj.name, argsNoCb);
+    console.error('%s: %s \n\targs:(%s)\n', event, obj.name, argsNoCb);
   }
 });
-                
+
+react.events.on('flow.*', function (obj) {
+  
+});
 
 function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
 function loadFile(filename, cb){ setTimeout(cb, 100, null, 'Filedata'+filename); }
