@@ -4,7 +4,7 @@ var test = require('tap').test;
 var sprintf = require('sprintf').sprintf;
 
 var pcode = require('../../dsl/pcode'); // require('react/dsl/pcode');
-require('../../lib/track-tasks');  // require('react/lib/track-tasks'); // turn on tracking
+var EventCollector = require('../../lib/track-tasks').EventCollector;  // require('react/lib/track-tasks'); // turn on tracking
 
 function falpha() { }
 function fbeta() { }
@@ -360,11 +360,6 @@ test('use pcodeDefine with events', function (t) {
   function multiply(a, b, cb) { cb(null, a * b); }
   function add(a, b, cb) { cb(null, a + b); }
 
-  var events = [];
-  function accumEvents(task) {
-    events.push(task);
-  }
-  
   var locals = { multiply: multiply, add: add };
   var fn = pcode('a, b, cb', [
     'm := multiply(a, b)',
@@ -372,17 +367,19 @@ test('use pcodeDefine with events', function (t) {
     'cb(err, m, s)'
   ], locals);
 
-  fn.events.on('task.complete', accumEvents);
+  var collector = new EventCollector();
+  collector.capture(fn, 'task.complete');
   
   fn(2, 3, function (err, m, s) {
     t.deepEqual(err, null, 'should not be any error');
     t.equal(m, 6);
     t.equal(s, 8);
+    var events = collector.list();
     t.equal(events.length, 2, 'should have seen two task compl events');
-    t.equal(events[0].name, 'multiply', 'name matches');
-    t.deepEqual(events[0].results, [6], 'results match');
-    t.equal(events[1].name, 'add', 'name matches');
-    t.deepEqual(events[1].results, [8], 'results match');
+    t.equal(events[0].task.name, 'multiply', 'name matches');
+    t.deepEqual(events[0].task.results, [6], 'results match');
+    t.equal(events[1].task.name, 'add', 'name matches');
+    t.deepEqual(events[1].task.results, [8], 'results match');
     t.end();
   });
 });
@@ -395,11 +392,6 @@ test('use pcodeDefine.selectFirst with events', function (t) {
   function noSuccessNull(a, b, cb) { cb(null, null); } // returns null result
   function add(a, b, cb) { cb(null, a + b); }
 
-  var events = [];
-  function accumEvents(task) {
-    events.push(task);
-  }
-  
   var locals = { noSuccess: noSuccess, noSuccessNull: noSuccessNull, add: add };
   var fn = pcode.selectFirst('a, b, cb', [
     'c := noSuccess(a, b)',
@@ -409,16 +401,18 @@ test('use pcodeDefine.selectFirst with events', function (t) {
     'cb(err, c)'
   ], locals);
 
-  fn.events.on('task.complete', accumEvents);
+  var collector = new EventCollector();
+  collector.capture(fn, 'task.complete');
   
   fn(2, 3, function (err, c) {
     t.deepEqual(err, null, 'should not be any error');
     t.equal(c, 5);
+    var events = collector.list();
     t.equal(events.length, 3, 'should have seen two task compl events');
-    t.equal(events[0].name, 'noSuccess', 'name matches');
-    t.equal(events[1].name, 'noSuccessNull', 'name matches');
-    t.equal(events[2].name, 'add', 'name matches');
-    t.deepEqual(events[2].results, [5], 'results match');
+    t.equal(events[0].task.name, 'noSuccess', 'name matches');
+    t.equal(events[1].task.name, 'noSuccessNull', 'name matches');
+    t.equal(events[2].task.name, 'add', 'name matches');
+    t.deepEqual(events[2].task.results, [5], 'results match');
     t.end();
   });
 });
@@ -428,11 +422,6 @@ test('use pcodeDefine events emit to global emitter', function (t) {
   function multiply(a, b, cb) { cb(null, a * b); }
   function add(a, b, cb) { cb(null, a + b); }
 
-  var events = [];
-  function accumEvents(task) {
-    events.push(task);
-  }
-  
   var locals = { multiply: multiply, add: add };
   var fn = pcode('a, b, cb', [
     'm := multiply(a, b)',
@@ -440,17 +429,19 @@ test('use pcodeDefine events emit to global emitter', function (t) {
     'cb(err, m, s)'
   ], locals);
 
-  pcode.events.on('task.complete', accumEvents);  // the global react emitter
+  var collector = new EventCollector();
+  collector.capture(pcode, 'task.complete'); // the global react emitter
   
   fn(2, 3, function (err, m, s) {
     t.deepEqual(err, null, 'should not be any error');
     t.equal(m, 6);
     t.equal(s, 8);
+    var events = collector.list();
     t.equal(events.length, 2, 'should have seen two task compl events');
-    t.equal(events[0].name, 'multiply', 'name matches');
-    t.deepEqual(events[0].results, [6], 'results match');
-    t.equal(events[1].name, 'add', 'name matches');
-    t.deepEqual(events[1].results, [8], 'results match');
+    t.equal(events[0].task.name, 'multiply', 'name matches');
+    t.deepEqual(events[0].task.results, [6], 'results match');
+    t.equal(events[1].task.name, 'add', 'name matches');
+    t.deepEqual(events[1].task.results, [8], 'results match');
     t.end();
   });
 });

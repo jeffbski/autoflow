@@ -3,7 +3,7 @@
 var test = require('tap').test;
 
 var react = require('../react');
-require('../lib/track-tasks');  // require('react/lib/track-tasks'); // turn on tracking
+var EventCollector = require('../lib/track-tasks').EventCollector;  // require('react/lib/track-tasks'); // turn on tracking
 
 function multiply(x, y, cb) { cb(null, x * y); }
 function add(x, y, cb) { cb(null, x + y); }
@@ -108,19 +108,17 @@ test('multi-step with after as nonarr fn', function (t) {
   });
   t.deepEqual(errors, [], 'no validation errors');
 
-  var events = [];
-  function accumEvents(task) {
-    events.push(task);
-  }
-  fn.events.on('task.complete', accumEvents);
+  var collector = new EventCollector();
+  collector.capture(fn, 'task.complete');
   
   fn(2, 3, function (err, c, d) {
     t.equal(err, null);
     t.equal(c, 6);
     t.equal(d, 5);
+    var events = collector.list();
     t.equal(events.length, 2, 'should have seen one task compl events');
-    t.equal(events[0].name, 'add', 'name matches');
-    t.equal(events[1].name, 'multiply', 'name matches');
+    t.equal(events[0].task.name, 'add', 'name matches');
+    t.equal(events[1].task.name, 'multiply', 'name matches');
     t.end();
   });
 });  
@@ -138,31 +136,29 @@ test('mixed multi-step with after as nonarr fn w/events', function (t) {
   });
   t.deepEqual(errors, [], 'no validation errors');
 
-  var events = [];
-  function accumEvents(task) {
-    events.push(task);
-  }
-  fn.events.on('task.complete', accumEvents);
+  var collector = new EventCollector();
+  collector.capture(fn, 'task.complete');
   
   fn(2, 3, function (err, c, d) {
     t.equal(err, null);
     t.equal(c, 6);
     t.equal(d, 5);
+    var events = collector.list();
     t.equal(events.length, 2, 'should have seen one task compl events');
-    t.equal(events[0].name, 'fnRetsSum', 'name matches');
-    t.ok(events[0].id, 'has unique id');
-    t.ok(events[0].startTime, 'has startTime');
-    t.ok(events[0].endTime, 'has endTime');
-    t.ok(events[0].elapsedTime !== undefined, 'has elapsedTime');    
-    t.ok(events[0].args, 'has args');
-    t.ok(events[0].results, 'has results');
-    t.equal(events[1].name, 'multiply', 'name matches');
-    t.ok(events[1].id, 'has unique id');
-    t.ok(events[1].startTime, 'has startTime');
-    t.ok(events[1].endTime, 'has endTime');
-    t.ok(events[1].elapsedTime !== undefined, 'has elapsedTime');    
-    t.ok(events[1].args, 'has args');
-    t.ok(events[1].results, 'has results');
+    t.equal(events[0].task.name, 'fnRetsSum', 'name matches');
+    t.ok(events[0].task.id, 'has unique id');
+    t.ok(events[0].task.startTime, 'has startTime');
+    t.ok(events[0].task.endTime, 'has endTime');
+    t.ok(events[0].task.elapsedTime !== undefined, 'has elapsedTime');    
+    t.ok(events[0].task.args, 'has args');
+    t.ok(events[0].task.results, 'has results');
+    t.equal(events[1].task.name, 'multiply', 'name matches');
+    t.ok(events[1].task.id, 'has unique id');
+    t.ok(events[1].task.startTime, 'has startTime');
+    t.ok(events[1].task.endTime, 'has endTime');
+    t.ok(events[1].task.elapsedTime !== undefined, 'has elapsedTime');    
+    t.ok(events[1].task.args, 'has args');
+    t.ok(events[1].task.results, 'has results');
     t.end();
   });
 });  
@@ -452,18 +448,16 @@ test('selectFirst with first succeeding', function (t) {
   });
   t.deepEqual(errors, [], 'no validation errors');
 
-  var events = [];
-  function accumEvents(task) {
-    events.push(task);
-  }
-  fn.events.on('task.complete', accumEvents);
+  var collector = new EventCollector();
+  collector.capture(fn, 'task.complete');
 
   fn(2, 3, function (err, c) {
     t.equal(err, null);
     t.equal(c, 6);
+    var events = collector.list();
     t.equal(events.length, 1, 'should have seen one task compl events');
-    t.equal(events[0].name, 'multiply', 'name matches');
-    t.deepEqual(events[0].results, [6], 'results match');
+    t.equal(events[0].task.name, 'multiply', 'name matches');
+    t.deepEqual(events[0].task.results, [6], 'results match');
     t.end();
   });
 });  
@@ -485,18 +479,16 @@ test('selectFirst with third succeeding', function (t) {
   });
   t.deepEqual(errors, [], 'no validation errors');
 
-  var events = [];
-  function accumEvents(task) {
-    events.push(task);
-  }
-  fn.events.on('task.complete', accumEvents);
+  var collector = new EventCollector();
+  collector.capture(fn, 'task.complete');
 
   fn(2, 3, function (err, c) {
     t.equal(err, null);
     t.equal(c, 5);
+    var events = collector.list();
     t.equal(events.length, 3, 'should have seen three task compl events');
-    t.equal(events[2].name, 'add', 'name matches');
-    t.deepEqual(events[2].results, [5], 'results match');
+    t.equal(events[2].task.name, 'add', 'name matches');
+    t.deepEqual(events[2].task.results, [5], 'results match');
     t.end();
   });
 });  
@@ -522,20 +514,18 @@ test('selectFirst forces order with third succeeding', function (t) {
   });
   t.deepEqual(errors, [], 'no validation errors');
 
-  var events = [];
-  function accumEvents(task) {
-    events.push(task);
-  }
-  fn.events.on('task.complete', accumEvents);
+  var collector = new EventCollector();
+  collector.capture(fn, 'task.complete');
 
   fn(2, 3, function (err, c) {
     t.equal(err, null);
     t.equal(c, 5);
+    var events = collector.list();
     t.equal(events.length, 3, 'should have seen three task compl events');
-    t.equal(events[0].name, 'noSuccess', 'name matches');
-    t.equal(events[1].name, 'noSuccessNull', 'name matches');
-    t.equal(events[2].name, 'add', 'name matches');
-    t.deepEqual(events[2].results, [5], 'results match');
+    t.equal(events[0].task.name, 'noSuccess', 'name matches');
+    t.equal(events[1].task.name, 'noSuccessNull', 'name matches');
+    t.equal(events[2].task.name, 'add', 'name matches');
+    t.deepEqual(events[2].task.results, [5], 'results match');
     t.end();
   });
 });  
@@ -561,18 +551,16 @@ test('selectFirst using direct returns', function (t) {
   });
   t.deepEqual(errors, [], 'no validation errors');
 
-  var events = [];
-  function accumEvents(task) {
-    events.push(task);
-  }
-  fn.events.on('task.complete', accumEvents);
+  var collector = new EventCollector();
+  collector.capture(fn, 'task.complete');
 
   fn(2, 3, function (err, c) {
     t.equal(err, null);
     t.equal(c, 5);
+    var events = collector.list();
     t.equal(events.length, 3, 'should have seen three task compl events');
-    t.equal(events[2].name, 'addRet', 'name matches');
-    t.deepEqual(events[2].results, [5], 'results match');
+    t.equal(events[2].task.name, 'addRet', 'name matches');
+    t.deepEqual(events[2].task.results, [5], 'results match');
     t.end();
   });
 });  

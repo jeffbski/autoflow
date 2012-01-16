@@ -2,22 +2,7 @@
 /*jshint white: false */
 
 var fstr = require('../dsl/fstr'); // require('react/dsl/fstr');
-require('../lib/track-tasks');  // require('react/lib/track-tasks'); // turn on tracking
-
-//output events as tasks start and complete
-fstr.events.on('task.*', function (obj) {
-  var time = new Date();
-  time.setTime(obj.time);
-  var eventTimeStr = time.toISOString();
-  var argsNoCb = obj.args.filter(function (a) { return (typeof(a) !== 'function'); });
-  if (obj.event === 'task.complete') {
-    console.error('%s: %s \tmsecs:(%s) \n\targs:(%s) \n\tresults:(%s)\n',
-                  obj.event, obj.name, obj.elapsedTime, argsNoCb, obj.results);
-  } else {
-    console.error('%s: %s \n\targs:(%s)\n', obj.event, obj.name, argsNoCb);
-  }
-});
-                
+require('../lib/log-events').logEvents(fstr); // require('react/lib/log-events').logEvents(react);
 
 function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
 function loadFile(filename, cb){ setTimeout(cb, 100, null, 'Filedata'+filename); }

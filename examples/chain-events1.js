@@ -1,22 +1,42 @@
 'use strict';
 
 var chainDefine = require('../dsl/chain'); // require('react/dsl/chain');
-var EventCollector = require('../lib/track-tasks').EventCollector;  // require('react/lib/track-tasks'); // turn on tracking
+require('../lib/track-tasks');  // require('react/lib/track-tasks'); // turn on tracking
 
 //output events as tasks start and complete
-chainDefine.events.on('task.*', function (obj) {
+chainDefine.events.on('flow.*', function (obj) {
+  /*jshint validthis: true */
   var time = new Date();
   time.setTime(obj.time);
-  var eventTimeStr = time.toISOString();
   var argsNoCb = obj.args.filter(function (a) { return (typeof(a) !== 'function'); });
-  if (obj.event === 'task.complete') {
+  var eventTimeStr = time.toISOString();
+  if (this.event === 'flow.complete') {
+    var env = obj; 
     console.error('%s: %s \tmsecs:(%s) \n\targs:(%s) \n\tresults:(%s)\n',
-                  obj.event, obj.name, obj.elapsedTime, argsNoCb, obj.results);
+                  this.event, env.name, env.elapsedTime, argsNoCb, env.results);   
   } else {
-    console.error('%s: %s \n\targs:(%s)\n', obj.event, obj.name, argsNoCb);
+    var name = obj.name;
+    var args = obj.args;
+    console.error('%s: %s \n\targs:(%s)\n', this.event, name, argsNoCb);
   }
 });
 
+chainDefine.events.on('task.*', function (obj) {
+  /*jshint validthis: true */
+  var time = new Date();
+  time.setTime(obj.time);
+  var argsNoCb = obj.args.filter(function (a) { return (typeof(a) !== 'function'); });
+  var eventTimeStr = time.toISOString();
+  if (this.event === 'task.complete') {
+    var task = obj;
+    console.error('%s: %s \tmsecs:(%s) \n\targs:(%s) \n\tresults:(%s)\n',
+                  this.event, task.name, task.elapsedTime, argsNoCb, task.results);
+  } else {
+    var name = obj.name;
+    var args = obj.args;
+    console.error('%s: %s \n\targs:(%s)\n', this.event, name, argsNoCb);
+  }
+});
 
 function multiply(a, b, cb) { cb(null, a * b); }
 function add(a, b) { return a + b; }

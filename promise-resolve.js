@@ -14,9 +14,9 @@ var react = require('./');  // require('react');
 
 var PROMISE_SUFFIX = '__promise';  // added to param names that are promises
 
-react.events.on(react.events.TYPES.EXEC_TASKS_PRECREATE, function (taskEnv) {
-  var vConValues = taskEnv.vCon.values;
-  var promiseParams = taskEnv.ast.inParams.filter(function (p) {
+react.events.on(react.events.TYPES.EXEC_TASKS_PRECREATE, function (env) {
+  var vConValues = env.vCon.values;
+  var promiseParams = env.ast.inParams.filter(function (p) {
     var value = vConValues[p];
     return (value && typeof(value.then) === 'function');
   });
@@ -24,7 +24,7 @@ react.events.on(react.events.TYPES.EXEC_TASKS_PRECREATE, function (taskEnv) {
     var promiseName = p + PROMISE_SUFFIX;
     vConValues[promiseName] = vConValues[p];
     vConValues[p] = undefined;
-    taskEnv.taskDefs.push({
+    env.taskDefs.push({
       type: 'when',
       a: [promiseName],
       out: [p]
