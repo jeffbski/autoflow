@@ -136,6 +136,10 @@ foobar.loadRender('foo.txt', 'bar.txt', 'BBB', function (err, renderedOut) {
 });
 ```
 
+Below is a graph of how the dependencies are mapped by React which
+also indicates how the tasks will be executed
+
+![default-simple.dot.png](https://github.com/jeffbski/react/blob/master/doc/default-simple.dot.png)
 
 
 <a name="directAST"/>
