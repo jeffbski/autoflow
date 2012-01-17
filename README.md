@@ -151,9 +151,9 @@ fn('foo', 'pre-', '-post', function cb(err, lres) {
 
 ### Alternate interfaces (DSL's)
 
- 1. [Using pseudocode DSL](http://github.com/jeffbski/react/raw/master/doc/alternate-dsls.md#pcode)
- 2. [Using jquery-like chaining DSL](http://github.com/jeffbski/react/raw/master/doc/alternate-dsls.md#chain)
- 3. [Using function string DSL](http://github.com/jeffbski/react/raw/master/doc/alternate-dsls.md#fstr)
+ 1. [Using pseudocode DSL](https://github.com/jeffbski/react/blob/master/doc/alternate-dsls.md#pcode)
+ 2. [Using jquery-like chaining DSL](https://github.com/jeffbski/react/blob/master/doc/alternate-dsls.md#chain)
+ 3. [Using function string DSL](https://github.com/jeffbski/react/blob/master/doc/alternate-dsls.md#fstr)
 
 
 ## User API
@@ -282,7 +282,7 @@ var events = collector.list();  // retrieve the list of events
 
 #### Alternate DSL's
 
-Additional DSL's can be loaded by requiring them. See the [Alternate DSL](http://github.com/jeffbski/react/raw/master/doc/alternate-dsls.md) page for more info.
+Additional DSL's can be loaded by requiring them. See the [Alternate DSL](https://github.com/jeffbski/react/blob/master/doc/alternate-dsls.md) page for more info.
 
 
 ## Status
