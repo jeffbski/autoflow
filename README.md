@@ -188,12 +188,14 @@ The main function returned from require('react') can be used to define the AST u
 It takes the following arguments to define a flow function:
 
 ```javascript
-var react = require('react');
-var fn = react('my-flow-name', 'paramName1, paramName2, cb -> err, outParamName1, outParamName2',
-  functionRefOrMethodStr, 'paramName1, cb -> err, outParamName2',  // async cb task
-  functionRefOrMethodStr2, 'paramName2, paramName1 -> outParamName1'   // sync task
+var fn = react('loadRender', 'fooPath, barPath, barP2, cb -> err, renderedOut',
+  loadFoo, 'fooPath, cb -> err, foo',
+  loadBar, 'barPath, barP2, cb -> err, bar',
+  render, 'foo, bar -> renderedOut'
 );
 ```
+
+![color-def](https://github.com/jeffbski/react/raw/master/doc/color-def.png)
 
  1. **flow/function name** - string - represents the name of the flow or function that will be created. React will use the name when generating events so you can monitor progress and performance and also when errors occur.
  2. **in/out flow parameter definition** - string - the inputs and outputs for the flow function. The parameters are specified in one single string for easy typing, separated by commas. The output follows the input after being separated by a `->`. Use the parameter name `cb` or `callback` to specify the Node style callback and `err` to represent the error parameter as the first output parameter of the callback. Literal values can also be specified directly (true, false, numbers, this, null). Literal strings can simply be quoted using single or double quotes.
