@@ -84,39 +84,58 @@ as the specific tests for the DSL you want to use.
 <a name="defaultDSL"/>
 ### Example using default DSL
 
+ - Simple example showing flow definition of two async functions feeding a
+   synchronous function.
+
+ - First two async functions inputs are satisfied by the flow inputs, so
+   they will both run immediately in parallel.
+
+ - The last function waits for the outputs of the previous ones, then
+   executes synchronously.
+
+ - Finally the flow calls the callback with the output values once all
+   the tasks have completed.
+
 ```javascript
-// in your foo module
+// in your foobar module
 var react = require('react');
 
 // some normal async and sync functions
-function loadUser(uid, cb){ }
-function loadFile(filename, cb){ }
-function markdown(filedata) { }
-function writeOutput(html, user, cb){  }
-function loadEmailTemplate(cb) { }
-function customizeEmail(user, emailHtml, cb) { }
-function deliverEmail(custEmailHtml, cb) { }
+function loadFoo(fooPath, cb) {
+  setTimeout(function () {
+    cb(null, [fooPath, 'data'].join(':'));
+  }, 10);
+}
+
+function loadBar(barPath, barP2, cb) {
+  setTimeout(function () {
+    cb(null, [barPath, barP2, 'data'].join(':'));
+  }, 10);
+}
+
+function render(foo, bar) {
+  return ['<html>', foo, '/', bar, '</html>'].join('');
+}
 
 // define fn, glue together with react, it will parallelize
 // starts with name and in/out params, then the tasks
-var loadAndSend = react('loadAndSend', 'uid, filename, cb -> err, user',
-  loadUser, 'uid, cb -> err, user',
-  loadFile, 'filename, cb -> err, filemd',
-  markdown, 'filemd -> html',  // no cb, implies sync fn
-  writeOutput, 'html, user, cb -> err, htmlBytesWritten',
-  loadEmailTemplate, 'cb -> err, emailmd',
-  markdown, 'emailmd -> emailHtml',  // no cb, implies sync fn
-  customizeEmail, 'user, emailHtml, cb -> err, custEHtml',
-  deliverEmail, 'custEHtml, cb -> err, custBytesWritten'
+var loadRender = react('loadRender', 'fooPath, barPath, barP2, cb -> err, renderedOut',
+  loadFoo, 'fooPath, cb -> err, foo',    // async cb function
+  loadBar, 'barPath, barP2, cb -> err, bar',  // async cb function
+  render, 'foo, bar -> renderedOut'  // sync function using outputs from first two
 );
-exports.loadAndSend = loadAndSend; // is a normal fn created by react
+
+exports.loadRender = loadRender;  // is a normal fn created by react
+
 
 // in a different module far far away, use this as any other node function
-var foo = require('foo');
-foo.loadAndSend(100, 'bar.md', function (err, user) {
-  // tasks were parallelized based on their depedencies
-}
+var foobar = require('foobar');
+foobar.loadRender('foo.txt', 'bar.txt', 'BBB', function (err, renderedOut) {
+  // tasks in loadRender were parallelized based on their input dependencies
+  console.error('results:', renderedOut);
+});
 ```
+
 
 
 <a name="directAST"/>
@@ -287,7 +306,7 @@ Additional DSL's can be loaded by requiring them. See the [Alternate DSL](https:
 
 ## Status
 
- - 2012-01-17 - Additional documentation (v0.3.4)
+ - 2012-01-17 - Additional documentation (v0.3.5)
  - 2012-01-16 - Refine events and create logging plugin (v0.3.3)
  - 2012-01-13 - Add promise tasks, promise resolution, refactor alternate DSL interfaces as optional requires (v0.3.0)
  - 2012-01-11 - Provide warning/error when name is skipped in default DSL, literal check in validate (v0.2.5)
