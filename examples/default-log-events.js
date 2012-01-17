@@ -7,6 +7,7 @@
 
 var react = require('../'); // require('react');
 require('../lib/log-events').logEvents(react);  // require('react/lib/log-events').logEvents(react); // turn on logging
+require('../lib/log-events').logEvents(react);  // require('react/lib/log-events').logEvents(react); // turn on logging
 
 function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
 function loadFile(filename, cb){ setTimeout(cb, 100, null, 'Filedata'+filename); }

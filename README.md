@@ -242,6 +242,7 @@ fn(2, 3, function (err, m, s) {
 
 ## Status
 
+ - 2012-01-16 - Refine events and create logging plugin (v0.3.2)
  - 2012-01-13 - Add promise tasks, promise resolution, refactor alternate DSL interfaces as optional requires (v0.3.0)
  - 2012-01-11 - Provide warning/error when name is skipped in default DSL, literal check in validate (v0.2.5)
  - 2012-01-10 - Create default DSL for react(), create error for missing variables, list remaining tasks when flow won't complete
