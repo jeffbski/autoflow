@@ -8,7 +8,8 @@
 var test = require('tap').test;
 var Deferred = require('promised-io/promise').Deferred;
 
-var react = require('../promise-resolve');  // require('react/promise-resolve');
+var react = require('../');  // require('react');
+react.resolvePromises(); // enable promise resolving
 
 function multiply(x, y, cb) { cb(null, x * y); }
 function add(x, y, cb) { cb(null, x + y); }

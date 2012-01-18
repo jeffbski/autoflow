@@ -3,7 +3,7 @@
 var test = require('tap').test;
 
 var react = require('../react');
-var EventCollector = require('../lib/track-tasks').EventCollector;  // require('react/lib/track-tasks'); // turn on tracking
+var EventCollector = require('../lib/event-collector');  // require('react/lib/event-collector'); // turn on tracking and get EventCollector
 
 function multiply(x, y, cb) { cb(null, x * y); }
 function add(x, y, cb) { cb(null, x + y); }

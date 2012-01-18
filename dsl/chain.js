@@ -1,7 +1,7 @@
 'use strict';
 
 var sprintf = require('sprintf').sprintf;
-var core = require('../lib/core.js');
+var react = require('../'); // require('react');
 var tutil = require('../lib/task.js');
 
 // err for task type cb is implied and thus optional, but allow for clarity. 
@@ -120,7 +120,7 @@ FlowBuilder.prototype.after = function (name1, name2, nameN) {
    which throws error if flow is not valid.
   */
 FlowBuilder.prototype.end = function end() {
-  var reactFn = core();
+  var reactFn = react();
 
   if (this.main.outTaskType === 'finalcbFirst') {
     this.tasks = tutil.serializeTasks(this.tasks);
@@ -146,5 +146,8 @@ FlowBuilder.prototype.end = function end() {
 };
 
 module.exports = chainDefine;
-module.exports.options = core.options;
-module.exports.events = core.events;
+module.exports.options = react.options; // global react options
+module.exports.events = react.events;   // global react event emitter
+module.exports.logEvents = react.logEvents;  // enable event logging
+module.exports.resolvePromises = react.resolvePromises; // enable promise resolution
+module.exports.trackTasks = react.trackTasks; // enable tracking of tasks

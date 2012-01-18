@@ -4,8 +4,8 @@ var test = require('tap').test;
 var BaseTask = require('../lib/base-task.js');
 
 var react = require('../'); // require('react');
-// turn on tracking, optionally obtain EventCollector
-var EventCollector = require('../lib/track-tasks').EventCollector;  // require('react/lib/track-tasks'); 
+// turn on tracking, obtain EventCollector
+var EventCollector = require('../lib/event-collector');  // require('react/lib/event-collector'); 
 
 
 /**
@@ -39,6 +39,9 @@ test('module exports an function object with properties', function (t) {
   t.type(react, 'function', 'is a core constructor and default dsl function');
   t.type(react.options, 'object', 'has property for global react options');
   t.type(react.events, 'object', 'has global react event manager');
+  t.type(react.logEvents, 'function', 'has function to enable event logging');
+  t.type(react.trackTasks, 'function', 'has function to enable task and flow tracking');
+  t.type(react.resolvePromises, 'function', 'has fn to enable promise detection & resolution');
   t.end();
 });
 

@@ -261,48 +261,79 @@ Additional functionality which is not enabled by default but available by requir
 
 #### LogEvents - log react progress to stderr
 
-For convenience in debugging or in monitoring flow and performance, React has a built-in plugin for easily logging progress to stderr which is activiated by requiring it and specifying a particular flow function to log or use the main react for global logging of all react modules.
+For convenience in debugging or in monitoring flow and performance, React has a built-in plugin for easily logging progress to stderr which is loaded and activated calling the react method `logEvents`. It can be specified to log globally for all react functions or only for particular react functions. You also may optionally listen to select events rather than all flow and task events.
 
 ```javascript
-require('react/lib/log-events').logEvents(react); // turn on logging for all react functions
+var react = require('react');
+react.logEvents(); // turn on flow and task logging for all react functions
 
 // OR
 
-require('react/lib/log-events').logEvents(myReactFn); // turn on logging for a specific function, repeat for other functions as needed
+react.logEvents(myReactFn); // turn on flow and task  logging for a specific function, repeat as needed
+react.logEvents(myReactFn).logEvents(myReactFn2);  // can also chain
+
+// Both methods can also take an optional event wildcard to specify what you want to listen to
+
+react.logEvents('flow.*'); // turn on flow logging for all react functions
+react.logEvents(myReactFn, 'task.*'); // turn on task logging for myReactFn
 ```
+
+Available Events that can be logged:
+
+ - flow.begin - flow execution has started (receives a flow env)
+ - flow.complete - flow execution has successfully completed (receives a flow env)
+ - flow.errored - flow execution has errored (receives a flow env)
+ - task.begin - task has started (receives task)
+ - task.complete - task has successfully complted (receives task)
+ - task.errored - task has errored (receives task)
 
 #### Automatic Promise Resolution for inputs
 
-If you want to automatically resolve promises in React without having to manually call `when` or `then`, React provides a plugin which will detect the existence of a `then` method (indicating a promise) at runtime from any inputs to the flow and will internally create `when` tasks to resolve them before passing the values to other tasks.
+If you want to automatically resolve promises in React without having to manually call `when` or `then`, React provides a plugin which will detect the existence of a `then` method (indicating a promise) at runtime from any inputs to the flow and will internally create `when` tasks to resolve them before passing the values to other tasks. This built-in plugin is not loaded normally but is loaded by invoking the react method `resolvePromises`. External plugins like `react-deferred` also enable this but also provide additional promise integration. See https://github.com/jeffbski/react-deferred
 
 ```javascript
-require('react/promise-resolve');
+var react = require('react');
+react.resolvePromises();  // turn on automatic promise detection and resolution
 ```
 
-#### Track tasks
+#### Track tasks - enable task tracking
 
-Instead of only logging events to stderr (like LogEvents), this plugin fires events that can be directly monitored. The LogEvent plugin uses this internally to get access to the metrics.
+Instead of only logging events to stderr (like LogEvents), this built-in plugin fires events that can be directly monitored. The LogEvent plugin uses this internally to get access to the metrics.
 
-It also provides a simple accumulator which can be used to accumulate events. Note that this accumulator is designed for short term debug use, as it will continue to accumulate events and does not have any size restrictions.
-
-Thus while the tracking can be used in production because it simply fires events, the accumulator should only be used for convenience in debugging and testing.
+Enable this like the other built-in plugins using the method `trackTasks`
 
 ```javascript
-require('react/lib/track-tasks');  // enable tracking and events
+var react = require('react');
+react.trackTasks();  // turn on flow and task tracking events
+```
 
-// if you want to use the accumulator
+Available Events that can be consumed
 
-var EventCollector = require('react/lib/track-tasks').EventCollector;
+ - flow.begin - flow execution has started (receives a flow env)
+ - flow.complete - flow execution has successfully completed (receives a flow env)
+ - flow.errored - flow execution has errored (receives a flow env)
+ - task.begin - task has started (receives task)
+ - task.complete - task has successfully complted (receives task)
+ - task.errored - task has errored (receives task)
+
+
+#### EventCollector - simple event accumulator for debug use
+
+When developing or debugging it is often useful to accumulate events and then interrogate them to verify operation, especially in testing.
+
+To make this easier to accomplish, this plugin provides a simple event accumulator for development use. Note that this accumulator is designed for short term debug use, as it will continue to accumulate events and does not have any size restrictions, it should not be used in production since it will just continue to grow in size unless manually cleared.
+
+```javascript
+var EventCollector = require('react/lib/event-collector);
 var collector = new EventCollector();
 
-collector.captureGlobal('*'); // capture all react events for all flows
-
-// OR
-
-collector.capture(flowFn, 'task.'); // capture task events on a flow
-collector.capture(flowFn, 'flow.'); // add capture flow events on a flow
+collector.capture(); // capture all flow and task events for all react flows
+collector.capture('flow.*'); // capture all flow events for all react flows
+collector.capture(flowFn, 'task.*'); // capture task events on a flow
+collector.capture(flowFn, 'flow.*'); // add capture flow events on a flow
 
 var events = collector.list();  // retrieve the list of events
+collector.clear();  // clear the list of events;
 ```
 
 #### Alternate DSL's

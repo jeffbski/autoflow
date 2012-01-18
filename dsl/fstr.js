@@ -2,7 +2,7 @@
 /*jshint regexp: false */
 
 var sprintf = require('sprintf').sprintf;
-var core = require('../lib/core.js');
+var react = require('../');  // require('react');
 var parse = require('../lib/parse.js');
 var tutil = require('../lib/task.js');
 
@@ -79,7 +79,7 @@ function fstrDefine(inParamStr, taskDefArr, outParamStr, options) {
   if (!taskDefArr) taskDefArr = [];
   if (!outParamStr) outParamStr = '';
 
-  var reactFn = core();
+  var reactFn = react();
   var ast = {
     inParams: parseInParams(inParamStr).inDef,
     tasks: parseTasks(taskDefArr),
@@ -100,7 +100,7 @@ function selectFirst(inParamStr, taskDefArr, outParamStr, options) {
   if (!outParamStr) outParamStr = '';
   var tasks = tutil.serializeTasks(parseTasks(taskDefArr));
 
-  var reactFn = core();
+  var reactFn = react();
   var ast = {
     inParams: parseInParams(inParamStr).inDef,
     tasks: tasks,
@@ -117,5 +117,8 @@ function selectFirst(inParamStr, taskDefArr, outParamStr, options) {
 
 module.exports = fstrDefine;
 module.exports.selectFirst = selectFirst;
-module.exports.options = core.options;
-module.exports.events = core.events;
+module.exports.options = react.options; // global react options
+module.exports.events = react.events;   // global react event emitter
+module.exports.logEvents = react.logEvents;  // enable event logging
+module.exports.resolvePromises = react.resolvePromises; // enable promise resolution
+module.exports.trackTasks = react.trackTasks; // enable tracking of tasks

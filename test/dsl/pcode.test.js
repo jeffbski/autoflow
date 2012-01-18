@@ -4,7 +4,7 @@ var test = require('tap').test;
 var sprintf = require('sprintf').sprintf;
 
 var pcode = require('../../dsl/pcode'); // require('react/dsl/pcode');
-var EventCollector = require('../../lib/track-tasks').EventCollector;  // require('react/lib/track-tasks'); // turn on tracking
+var EventCollector = require('../../lib/event-collector');  // require('react/lib/event-collector'); // turn on tracking
 
 function falpha() { }
 function fbeta() { }

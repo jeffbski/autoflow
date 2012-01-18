@@ -2,7 +2,7 @@
 /*jshint regexp: false */
 
 var sprintf = require('sprintf').sprintf;
-var core = require('../lib/core.js');
+var react = require('../');  //require('react');
 var parse = require('../lib/parse.js');
 var tutil = require('../lib/task.js');
 
@@ -130,7 +130,7 @@ function pcodeDefine(inParamStr, taskStrArr, locals, options) {
   var outTaskStr = (taskStrArr.length) ? taskStrArr.pop() : '';
   if (!locals) locals = { };
 
-  var reactFn = core();
+  var reactFn = react();
   var ast = {
     inParams: parseInParams(inParamStr).inDef,
     tasks: parseTasks(taskStrArr),
@@ -153,7 +153,7 @@ function selectFirst(inParamStr, taskStrArr, locals, options) {
   if (!locals) locals = { };
   var tasks = tutil.serializeTasks(parseTasks(taskStrArr));
   
-  var reactFn = core();
+  var reactFn = react();
   var ast = {
     inParams: parseInParams(inParamStr).inDef,
     tasks: tasks,
@@ -171,5 +171,8 @@ function selectFirst(inParamStr, taskStrArr, locals, options) {
 
 module.exports = pcodeDefine;
 module.exports.selectFirst = selectFirst;
-module.exports.options = core.options;
-module.exports.events = core.events;
+module.exports.options = react.options; // global react options
+module.exports.events = react.events;   // global react event emitter
+module.exports.logEvents = react.logEvents;  // enable event logging
+module.exports.resolvePromises = react.resolvePromises; // enable promise resolution
+module.exports.trackTasks = react.trackTasks; // enable tracking of tasks

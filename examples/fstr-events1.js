@@ -2,7 +2,7 @@
 /*jshint white: false */
 
 var fstr = require('../dsl/fstr'); // require('react/dsl/fstr');
-require('../lib/log-events').logEvents(fstr); // require('react/lib/log-events').logEvents(react);
+fstr.logEvents(); // turn on logging of all flow and task events for all react functions
 
 function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
 function loadFile(filename, cb){ setTimeout(cb, 100, null, 'Filedata'+filename); }
