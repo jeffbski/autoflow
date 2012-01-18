@@ -435,6 +435,27 @@ test('using "this" in a sync function', function (t) {
   }]);
 });
 
+test('undefined input arguments will be upgraded from undefined to null', function (t) {
+  var fn = react();
+  function concat(a, b) {
+    return '' + a + b;    
+  }
+  var errors = fn.setAndValidateAST({
+    inParams: ['a', 'b'],
+    tasks: [
+      { f: concat, a: ['a', 'b'], out: ['c'], type: 'ret' }
+    ],
+    outTask: { a: ['c'] }
+  });
+  t.deepEqual(errors, [], 'no validation errors');
+  fn('first', undefined, function (err, c) {  // undefined second param, upgrade to null
+    t.equal(err, null);
+    t.equal(c, 'firstnull');
+    t.end();
+  });
+});
+
+
 
 // Select first tests
 
