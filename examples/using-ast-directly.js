@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+   Advanced example using the AST directly which most users will not do.
+   For general use, see other examples like simple.js
+  */
 var react = require('../'); // require('react');
 
 function load(res, cb) { setTimeout(cb, 100, null, res + '-loaded'); }
