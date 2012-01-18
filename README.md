@@ -182,7 +182,7 @@ See the [Advanced React](https://github.com/jeffbski/react/blob/master/doc/advan
 
 ## Status
 
- - 2012-01-18 - Remove old DSL interfaces, improve plugin loading (v0.5.0)
+ - 2012-01-18 - Remove old DSL interfaces, improve plugin loading, log flow name with task name, ast.defined event, test with node 0.7.0 (v0.5.1)
  - 2012-01-17 - Additional documentation (v0.3.5)
  - 2012-01-16 - Refine events and create logging plugin (v0.3.3)
  - 2012-01-13 - Add promise tasks, promise resolution, refactor alternate DSL interfaces as optional requires (v0.3.0)
@@ -194,12 +194,12 @@ See the [Advanced React](https://github.com/jeffbski/react/blob/master/doc/advan
 ## Test Results
 
 ```bash
-ok ast.test.js .................... 10/10
+ok ast.test.js .................... 15/15
 ok cb-task.test.js ................ 31/31
 ok core-deferred.test.js .......... 11/11
 ok core-promised.test.js .......... 11/11
 ok core-when.test.js ................ 6/6
-ok core.test.js ................. 104/104
+ok core.test.js ................. 108/108
 ok dsl.test.js .................... 70/70
 ok event-manager.test.js .......... 13/13
 ok exec-options.test.js ............. 3/3
@@ -213,7 +213,7 @@ ok validate-cb-task.test.js ......... 6/6
 ok validate-ret-task.test.js ........ 7/7
 ok validate.test.js ............... 31/31
 ok vcon.test.js ................... 55/55
-total ........................... 457/457
+total ........................... 466/466
 
 ok
 ```
