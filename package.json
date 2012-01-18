@@ -1,7 +1,7 @@
 {
   "name": "react",
   "description": "React is a javascript module implementing a lightweight rules engine to make it easier to work with asynchronous code, by reducing boilerplate code and improving error and exception handling while allowing variable and task dependencies when defining flow.",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "author": "Jeff Barczewski <jeff.barczewski@gmail.com>",
   "repository": { "type": "git", "url": "http://github.com/jeffbski/react.git" },
   "bugs" : { "url": "http://github.com/jeffbski/react/issues" },
