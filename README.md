@@ -35,7 +35,7 @@ It takes inspiration from several projects including:
  - object instance method calls
  - class method calls
  - selectFirst flow where the first task that returns defined, non-null value is used
- - promise style functions - also automatic resolution of promise inputs (optional require('react/promise-resolve');)
+ - promise style functions - also automatic resolution of promise inputs (optionally loaded with `react.resolvePromises();`)
  - use of resulting flow function as callback style or promise style (if no callback provided) (provided via plugin corresponding to the promise library used) See https://github.com/jeffbski/react-deferred
  - (planned) iteration on arrays, streams, sockets
  - (planned) event emitter integration

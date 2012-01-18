@@ -159,3 +159,7 @@ collector.capture(flowFn, 'flow.*'); // add capture flow events on a flow
 var events = collector.list();  // retrieve the list of events
 collector.clear();  // clear the list of events;
 ```
+
+### External Plugins
+
+ - https://github.com/jeffbski/react-deferred - integrates jQuery style Deferred/Promises with react, providing automatic promise resolution and optional usage for react functions where by calling without a callback returns a promise.
