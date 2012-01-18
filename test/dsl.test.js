@@ -16,7 +16,7 @@ test('module exports is a fn with properties', function (t) {
 
 test('no arguments -> empty name, inParams, tasks, outTask', function (t) {
   var r = react();
-  t.equal(r.ast.name, undefined);
+  t.equal(r.ast.name.slice(0, 'flow_'.length), 'flow_', 'generated flow name should start with flow_');
   t.deepEqual(r.ast.inParams, []);
   t.deepEqual(r.ast.tasks, []);
   t.deepEqual(r.ast.outTask, { a: [], type: 'finalcb' });
@@ -26,7 +26,7 @@ test('no arguments -> empty name, inParams, tasks, outTask', function (t) {
 
 test('empty first string -> empty name, inParams, tasks, outTask', function (t) {
   var r = react('');
-  t.equal(r.ast.name, '');
+  t.equal(r.ast.name.slice(0, 'flow_'.length), 'flow_', 'generated flow name should start with flow_');
   t.deepEqual(r.ast.inParams, []);
   t.deepEqual(r.ast.tasks, []);
   t.deepEqual(r.ast.outTask, { a: [], type: 'finalcb' });

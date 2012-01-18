@@ -10,6 +10,7 @@ function add(x, y, cb) { cb(null, x + y); }
 function badFunc(a, b, cb) { throw new Error('badFuncThrow'); }
 function badF2(a, b, cb) { cb('my-error'); }
 function fnRetsSum(a, b) { return a + b; }
+var anonFn = function (a, b) { return a + b; };
 
 test('set and validate AST', function (t) {
   var fn = react();
@@ -42,16 +43,19 @@ test('unnamed tasks will be assigned unique names', function (t) {
       { f: multiply, a: ['a', 'b'], out: ['c'] },
       { f: multiply, a: ['a', 'b'], out: ['d'], name: 'multiply' },
       { f: multiply, a: ['a', 'b'], out: ['e'], name: 'times' },
+      { f: anonFn,   a: ['a', 'b'], out: ['g'], type: 'ret' },
       { f: multiply, a: ['a', 'b'], out: ['f'] }
     ],
     outTask: { a: ['c'] }
   });
   t.deepEqual(errors, [], 'should set and validate as true');
+  t.equal(fn.ast.name.slice(0, 'flow_'.length), 'flow_', 'generated flow name should start with flow_');
   t.deepEqual(fn.ast.tasks, [
       { f: multiply, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'multiply_0' },
       { f: multiply, a: ['a', 'b'], out: ['d'], name: 'multiply', type: 'cb' },
       { f: multiply, a: ['a', 'b'], out: ['e'], name: 'times', type: 'cb' },
-      { f: multiply, a: ['a', 'b'], out: ['f'], type: 'cb', name: 'multiply_3' }
+      { f: anonFn,   a: ['a', 'b'], out: ['g'], type: 'ret', name: 'task_3' },    
+      { f: multiply, a: ['a', 'b'], out: ['f'], type: 'cb', name: 'multiply_4' }
     ]);
   t.end();
 });
