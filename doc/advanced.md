@@ -133,6 +133,7 @@ react.trackTasks();  // turn on flow and task tracking events
 
 Available Events that can be consumed
 
+ - ast.defined - ast was defined (receives the ast)
  - flow.begin - flow execution has started (receives a flow env)
  - flow.complete - flow execution has successfully completed (receives a flow env)
  - flow.errored - flow execution has errored (receives a flow env)

@@ -2,7 +2,8 @@
 
 var test = require('tap').test;
 
-var react = require('../react');
+var react = require('../'); // require('react');
+var EventCollector = require('../lib/event-collector');
 
 function load(res, cb) { cb(null, res + '-loaded'); }
 function prefix(prefstr, str, cb) { cb(null, prefstr + str); }
@@ -36,6 +37,31 @@ test('mixed', function (t) {
     t.equal(err, null);
     t.equal(lres, 'PRE-BAR-LOADED-POST');
   });
+});
+
+test('ast.defined event called when ast is defined', function (t) {
+  var fn = react();
+  var collector = new EventCollector();
+  collector.capture(fn, 'ast.*');
+  
+  var errors = fn.setAndValidateAST({
+    inParams: ['res', 'prefstr', 'poststr'],
+    tasks: [
+      { f: load,    a: ['res'],              out: ['lres'] },
+      { f: upper,   a: ['lres'],             out: ['ulres'], type: 'ret'  },
+      { f: prefix,  a: ['prefstr', 'ulres'], out: ['plres'] },
+      { f: postfix, a: ['plres', 'poststr'], out: ['plresp'] }
+    ],
+    outTask: { a: ['plresp'] }
+  });
+
+  var events = collector.list();
+  t.equal(events.length, 1);
+  t.type(events[0].ast, 'object');
+  t.ok(events[0].ast.inParams);
+  t.ok(events[0].ast.tasks);
+  t.ok(events[0].ast.outTask);
+  t.end();
 });
 
 test('cb with err', function (t) {
