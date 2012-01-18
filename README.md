@@ -36,7 +36,7 @@ It takes inspiration from several projects including:
  - class method calls
  - selectFirst flow where the first task that returns defined, non-null value is used
  - promise style functions - also automatic resolution of promise inputs (optional require('react/promise-resolve');)
- - use of resulting flow function as callback style or promise style (if no callback provided) (provided via plugin corresponding to the promise library used)
+ - use of resulting flow function as callback style or promise style (if no callback provided) (provided via plugin corresponding to the promise library used) See https://github.com/jeffbski/react-deferred
  - (planned) iteration on arrays, streams, sockets
  - (planned) event emitter integration
 
@@ -72,17 +72,8 @@ Pull from github - http://github.com/jeffbski/react
 
 ## Examples
 
- 1. [Direct AST](#directAST)
- 2. [Default DSL](#defaultDSL)
-
-### Example using the default DSL
-
-These live in the examples folder so they are ready to run.
-Also see test/module-use.test.js for more examples as well
-as the specific tests for the DSL you want to use.
-
 <a name="defaultDSL"/>
-### Example using default DSL
+### Example using default DSL interface
 
  - Simple example showing flow definition of two async functions feeding a
    synchronous function.
@@ -142,46 +133,8 @@ also indicates how the tasks will be executed
 ![default-simple.dot.png](https://github.com/jeffbski/react/raw/master/doc/default-simple.dot.png)
 
 
-<a name="directAST"/>
-### Example directly using AST
-
-```javascript
-var react = require('react');
-
-function load(res, cb) { setTimeout(cb, 100, null, res + '-loaded'); }
-function prefix(prefstr, str, cb) { setTimeout(cb, 100, null, prefstr + str); }
-function postfix(str, poststr, cb) { setTimeout(cb, 100, null, str + poststr); }
-function upper(str) { return str.toUpperCase(); }
-
-var fn = react();
-var errors = fn.setAndValidateAST({
-  inParams: ['res', 'prefstr', 'poststr'],
-  tasks: [
-    { f: load,    a: ['res'],              out: ['lres'] },
-    { f: upper,   a: ['lres'],             out: ['ulres'], type: 'ret'  },
-    { f: prefix,  a: ['prefstr', 'ulres'], out: ['plres'] },
-    { f: postfix, a: ['plres', 'poststr'], out: ['plresp'] }
-  ],
-  outTask: { a: ['plresp'] }
-});
-console.error('errors:', errors); // []
-
-fn('foo', 'pre-', '-post', function cb(err, lres) {
-  console.error('err:', err);  // null
-  console.error('lres:', lres); // pre-FOO-LOADED-post
-});
-```
-
-### Alternate interfaces (DSL's)
-
- 1. [Using pseudocode DSL](https://github.com/jeffbski/react/blob/master/doc/alternate-dsls.md#pcode)
- 2. [Using jquery-like chaining DSL](https://github.com/jeffbski/react/blob/master/doc/alternate-dsls.md#chain)
- 3. [Using function string DSL](https://github.com/jeffbski/react/blob/master/doc/alternate-dsls.md#fstr)
-
 
 ## User API
-
-### Default DSL
 
 The main function returned from require('react') can be used to define the AST used for the processing of the rules or flow.
 
@@ -200,149 +153,36 @@ var fn = react('loadRender', 'fooPath, barPath, barP2, cb -> err, renderedOut',
  1. **flow/function name** - string - represents the name of the flow or function that will be created. React will use the name when generating events so you can monitor progress and performance and also when errors occur.
  2. **in/out flow parameter definition** - string - the inputs and outputs for the flow function. The parameters are specified in one single string for easy typing, separated by commas. The output follows the input after being separated by a `->`. Use the parameter name `cb` or `callback` to specify the Node style callback and `err` to represent the error parameter as the first output parameter of the callback. Literal values can also be specified directly (true, false, numbers, this, null). Literal strings can simply be quoted using single or double quotes.
  3. **optional flow options** - object - If an object is provided immediately after the in/out flow def, then these options will be provided to react to customize the flow. This is reserved for future use.
- 3. **function reference or method string** - Specify the function to be called for this task, or if calling a method off of an object being passed in or returned by a task, use a string to specify like `'obj.method'`. These can be asynchronous Node-style callback `cb(err, ...)` functions or synchronous functions which simply return values directly.
- 4. **in/out task parameter definition** - string - similar to the in/out flow parameter definition above, these are the inputs and outputs that are passed to a task function and returned from a task function. The inputs will need to match either those from the flow inputs or outputs from other tasks that will run before this task. React will use the inputs as dependencies, so it will invoke and wait for response from the tasks that provide the dependent inputs. So simply by specifying inputs and outputs for the tasks, React will prioritize and parallelize tasks to run as fast as possible. Use `cb` or `callback` along with `err` to specify asynchronous Node style `cb(err, ...)` task, or omit both to specify a synchronous task.A synchronous task can only have a single return parameter.
- 5. **optional task options** - object - if an object is provided this can be used to specify additional options for this task.  Currently the valid options for a task are:
+ 4. **function reference or method string** - Specify the function to be called for this task, or if calling a method off of an object being passed in or returned by a task, use a string to specify like `'obj.method'`. These can be asynchronous Node-style callback `cb(err, ...)` functions or synchronous functions which simply return values directly.
+ 5. **in/out task parameter definition** - string - similar to the in/out flow parameter definition above, these are the inputs and outputs that are passed to a task function and returned from a task function. The inputs will need to match either those from the flow inputs or outputs from other tasks that will run before this task. React will use the inputs as dependencies, so it will invoke and wait for response from the tasks that provide the dependent inputs. So simply by specifying inputs and outputs for the tasks, React will prioritize and parallelize tasks to run as fast as possible. Use `cb` or `callback` along with `err` to specify asynchronous Node style `cb(err, ...)` task, or omit both to specify a synchronous task.A synchronous task can only have a single return parameter.
+ 6. **optional task options** - object - if an object is provided this can be used to specify additional options for this task.  Currently the valid options for a task are:
    - **name** - string - specifies a name for a task, otherwise React will try to use the function name or method string if it is unique in the flow. If a name is not unique subsequent tasks will have `_index` (zero based index of the task) added to create unique name. If you specify a name, you will also want to indicate a unique name for within the flow otherwise it will get a suffix as well. Example: `{ name: 'myTaskName' }`
    - **after** - string, function reference, or array of string or function refs - specify additional preconditions that need to be complete before this task can run. In addition to the input dependencies being met, wait for these named tasks to complete before running.  The preconditions are specified using the name of the task or if the task function was only used once and is a named function (not anonymous), you can just provide the function reference and it will determine name from it. Example: `{ after: 'foo' }` or `{ after: ['foo', 'bar'] }`
- 6. **repeat 3-5** - repeat steps 3-5 to specify additional tasks in this flow. As dependencies are met for tasks, React will invoke additional tasks that are ready to run in the order they are defined in this flow definition. So while the order does have some influence on the execution, it is primarily defined by the input dependencies and any other additonal preconditions specified with the `after` option. If you want to guarantee that something only runs after something else completes, then it will need to use an output from that task or specify the dependency with an `after`.
+ 7. **repeat 4-6** - repeat steps 4-6 to specify additional tasks in this flow. As dependencies are met for tasks, React will invoke additional tasks that are ready to run in the order they are defined in this flow definition. So while the order does have some influence on the execution, it is primarily defined by the input dependencies and any other additonal preconditions specified with the `after` option. If you want to guarantee that something only runs after something else completes, then it will need to use an output from that task or specify the dependency with an `after`.
 
 
 The flow function created by react from the input definition is a normal Node-style function which can be used like any other. These flow functions can be defined in a module and exported, they can be passed into other functions, used as methods on objects (the `this` context is passed in and available).
 
+### Debugging React
 
-### AST
-
-The abstract syntax tree or AST provided by React represents the data necessary to define the flow. By abstracting this from the DSL, it allows new skins or interfaces to be developed without need to change the core engine.
-
-The AST is normally created at parse time when the React main function is called (or one of the alternate DSL's is called). This can be done a module load time such that after loading the React defined flow function's AST is generated and ready to process eliminating parsing and validation overhead when it is invoked in the future. This has the added advantage that since validation has also been performed that additional syntax issues or incomplete flow defintion errors can be caught quickly.
-
-After the flow function has been created, you can review the generated AST for a function by accessing the ast.
-
-```javascript
-var react = require('react');
-var fn = react('my-flow-name', 'paramName1, paramName2, cb -> err, outParamName1, outParamName2',
-  functionRefOrMethodStr, 'paramName1, cb -> err, outParamName2',  // async cb task
-  functionRefOrMethodStr2, 'paramName2, paramName1 -> outParamName1'   // sync task
-);
-
-console.error(fn.ast); // output the generated AST
-```
-
-The AST contains the following pieces:
-
-```javascript
-  var ast = {
-    name: flowName,
-    inParams: [],
-    tasks: [],
-    outTask: {},
-    locals: {}
-  };
-```
- - **name** - string - represents the name of the flow or function that will be created. React will use the name when generating events so you can monitor progress and performance and also when errors occur.
- - **inParams** - array of strings - the flow input parameter names (excluding the callback param)
- - **tasks** - array of task defintion objects - each containing:
-   - **f** - function reference or method string - async or sync function to be used for this task
-   - **a** - array of input parameter names (excluding the callback param)
-   - **out** - array of output parameter names (excluding the err parame)
-   - **type** - type of function determining how function is invoked and its output style - one of: ('cb', 'ret', 'promise', 'when')
-   - **name** - string - unique name for each task provided or generated by React
- - **outTask** - task definition object specifying the flow's output style and parameters containing:
-   - **f** - will contain reference to the callback function at runtime
-   - **a** - parameters being passed as output from the flow
- - **locals** - object provided which contains additional values that will become part of the React variable space like input parameters but can be defined in advance at flow definition. This can be used to provide functions and objects to React enabling string based DSL's like the pcode DSL can be utilized.
-
-
-### Plugins (optional requires which turn on additional functionality)
-
-Additional functionality which is not enabled by default but available by requiring additional modules.
-
-
-#### LogEvents - log react progress to stderr
-
-For convenience in debugging or in monitoring flow and performance, React has a built-in plugin for easily logging progress to stderr which is loaded and activated calling the react method `logEvents`. It can be specified to log globally for all react functions or only for particular react functions. You also may optionally listen to select events rather than all flow and task events.
+React has a built-in plugin which can be loaded that will enable logging of tasks and flow as it executes very useful for debugging.  For full details see [Advanced React - LogEvents](https://github.com/jeffbski/react/blob/master/doc/advanced.md#LogEvents) along with the other plugins and an explanation of the AST React uses.
 
 ```javascript
 var react = require('react');
 react.logEvents(); // turn on flow and task logging for all react functions
-
-// OR
-
-react.logEvents(myReactFn); // turn on flow and task  logging for a specific function, repeat as needed
-react.logEvents(myReactFn).logEvents(myReactFn2);  // can also chain
-
-// Both methods can also take an optional event wildcard to specify what you want to listen to
-
-react.logEvents('flow.*'); // turn on flow logging for all react functions
-react.logEvents(myReactFn, 'task.*'); // turn on task logging for myReactFn
 ```
 
-Available Events that can be logged:
+### Advanced React
 
- - flow.begin - flow execution has started (receives a flow env)
- - flow.complete - flow execution has successfully completed (receives a flow env)
- - flow.errored - flow execution has errored (receives a flow env)
- - task.begin - task has started (receives task)
- - task.complete - task has successfully complted (receives task)
- - task.errored - task has errored (receives task)
+React has many additional plugins and features which enable logging, monitoring, promise resolution, etc.
 
-#### Automatic Promise Resolution for inputs
+See the [Advanced React](https://github.com/jeffbski/react/blob/master/doc/advanced.md) for details on the AST React uses for processing and other plugins that are available.
 
-If you want to automatically resolve promises in React without having to manually call `when` or `then`, React provides a plugin which will detect the existence of a `then` method (indicating a promise) at runtime from any inputs to the flow and will internally create `when` tasks to resolve them before passing the values to other tasks. This built-in plugin is not loaded normally but is loaded by invoking the react method `resolvePromises`. External plugins like `react-deferred` also enable this but also provide additional promise integration. See https://github.com/jeffbski/react-deferred
-
-```javascript
-var react = require('react');
-react.resolvePromises();  // turn on automatic promise detection and resolution
-```
-
-#### Track tasks - enable task tracking
-
-Instead of only logging events to stderr (like LogEvents), this built-in plugin fires events that can be directly monitored. The LogEvent plugin uses this internally to get access to the metrics.
-
-Enable this like the other built-in plugins using the method `trackTasks`
-
-```javascript
-var react = require('react');
-react.trackTasks();  // turn on flow and task tracking events
-```
-
-Available Events that can be consumed
-
- - flow.begin - flow execution has started (receives a flow env)
- - flow.complete - flow execution has successfully completed (receives a flow env)
- - flow.errored - flow execution has errored (receives a flow env)
- - task.begin - task has started (receives task)
- - task.complete - task has successfully complted (receives task)
- - task.errored - task has errored (receives task)
-
-
-#### EventCollector - simple event accumulator for debug use
-
-When developing or debugging it is often useful to accumulate events and then interrogate them to verify operation, especially in testing.
-
-To make this easier to accomplish, this plugin provides a simple event accumulator for development use. Note that this accumulator is designed for short term debug use, as it will continue to accumulate events and does not have any size restrictions, it should not be used in production since it will just continue to grow in size unless manually cleared.
-
-```javascript
-var EventCollector = require('react/lib/event-collector);
-var collector = new EventCollector();
-
-collector.capture(); // capture all flow and task events for all react flows
-collector.capture('flow.*'); // capture all flow events for all react flows
-collector.capture(flowFn, 'task.*'); // capture task events on a flow
-collector.capture(flowFn, 'flow.*'); // add capture flow events on a flow
-
-var events = collector.list();  // retrieve the list of events
-collector.clear();  // clear the list of events;
-```
-
-#### Alternate DSL's
-
-Additional DSL's can be loaded by requiring them. See the [Alternate DSL](https://github.com/jeffbski/react/blob/master/doc/alternate-dsls.md) page for more info.
 
 
 ## Status
 
+ - 2012-01-18 - Remove old DSL interfaces, improve plugin loading (v0.5.0)
  - 2012-01-17 - Additional documentation (v0.3.5)
  - 2012-01-16 - Refine events and create logging plugin (v0.3.3)
  - 2012-01-13 - Add promise tasks, promise resolution, refactor alternate DSL interfaces as optional requires (v0.3.0)
@@ -360,15 +200,12 @@ ok core-deferred.test.js .......... 11/11
 ok core-promised.test.js .......... 11/11
 ok core-when.test.js ................ 6/6
 ok core.test.js ................. 104/104
-ok chain.test.js .................. 74/74
-ok fstr.test.js ................... 67/67
-ok pcode.test.js .................. 94/94
 ok dsl.test.js .................... 70/70
 ok event-manager.test.js .......... 13/13
 ok exec-options.test.js ............. 3/3
 ok finalcb-task.test.js ............. 5/5
 ok input-parser.test.js ........... 15/15
-ok module-use.test.js ............. 21/21
+ok module-use.test.js ............. 24/24
 ok promise-auto-resolve.test.js ..... 4/4
 ok ret-task.test.js ............... 31/31
 ok task.test.js ..................... 1/1
@@ -376,7 +213,7 @@ ok validate-cb-task.test.js ......... 6/6
 ok validate-ret-task.test.js ........ 7/7
 ok validate.test.js ............... 31/31
 ok vcon.test.js ................... 55/55
-total ........................... 692/692
+total ........................... 457/457
 
 ok
 ```
