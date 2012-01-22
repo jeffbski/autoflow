@@ -1,0 +1,25 @@
+digraph loadRender {
+  loadRender_input [ shape = box, style = filled, fillcolor = aquamarine ];
+  fooPath [ style = filled, fillcolor = gainsboro ];
+  barPath [ style = filled, fillcolor = gainsboro ];
+  barP2 [ style = filled, fillcolor = gainsboro ];
+  loadFoo [ shape = box, color = blue, fillcolor = beige, style = filled ];
+  foo [ style = filled, fillcolor = gainsboro ];
+  loadBar [ shape = box, color = blue, fillcolor = beige, style = filled ];
+  bar [ style = filled, fillcolor = gainsboro ];
+  render [ shape = box, color = blue, fillcolor = beige, style = filled ];
+  renderedOut [ style = filled, fillcolor = gainsboro ];
+  loadRender_output [ shape = box, style = filled, fillcolor = aquamarine ];
+  loadRender_input -> fooPath;
+  loadRender_input -> barPath;
+  loadRender_input -> barP2;
+  fooPath -> loadFoo;
+  loadFoo -> foo;
+  barPath -> loadBar;
+  barP2 -> loadBar;
+  loadBar -> bar;
+  foo -> render;
+  bar -> render;
+  render -> renderedOut;
+  renderedOut -> loadRender_output;
+}

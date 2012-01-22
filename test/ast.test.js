@@ -64,6 +64,29 @@ test('ast.defined event called when ast is defined', function (t) {
   t.end();
 });
 
+test('ast.defined event is passed to process', function (t) {
+  t.plan(5);
+  var fn = react();
+  process.once('ast.defined', function (ast) {
+    t.type(ast, 'object');
+    t.ok(ast.inParams);
+    t.ok(ast.tasks);
+    t.ok(ast.outTask);
+    t.deepEqual(ast.inParams, ['res', 'prefstr', 'poststr']);
+    t.end();
+  });
+  var errors = fn.setAndValidateAST({
+    inParams: ['res', 'prefstr', 'poststr'],
+    tasks: [
+      { f: load,    a: ['res'],              out: ['lres'] },
+      { f: upper,   a: ['lres'],             out: ['ulres'], type: 'ret'  },
+      { f: prefix,  a: ['prefstr', 'ulres'], out: ['plres'] },
+      { f: postfix, a: ['plres', 'poststr'], out: ['plresp'] }
+    ],
+    outTask: { a: ['plresp'] }
+  });
+});
+
 test('cb with err', function (t) {
   t.plan(5);
   
