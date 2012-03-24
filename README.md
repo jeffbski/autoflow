@@ -205,7 +205,6 @@ See the [Advanced React](https://github.com/jeffbski/react/blob/master/doc/advan
 ok ast.test.js .................... 20/20
 ok cb-task.test.js ................ 31/31
 ok core-deferred.test.js .......... 11/11
-ok core-promised.test.js .......... 11/11
 ok core-when.test.js ................ 6/6
 ok core.test.js ................. 108/108
 ok dsl.test.js .................... 70/70
@@ -221,7 +220,7 @@ ok validate-cb-task.test.js ......... 6/6
 ok validate-ret-task.test.js ........ 7/7
 ok validate.test.js ............... 31/31
 ok vcon.test.js ................... 55/55
-total ........................... 471/471
+total ........................... 459/459
 
 ok
 ```
