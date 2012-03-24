@@ -149,8 +149,8 @@ When developing or debugging it is often useful to accumulate events and then in
 To make this easier to accomplish, this plugin provides a simple event accumulator for development use. Note that this accumulator is designed for short term debug use, as it will continue to accumulate events and does not have any size restrictions, it should not be used in production since it will just continue to grow in size unless manually cleared.
 
 ```javascript
-var EventCollector = require('react/lib/event-collector);
-var collector = new EventCollector();
+var react = require('react');
+var collector = react.createEventCollector();
 
 collector.capture(); // capture all flow and task events for all react flows
 collector.capture('flow.*'); // capture all flow events for all react flows

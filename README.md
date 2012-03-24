@@ -186,6 +186,7 @@ See the [Advanced React](https://github.com/jeffbski/react/blob/master/doc/advan
 
 ## Status
 
+ - 2012-03-28 - Make react AMD-enabled and compatible with ES5 browsers and node.js, provide single file dist and min, add browser tests (v0.6.0)
  - 2012-03-24 - Add Travis-CI, remove promised-io since failing to install in travis-ci for node 0.6/0.7, switch from tap to mocha/chai
  - 2012-03-12 - Pass ast.define events to process (v0.5.2)
  - 2012-01-18 - Remove old DSL interfaces, improve plugin loading, log flow name with task name, ast.defined event, test with node 0.7.0 (v0.5.1)

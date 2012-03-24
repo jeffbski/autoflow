@@ -10,7 +10,7 @@ if (typeof(react) === 'undefined') {
 }
 
 if (typeof(sprintf) === 'undefined') {
-  var sprintf = require('sprintf').sprintf;  
+  var sprintf = require('../lib/sprintf');
 }
 
 (function () {

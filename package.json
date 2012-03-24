@@ -1,21 +1,24 @@
 {
   "name": "react",
   "description": "React is a javascript module implementing a lightweight rules engine to make it easier to work with asynchronous code, by reducing boilerplate code and improving error and exception handling while allowing variable and task dependencies when defining flow.",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "author": "Jeff Barczewski <jeff.barczewski@gmail.com>",
   "repository": { "type": "git", "url": "http://github.com/jeffbski/react.git" },
   "bugs" : { "url": "http://github.com/jeffbski/react/issues" },
   "licenses": [{ "type": "MIT", "url" : "http://github.com/jeffbski/react/raw/master/LICENSE" }],
-  "main": "react",
+  "main": "lib/react",
   "engines": { "node": "*" },
   "dependencies": {
+    "amdefine": "~0.0.2",
     "eventemitter2": "~0.4.1",
-    "sprintf": "~0.1.1",
-    "ensure-array": "~0.0.2"
+    "sprint": "~0.3.0",
+    "ensure-array": "~0.0.5"
   },
   "devDependencies": {
+    "requirejs": "~1.0.7",
     "mocha": "~0.14.1",
     "chai": "~0.5.2",
+    "jake": "~0.2.31",
     "Deferred" : "~0.1.1"
   },
   "scripts": {

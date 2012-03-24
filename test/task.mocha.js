@@ -1,5 +1,5 @@
 'use strict';
-/*global react:true tutil:true */
+/*global react:true taskUtil:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
@@ -9,8 +9,8 @@ if (typeof(react) === 'undefined') {
   var react = require('../'); //require('react');
 }
 
-if (typeof(tutil) === 'undefined') {
-  var tutil = require('../lib/task.js');
+if (typeof(taskUtil) === 'undefined') {
+  var taskUtil = require('../lib/task.js');
 }
 
 (function () {
@@ -34,7 +34,7 @@ if (typeof(tutil) === 'undefined') {
       ],
       outTask: { a: ['baz'] }
     };
-    tutil.setMissingType(ast.tasks[0]);
+    taskUtil.setMissingType(ast.tasks[0]);
     t.equal(ast.tasks[0].type, 'cb');
     done();
   });

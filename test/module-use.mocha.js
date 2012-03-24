@@ -1,5 +1,5 @@
 'use strict';
-/*global react:true BaseTask:true EventCollector:true */
+/*global react:true BaseTask:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
@@ -11,10 +11,6 @@ if (typeof(react) === 'undefined') {
 
 if (typeof(BaseTask) === 'undefined') {
   var BaseTask = require('../lib/base-task.js');
-}
-
-if (typeof(EventCollector) === 'undefined') {
-  var EventCollector = require('../lib/event-collector'); // require('react/lib/event-collector'); 
 }
 
 (function () {
@@ -128,7 +124,7 @@ if (typeof(EventCollector) === 'undefined') {
                                noSuccess, 'a, b, cb -> err, c'                             
                               );
 
-    var collector = new EventCollector();
+    var collector = react.createEventCollector();
     collector.capture(fn, 'task.complete');
     
     fn(2, 3, function (err, c) {

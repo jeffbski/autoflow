@@ -1,0 +1,20 @@
+({
+  baseUrl: "..",
+  optimize: "none",
+  packages: [
+    {
+      name: "react",
+      location: "lib",
+      main: "react"
+    }
+  ],
+  paths: {
+    jQuery: "empty:",
+    eventemitter2: "node_modules/eventemitter2/lib/eventemitter2",
+    util: "vendor/node/util",
+    sprint: "node_modules/sprint/lib/sprint",
+    "ensure-array": "node_modules/ensure-array/ensure-array"
+  },
+  name: "react",
+  out: "dist/react.js"
+})

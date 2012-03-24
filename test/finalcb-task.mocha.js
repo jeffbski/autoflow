@@ -1,5 +1,5 @@
 'use strict';
-/*global react:true tskutil:true */
+/*global react:true taskUtil:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
@@ -9,8 +9,8 @@ if (typeof(react) === 'undefined') {
   var react = require('../'); //require('react');
 }
 
-if (typeof(tskutil) === 'undefined') {
-  var tskutil = require('../lib/task.js');  
+if (typeof(taskUtil) === 'undefined') {
+  var taskUtil = require('../lib/task.js');  
 }
 
 (function () {
@@ -25,7 +25,7 @@ if (typeof(tskutil) === 'undefined') {
 
   test('undefined cb throws exception', function (done) {
     var fn = function () {
-      var finalTask = tskutil.createOutTask({}, undefined);
+      var finalTask = taskUtil.createOutTask({}, undefined);
     };
     t.throws(fn, new Error('callback is not a function'));
     done();
@@ -33,7 +33,7 @@ if (typeof(tskutil) === 'undefined') {
 
   test('null cb  throws exception', function (done) {
     var fn = function () {
-      var finalTask = tskutil.createOutTask({}, null);
+      var finalTask = taskUtil.createOutTask({}, null);
     };
     t.throws(fn, new Error('callback is not a function'));
     done();
@@ -41,7 +41,7 @@ if (typeof(tskutil) === 'undefined') {
 
   test('cb needs to be a function or throws exception', function (done) {
     var fn = function () {
-      var finalTask = tskutil.createOutTask({}, 'foo');
+      var finalTask = taskUtil.createOutTask({}, 'foo');
     };
     t.throws(fn, new Error('callback is not a function'));
     done();
@@ -49,7 +49,7 @@ if (typeof(tskutil) === 'undefined') {
 
   test('valid fn creates outTask', function (done) {
     function foo() { }
-    var finalTask = tskutil.createOutTask({ a: ['bar', 'baz']}, foo);
+    var finalTask = taskUtil.createOutTask({ a: ['bar', 'baz']}, foo);
     t.equal(finalTask.f, foo);
     t.deepEqual(finalTask.a, ['bar', 'baz']);
     done();

@@ -1,5 +1,5 @@
 'use strict';
-/*global react:true EventCollector:true */
+/*global react:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
@@ -7,10 +7,6 @@ if (typeof(chai) === 'undefined') {
 
 if (typeof(react) === 'undefined') {
   var react = require('../'); //require('react');
-}
-
-if (typeof(EventCollector) === 'undefined') {
-  var EventCollector = require('../lib/event-collector');  
 }
 
 (function () {
@@ -59,7 +55,7 @@ if (typeof(EventCollector) === 'undefined') {
 
   test('ast.defined event called when ast is defined', function (done) {
     var fn = react();
-    var collector = new EventCollector();
+    var collector = react.createEventCollector();
     collector.capture(fn, 'ast.*');
     
     var errors = fn.setAndValidateAST({
@@ -83,25 +79,30 @@ if (typeof(EventCollector) === 'undefined') {
   });
 
   test('ast.defined event is passed to process', function (done) {
-    var fn = react();
-    process.once('ast.defined', function (ast) {
-      t.isObject(ast);
-      t.isNotNull(ast.inParams);
-      t.isNotNull(ast.tasks);
-      t.isNotNull(ast.outTask);
-      t.deepEqual(ast.inParams, ['res', 'prefstr', 'poststr']);
-      done();
-    });
-    var errors = fn.setAndValidateAST({
-      inParams: ['res', 'prefstr', 'poststr'],
-      tasks: [
-        { f: load,    a: ['res'],              out: ['lres'] },
-        { f: upper,   a: ['lres'],             out: ['ulres'], type: 'ret'  },
-        { f: prefix,  a: ['prefstr', 'ulres'], out: ['plres'] },
-        { f: postfix, a: ['plres', 'poststr'], out: ['plresp'] }
-      ],
-      outTask: { a: ['plresp'] }
-    });
+    // browser might not have this, so only if process is an eventemitter
+    if (process && process.once) {
+      var fn = react();
+      process.once('ast.defined', function (ast) {
+        t.isObject(ast);
+        t.isNotNull(ast.inParams);
+        t.isNotNull(ast.tasks);
+        t.isNotNull(ast.outTask);
+        t.deepEqual(ast.inParams, ['res', 'prefstr', 'poststr']);
+        done();
+      });
+      var errors = fn.setAndValidateAST({
+        inParams: ['res', 'prefstr', 'poststr'],
+        tasks: [
+          { f: load,    a: ['res'],              out: ['lres'] },
+          { f: upper,   a: ['lres'],             out: ['ulres'], type: 'ret'  },
+          { f: prefix,  a: ['prefstr', 'ulres'], out: ['plres'] },
+          { f: postfix, a: ['plres', 'poststr'], out: ['plresp'] }
+        ],
+        outTask: { a: ['plresp'] }
+      });      
+    } else {
+      done(); //skipping in browser
+    }
   });
 
   test('cb with err', function (done) {

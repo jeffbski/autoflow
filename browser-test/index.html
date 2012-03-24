@@ -1,0 +1,86 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mocha Tests</title>
+  <link rel="stylesheet" href="../vendor/mocha/mocha.css" />
+  <script type="text/javascript" src="../vendor/jquery/jquery-1.7.1.js"></script>
+  <script type="text/javascript" src="../vendor/chai/chai.js"></script>
+  <script type="text/javascript" src="../vendor/mocha/mocha.js"></script>
+  <script>mocha.setup('qunit')</script>
+  <script src="../vendor/requirejs/require.min.js"></script>
+  <script type="text/javascript">
+    require.config({
+      baseUrl: "..",
+      packages: [
+        {
+          name: "react",
+          location: "lib",
+          main: "react"
+        }
+      ],
+      paths: {
+        jQuery: "vendor/jquery/jquery-1.7.1",
+        eventemitter2: "node_modules/eventemitter2/lib/eventemitter2",
+        util: "vendor/node/util",
+        sprint: "node_modules/sprint/lib/sprint",
+        "ensure-array": "node_modules/ensure-array/ensure-array",
+        test: "test"
+      }
+    });
+
+    require(["react", "react/sprintf", "util", "react/validate", "react/task",
+             "react/cb-task", "react/vcon", "react/event-manager", "react/input-parser",
+             "react/base-task", "react/ret-task", "react/validate", "jQuery"],
+            function (react, sprintf, util, validate, taskUtil,
+                      CbTask, VContext, EventManager, inputParser,
+                      BaseTask, RetTask, validate, jquery) {
+      // save refs on window for these
+      window.react = react;
+      window.sprintf = sprintf;
+      window.util = util;
+      window.validate = validate;
+      window.taskUtil = taskUtil;
+      window.CbTask = CbTask;
+      window.VContext = VContext;
+      window.EventManager = EventManager;
+      window.inputParser = inputParser;
+      window.BaseTask = BaseTask;
+      window.RetTask = RetTask;
+      window.validate = validate;
+      window.Deferred = jQuery.Deferred;
+      window.Deferred.when = jQuery.when;
+      var testFiles = [
+        "test/ast.mocha",
+        "test/cb-task.mocha",
+        "test/core-deferred.mocha",
+        "test/core-when.mocha",
+        "test/core.mocha",
+        "test/dsl.mocha",
+        "test/event-manager.mocha",
+        "test/exec-options.mocha",
+        "test/finalcb-task.mocha",
+        "test/input-parser.mocha",
+        "test/module-use.mocha",
+        "test/promise-auto-resolve.mocha",
+        "test/ret-task.mocha",
+        "test/task.mocha",
+        "test/validate-cb-task.mocha",
+        "test/validate-ret-task.mocha",
+        "test/validate.mocha",
+        "test/vcon.mocha"
+      ];
+      require(testFiles, function () {
+        var runner = mocha.run().on('end', function () {
+          console.log('mocha finished');
+          jQuery("#mocha-result").text('completed');
+        });
+        //mocha.reporters.TAP(runner);
+      });
+    });
+  </script>
+</head>
+<body>
+  <div id="mocha"></div>
+  <div id="mocha-result"></div>
+</body>
+</html>

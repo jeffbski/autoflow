@@ -6,7 +6,7 @@
   */
 
 var react = require('../'); // require('react');
-require('../lib/track-tasks');  // require('react/lib/track-tasks'); // turn on tracking
+react.trackTasks();  // turn on flow and task tracking events
 
 //output events as tasks start and complete
 react.events.on('flow.*', function (obj) {

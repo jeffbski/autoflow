@@ -1,5 +1,5 @@
 'use strict';
-/*global react:true EventCollector:true */
+/*global react:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
@@ -7,10 +7,6 @@ if (typeof(chai) === 'undefined') {
 
 if (typeof(react) === 'undefined') {
   var react = require('../'); //require('react');
-}
-
-if (typeof(EventCollector) === 'undefined') {
-  var EventCollector = require('../lib/event-collector');  
 }
 
 (function () {
@@ -128,7 +124,7 @@ if (typeof(EventCollector) === 'undefined') {
     });
     t.deepEqual(errors, [], 'no validation errors');
 
-    var collector = new EventCollector();
+    var collector = react.createEventCollector();
     collector.capture(fn, 'task.complete');
     
     fn(2, 3, function (err, c, d) {
@@ -155,7 +151,7 @@ if (typeof(EventCollector) === 'undefined') {
     });
     t.deepEqual(errors, [], 'no validation errors');
 
-    var collector = new EventCollector();
+    var collector = react.createEventCollector();
     collector.capture(fn, 'task.complete');
     
     fn(2, 3, function (err, c, d) {
@@ -481,7 +477,7 @@ if (typeof(EventCollector) === 'undefined') {
     });
     t.deepEqual(errors, [], 'no validation errors');
 
-    var collector = new EventCollector();
+    var collector = react.createEventCollector();
     collector.capture(fn, 'task.complete');
 
     fn(2, 3, function (err, c) {
@@ -510,7 +506,7 @@ if (typeof(EventCollector) === 'undefined') {
     });
     t.deepEqual(errors, [], 'no validation errors');
 
-    var collector = new EventCollector();
+    var collector = react.createEventCollector();
     collector.capture(fn, 'task.complete');
 
     fn(2, 3, function (err, c) {
@@ -543,7 +539,7 @@ if (typeof(EventCollector) === 'undefined') {
     });
     t.deepEqual(errors, [], 'no validation errors');
 
-    var collector = new EventCollector();
+    var collector = react.createEventCollector();
     collector.capture(fn, 'task.complete');
 
     fn(2, 3, function (err, c) {
@@ -575,7 +571,7 @@ if (typeof(EventCollector) === 'undefined') {
     });
     t.deepEqual(errors, [], 'no validation errors');
 
-    var collector = new EventCollector();
+    var collector = react.createEventCollector();
     collector.capture(fn, 'task.complete');
 
     fn(2, 3, function (err, c) {

@@ -1,5 +1,5 @@
 'use strict';
-/*global react:true util:true sprintf:true validate:true tutil:true */
+/*global react:true util:true sprintf:true validate:true taskUtil:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
@@ -14,15 +14,15 @@ if (typeof(util) === 'undefined') {
 }
 
 if (typeof(sprintf) === 'undefined') {
-  var sprintf = require('sprintf').sprintf;
+  var sprintf = require('../lib/sprintf');
 }
 
 if (typeof(validate) === 'undefined') {
   var validate = require('../lib/validate.js');
 }
 
-if (typeof(tutil) === 'undefined') {
-  var tutil = require('../lib/task.js');
+if (typeof(taskUtil) === 'undefined') {
+  var taskUtil = require('../lib/task.js');
 }
 
 (function () {
@@ -90,7 +90,7 @@ if (typeof(tutil) === 'undefined') {
       outTask: { a: ['bar'] }
     };
     var msg = sprintf('task.type should match one of %s - %s',
-                      tutil.taskTypeKeys().join(', '), util.inspect(ast.tasks[0]));
+                      taskUtil.taskTypeKeys().join(', '), util.inspect(ast.tasks[0]));
     t.deepEqual(validate(ast), [msg]);
     done();
   });
