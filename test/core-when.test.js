@@ -1,12 +1,11 @@
 'use strict';
 
 /**
-   Test core WhenTasks using promised-io
+   Test core WhenTasks using Deferred
   */
 
 var test = require('tap').test;
-//var when = require('promised-io/promise');
-var Deferred = require('promised-io/promise').Deferred;
+var Deferred = require('Deferred');
 
 var react = require('../');  //require('react');
 
@@ -16,14 +15,14 @@ function multiply(x, y) {
   setTimeout(function () {
     deferred.resolve(x * y);
   }, 10);
-  return deferred.promise;
+  return deferred.promise();
 }
 function add(x, y) {
   var deferred = new Deferred();
   setTimeout(function () {
     deferred.resolve(x + y);
   }, 10);
-  return deferred.promise;
+  return deferred.promise();
 }
 
 function badF2(a, b) {
@@ -31,7 +30,7 @@ function badF2(a, b) {
   setTimeout(function () {
     deferred.reject(new Error('my-error'));
   }, 10);
-  return deferred.promise;
+  return deferred.promise();
 }
 
 

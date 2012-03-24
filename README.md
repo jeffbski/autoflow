@@ -186,7 +186,7 @@ See the [Advanced React](https://github.com/jeffbski/react/blob/master/doc/advan
 
 ## Status
 
- - 2012-03-24 - Add Travis-CI
+ - 2012-03-24 - Add Travis-CI, remove promised-io since failing to install in travis-ci for node 0.6/0.7
  - 2012-03-12 - Pass ast.define events to process (v0.5.2)
  - 2012-01-18 - Remove old DSL interfaces, improve plugin loading, log flow name with task name, ast.defined event, test with node 0.7.0 (v0.5.1)
  - 2012-01-17 - Additional documentation (v0.3.5)

@@ -6,7 +6,7 @@
   */
 
 var test = require('tap').test;
-var Deferred = require('promised-io/promise').Deferred;
+var Deferred = require('Deferred');
 
 var react = require('../');  // require('react');
 react.resolvePromises(); // enable promise resolving
@@ -31,13 +31,13 @@ test('auto resolve promises passed as args', function (t) {
   function retAP() {
     var deferred = new Deferred();
     setTimeout(function () { deferred.resolve(2); }, 10);
-    return deferred.promise;
+    return deferred.promise();
   }
 
   function retBP() {
     var deferred = new Deferred();
     setTimeout(function () { deferred.resolve(3); }, 10);
-    return deferred.promise;      
+    return deferred.promise();      
   }
 
   var ap = retAP();
