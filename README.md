@@ -1,5 +1,7 @@
 # React.js
 
+[![Build Status](https://secure.travis-ci.org/jeffbski/react.png?branch=master)](http://travis-ci.org/jeffbski/react)
+
 React is a javascript module to make it easier to work with asynchronous code, by reducing boilerplate code and improving error and exception handling while allowing variable and task dependencies when defining flow. This project is applying the concepts of Reactive programming or Dataflow to controlling application flow.
 
 This async flow control module is initially designed to work with Node.js but is planned to be extended to browser and other environments.
@@ -184,6 +186,7 @@ See the [Advanced React](https://github.com/jeffbski/react/blob/master/doc/advan
 
 ## Status
 
+ - 2012-03-24 - Add Travis-CI
  - 2012-03-12 - Pass ast.define events to process (v0.5.2)
  - 2012-01-18 - Remove old DSL interfaces, improve plugin loading, log flow name with task name, ast.defined event, test with node 0.7.0 (v0.5.1)
  - 2012-01-17 - Additional documentation (v0.3.5)
@@ -195,6 +198,8 @@ See the [Advanced React](https://github.com/jeffbski/react/blob/master/doc/advan
  - 2011-10-26 - React is in active development and interface may change frequently in these early stages. Current code is functional but does not perform validation yet.  Additional interfaces are planned to make it easy to define flows in a variety of ways. Documentation and examples forthcoming.
 
 ## Test Results
+
+[![Build Status](https://secure.travis-ci.org/jeffbski/react.png?branch=master)](http://travis-ci.org/jeffbski/react)
 
 ```bash
 ok ast.test.js .................... 20/20
