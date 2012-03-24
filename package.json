@@ -14,11 +14,11 @@
     "ensure-array": "~0.0.2"
   },
   "devDependencies": {
-    "tap" : "~0.1.0",
-    "tapr" : "~0.1.0",
+    "mocha": "~0.14.1",
+    "chai": "~0.5.2",
     "Deferred" : "~0.1.1"
   },
   "scripts": {
-    "test": "./node_modules/tapr/bin/tapr.js ./test"
+    "test": "./node_modules/mocha/bin/mocha ./test/*.mocha.js"
   }
 }

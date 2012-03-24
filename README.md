@@ -186,7 +186,7 @@ See the [Advanced React](https://github.com/jeffbski/react/blob/master/doc/advan
 
 ## Status
 
- - 2012-03-24 - Add Travis-CI, remove promised-io since failing to install in travis-ci for node 0.6/0.7
+ - 2012-03-24 - Add Travis-CI, remove promised-io since failing to install in travis-ci for node 0.6/0.7, switch from tap to mocha/chai
  - 2012-03-12 - Pass ast.define events to process (v0.5.2)
  - 2012-01-18 - Remove old DSL interfaces, improve plugin loading, log flow name with task name, ast.defined event, test with node 0.7.0 (v0.5.1)
  - 2012-01-17 - Additional documentation (v0.3.5)
@@ -202,27 +202,9 @@ See the [Advanced React](https://github.com/jeffbski/react/blob/master/doc/advan
 [![Build Status](https://secure.travis-ci.org/jeffbski/react.png?branch=master)](http://travis-ci.org/jeffbski/react)
 
 ```bash
-ok ast.test.js .................... 20/20
-ok cb-task.test.js ................ 31/31
-ok core-deferred.test.js .......... 11/11
-ok core-when.test.js ................ 6/6
-ok core.test.js ................. 108/108
-ok dsl.test.js .................... 70/70
-ok event-manager.test.js .......... 13/13
-ok exec-options.test.js ............. 3/3
-ok finalcb-task.test.js ............. 5/5
-ok input-parser.test.js ........... 15/15
-ok module-use.test.js ............. 24/24
-ok promise-auto-resolve.test.js ..... 4/4
-ok ret-task.test.js ............... 31/31
-ok task.test.js ..................... 1/1
-ok validate-cb-task.test.js ......... 6/6
-ok validate-ret-task.test.js ........ 7/7
-ok validate.test.js ............... 31/31
-ok vcon.test.js ................... 55/55
-total ........................... 459/459
+mocha
 
-ok
+178 tests complete
 ```
 
 ## License
