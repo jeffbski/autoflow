@@ -7,7 +7,7 @@
   "bugs" : { "url": "http://github.com/jeffbski/react/issues" },
   "licenses": [{ "type": "MIT", "url" : "http://github.com/jeffbski/react/raw/master/LICENSE" }],
   "main": "lib/react",
-  "engines": { "node": "*" },
+  "engines": { "node": ">=0.6" },
   "dependencies": {
     "amdefine": "~0.0.2",
     "eventemitter2": "~0.4.1",
