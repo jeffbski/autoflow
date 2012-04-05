@@ -1239,9 +1239,9 @@ define('react/vcon',[], function () {
   };
 
   VContext.prototype.setVar = function (name, value) { //name might be simple or obj.prop
-      if (!name) return;  // if name is undefined or null, then discard
-      var vConValues = this.values;
-      var nameAndProps = name.split('.');
+    if (!name) return;  // if name is undefined or null, then discard
+    var vConValues = this.values;
+    var nameAndProps = name.split('.');
     var lastProp = nameAndProps.pop();
     var obj = nameAndProps.reduce(function (accObj, prop) {
       var o = accObj[prop];
@@ -2041,9 +2041,9 @@ function (util, sprintf, array, CbTask, PromiseTask,
     ret: RetTask,
     promise: PromiseTask,
     when: WhenTask
-    };
+  };
 
-    var DEFAULT_TASK_NAME = 'task_%s';  // for unnamed tasks use task_idx, like task_0
+  var DEFAULT_TASK_NAME = 'task_%s';  // for unnamed tasks use task_idx, like task_0
 
   function taskTypeKeys() { return Object.keys(TASK_TYPES); }
 
@@ -2058,9 +2058,6 @@ function (util, sprintf, array, CbTask, PromiseTask,
   var NO_TASKS_RUNNING_WONT_COMPLETE = 'no tasks running, flow will not complete, remaining tasks: %s';
   var TASK_TYPE_SHOULD_MATCH = 'task.type should match one of ' +
     Object.keys(TASK_TYPES).join(', ');
-
-    var validateTaskType, validateTask, create;
-
 
   function format_error(errmsg, obj) {
     return sprintf('%s - %s', errmsg, util.inspect(obj));
@@ -2130,26 +2127,26 @@ function (util, sprintf, array, CbTask, PromiseTask,
   }
 
 
-    function validateLocalFunctions(inParams, taskDefs, locals) {
-      var errors = [];
-      function foo() { } //used to mock args as fns for validation check 
-      var mock_args = inParams.map(function (p) { return foo; }); //mock args with fns
-      var vCon = VContext.create(mock_args, inParams, locals);
-      var tasks = taskDefs.map(create);
-      var tasksWFunctions = tasks.filter(function (t) { return (t.type !== 'when'); }); // non-when tasks need f
-      tasksWFunctions.forEach(function (t, idx) {
-        if (!t.functionExists(vCon)) {   // error if function doesnt exist AND
-          if (!t.isMethodCall()) errors.push(sprintf(LOCAL_FN_MISSING, t.f, idx)); // not method OR
-          else {
-            var obj = t.getMethodObj(vCon);
-            if (obj && obj !== foo) {  // (has parent but not our mock)
-              errors.push(sprintf(LOCAL_FN_MISSING, t.f, idx));
-            }
+  function validateLocalFunctions(inParams, taskDefs, locals) {
+    var errors = [];
+    function foo() { } //used to mock args as fns for validation check 
+    var mock_args = inParams.map(function (p) { return foo; }); //mock args with fns
+    var vCon = VContext.create(mock_args, inParams, locals);
+    var tasks = taskDefs.map(create);
+    var tasksWFunctions = tasks.filter(function (t) { return (t.type !== 'when'); }); // non-when tasks need f
+    tasksWFunctions.forEach(function (t, idx) {
+      if (!t.functionExists(vCon)) {   // error if function doesnt exist AND
+        if (!t.isMethodCall()) errors.push(sprintf(LOCAL_FN_MISSING, t.f, idx)); // not method OR
+        else {
+          var obj = t.getMethodObj(vCon);
+          if (obj && obj !== foo) {  // (has parent but not our mock)
+            errors.push(sprintf(LOCAL_FN_MISSING, t.f, idx));
           }
         }
-      });
-      return errors;
-    }
+      }
+    });
+    return errors;
+  }
 
   function fName(fn) {
     if (typeof(fn) === 'function') {
@@ -2179,7 +2176,7 @@ function (util, sprintf, array, CbTask, PromiseTask,
           name = sprintf('%s_%s', name, idx); //if empty or already used, postfix with _idx
         }
         t.name = name;
-          namesMap[name] = t;
+        namesMap[name] = t;
       }
     });
     return namesMap;
@@ -2192,15 +2189,15 @@ function (util, sprintf, array, CbTask, PromiseTask,
 
   function createOutTask(taskDef, cbFunc, tasks, vCon, execOptions, env) {
     setMissingOutTaskType(taskDef);
-      var outTaskOptions = {
-        taskDef: taskDef,
-        cbFunc: cbFunc,
-        tasks: tasks,
-        vCon: vCon,
-        execOptions: execOptions,
-        env: env,
-        TaskConstructor: OUT_TASK_TYPES[taskDef.type]
-      };
+    var outTaskOptions = {
+      taskDef: taskDef,
+      cbFunc: cbFunc,
+      tasks: tasks,
+      vCon: vCon,
+      execOptions: execOptions,
+      env: env,
+      TaskConstructor: OUT_TASK_TYPES[taskDef.type]
+    };
     EventManager.global.emit(EventManager.TYPES.EXEC_OUTTASK_CREATE, outTaskOptions); // hook
     var TaskConstructor = outTaskOptions.TaskConstructor;  // hook could have changed
     return new TaskConstructor(outTaskOptions);
