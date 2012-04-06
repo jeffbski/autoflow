@@ -131,56 +131,6 @@ if (typeof(react) === 'undefined') {
       t.equal(lres, undefined);
       done();
     });
-  });
-
-  test('subflows defined, creates flow fns in sub', function (done) {
-    var fn = react();
-    var collector = react.createEventCollector();
-    collector.capture(fn, 'ast.*');
-    
-    var errors = fn.setAndValidateAST({
-      inParams: ['res', 'prefstr', 'poststr'],
-      tasks: [
-        { f: load,    a: ['res'],              out: ['lres'] },
-        { f: upper,   a: ['lres'],             out: ['ulres'], type: 'ret'  },
-        { f: prefix,  a: ['prefstr', 'ulres'], out: ['plres'] },
-        { f: postfix, a: ['plres', 'poststr'], out: ['plresp'] }
-      ],
-      outTask: { a: ['plresp'] },
-      sub: {
-        fn1: {
-          inParams: ['foo'],
-          tasks: [
-            { f: load,    a: ['foo'],              out: ['bar'] }
-          ],
-          outTask: { a: ['bar'] }
-        },
-        fn2: {
-          inParams: ['baz'],
-          tasks: [
-            { f: load,    a: ['baz'],              out: ['cat'] }
-          ],
-          outTask: { a: ['cat'] }
-        }
-      }
-    });
-
-    var events = collector.list();
-    t.equal(events.length, 1);
-    t.isObject(events[0].ast.sub);
-    t.isFunction(events[0].ast.sub.fn1);
-    t.isObject(events[0].ast.sub.fn1.ast); 
-    t.isNotNull(events[0].ast.sub.fn1.ast.inParams);
-    t.isNotNull(events[0].ast.sub.fn1.ast.tasks);
-    t.isNotNull(events[0].ast.sub.fn1.ast.outTask);
-    t.isFunction(events[0].ast.sub.fn2);
-    t.isObject(events[0].ast.sub.fn2.ast); 
-    t.isNotNull(events[0].ast.sub.fn2.ast.inParams);
-    t.isNotNull(events[0].ast.sub.fn2.ast.tasks);
-    t.isNotNull(events[0].ast.sub.fn2.ast.outTask);
-    done();
-  });
-
-  
+  });  
 
 }());

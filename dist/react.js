@@ -1122,7 +1122,7 @@ define('react/error',['util'], function (util) {
     }
     if (vcon) {
       errString += 'Variable Context: \n';
-      errString += util.inspect(vcon);
+      errString += util.inspect(vcon.allValues(), false, 5);
       errString +=  '\n\n';
     }
     if (task && task.f) {
@@ -1195,11 +1195,80 @@ define('react/status',[], function () {
 
 
 
+define('react/subflow',[], function () {
+
+  /**
+     Create subflows if any on the provided AST and return any errors
+
+     @param ast - ast which will be updated with subflow fns
+     @return errors array
+    */
+  function create(ast, reactFactory) { // create subflows if any, return array of errors
+    return Object.keys(ast.sub).reduce(function (errors, subName) {
+      var subFn = reactFactory();
+      subFn.parent = ast.name; // set parent's name on the child
+      var subAST = ast.sub[subName];
+      var subErrors = subFn.setAndValidateAST(subAST);
+      ast.sub[subName] = subFn;
+      return errors.concat(subErrors);
+    }, []);
+  }
+
+  /**
+     Load the subflows into VContext
+
+     @param env - flow environment
+     @return subflowNames - vCon strings referring to the subflows loaded
+    */
+  function loadIntoVCon(env) {
+    var ast = env.ast;
+    if (!ast.sub) return;
+    var subflowNames = Object.keys(ast.sub).reduce(function (accum, flowName) {
+      var subflowName = 'sub:' + flowName;
+      var subFn = ast.sub[flowName];
+      // subFn.parentEnv = env; // set the parent's env on this child fn      
+      env.vCon.setVar(subflowName, subFn);
+      accum.push(subflowName);
+      return accum;
+    }, []);
+    return subflowNames;
+  }
+
+  /**
+     Load mock fn subflows into VContext for validation purposes
+     @param ast - ast with possible subflows
+     @param vCon - VContext which will be updated with subflows
+     @return subflowNames - vCon strings referring to the subflows loaded
+    */     
+  function loadMockFnsIntoVCon(ast, vCon) {
+    if (!ast.sub) return;
+    var subflowNames = Object.keys(ast.sub).reduce(function (accum, flowName) {
+      var subflowName = 'sub:' + flowName;
+      vCon.setVar(subflowName, function () { }); // mock functions
+      accum.push(subflowName);
+      return accum;
+    }, []);
+    return subflowNames;
+  }
+
+  return {
+    create: create,
+    loadIntoVCon: loadIntoVCon,
+    loadMockFnsIntoVCon: loadMockFnsIntoVCon
+  };
+  
+});
+
+/*global define:true */
+
+
+
 define('react/vcon',[], function () {
   
   var LAST_RESULTS_KEY = ':LAST_RESULTS';
 
   function VContext() {
+    this.values = {};
   }
 
   VContext.prototype.getLastResults = function () { return this.getVar(LAST_RESULTS_KEY); };
@@ -1252,6 +1321,29 @@ define('react/vcon',[], function () {
     }, vConValues);   // vCon['foo']['bar']
     obj[lastProp] = value;
   };
+
+
+  /**
+     Retrieve flattened sorted object with all values
+     including those of prototypes. Is useful for tests
+     and for displaying in output. For performance
+     it is better to use .values directly to go against
+     the object, but for tests and displaying, good to
+     have flat object, so creates new flat {} and returns.
+
+     @return flattened sorted object of all values
+    */
+  VContext.prototype.allValues = function () {
+    /*jshint forin:false */
+    var self = this;
+    var keys = [];
+    for (var k in self.values) { keys.push(k); } // get all enumerable keys from obj and prototypes
+    return keys.sort().reduce(function (accum, k) {
+      accum[k] = self.values[k];
+      return accum;
+    }, {});
+  };
+  
   
 
   /**
@@ -1259,15 +1351,19 @@ define('react/vcon',[], function () {
      Ignore extra arguments passed in. Locals can be
      passed into seed the VContext otherwise empty {}
      will be used
-       @param self used to pass 'this' context in
+
+     @param args - arguments passed in during exec()
+     @param inParams - parameter names defined for flow
+     @param locals - default set of local values
+     @param self used to pass 'this' context in
+     @return VContext created for this execution
   */
   VContext.create = function (args, inParams, locals, self) {
-    var initValues = {};
+    var initValues = (locals) ? Object.create(locals) : {}; // if locals, use as prototype, otherwise new {}
     if (self) initValues['this'] = self;
-    if (locals) Object.keys(locals).forEach(function (k) { initValues[k] = locals[k]; }); // copy over keys
     var vContext = new VContext();
     vContext.values = args.reduce(function (vcon, x, idx) { // create vCon start with input args
-      var param = inParams[idx];
+      var param = inParams[idx]; // find param name for this argument, might not be defined
       if (param) vcon[param] = (x !== undefined) ? x : null; // upgrade undefined to null
       return vcon;
     }, initValues);
@@ -1284,6 +1380,7 @@ define('react/vcon',[], function () {
 
 
 define('react/event-manager',['./eventemitter'], function (EventEmitter) {
+  /*jshint regexp:false */
 
   var EVENT_EMITTER2_CONFIG = {
     wildcard: true, // should the event emitter use wildcards.
@@ -1298,6 +1395,8 @@ define('react/event-manager',['./eventemitter'], function (EventEmitter) {
     AST_DEFINED: 'ast.defined',                      // ast
     FLOW_BEGIN: 'flow.begin',                        // env
     TASK_BEGIN: 'task.begin',                        // task
+    ITER_BEGIN: 'iter.begin',                        // iteration
+    ITER_COMPLETE: 'iter.complete',                  // iteration
     TASK_COMPLETE: 'task.complete',                  // task
     TASK_ERRORED: 'task.errored',                    // task
     FLOW_COMPLETE: 'flow.complete',                  // env
@@ -1309,6 +1408,8 @@ define('react/event-manager',['./eventemitter'], function (EventEmitter) {
     EXEC_TASKS_PRECREATE: 'exec.tasks.precreate',    // env
     EXEC_OUTTASK_CREATE: 'exec.outTask.create',      // outTaskOptions
     EXEC_TASK_START: 'exec.task.start',              // task
+    EXEC_ITER_START: 'exec.iter.start',              // iteration
+    EXEC_ITER_COMPLETE: 'exec.iter.complete',        // iteration
     EXEC_TASK_COMPLETE: 'exec.task.complete',        // task
     EXEC_TASK_ERRORED: 'exec.task.errored',          // task
     EXEC_FLOW_COMPLETE: 'exec.flow.complete',        // env
@@ -1387,6 +1488,14 @@ define('react/base-task',['ensure-array', './status', './event-manager'],
     this.env.flowEmitter.emit(EventManager.TYPES.EXEC_TASK_START, this);
   };
 
+  BaseTask.prototype.iterStart = function (args) {
+    this.env.flowEmitter.emit(EventManager.TYPES.EXEC_ITER_START, this, args);    
+  };
+         
+  BaseTask.prototype.iterComplete = function (args) {
+    this.env.flowEmitter.emit(EventManager.TYPES.EXEC_ITER_COMPLETE, this, args);    
+  };         
+
   BaseTask.prototype.complete = function (args) { //args that were used are available
     /*jshint validthis: true */
     this.status = STATUS.COMPLETE;
@@ -1463,18 +1572,18 @@ define('react/base-task',['ensure-array', './status', './event-manager'],
     return (typeof(this.f) === 'string' && /^.*\..*$/.test(this.f));  //str contains .
     };
 
-    BaseTask.prototype.getMethodObj =  function (vCon) { //obj.prop.prop2, returns obj.prop or undefined
-      var name = this.f;
-      if (!name) return undefined;
-      var nameAndProps = name.split('.');
-      nameAndProps.pop(); // pop off last one
-      if (!nameAndProps.length) return undefined;
-      var result = nameAndProps.reduce(function (accObj, prop) {
-        if (accObj === undefined || accObj === null) return undefined; // prevent exception
-        return accObj[prop];
-      }, vCon.values); // vCon['foo']['bar']
-      return result;
-    };
+  BaseTask.prototype.getMethodObj =  function (vCon) { //obj.prop.prop2, returns obj.prop or undefined
+    var name = this.f;
+    if (!name) return undefined;
+    var nameAndProps = name.split('.');
+    nameAndProps.pop(); // pop off last one
+    if (!nameAndProps.length) return undefined;
+    var result = nameAndProps.reduce(function (accObj, prop) {
+      if (accObj === undefined || accObj === null) return undefined; // prevent exception
+      return accObj[prop];
+    }, vCon.values); // vCon['foo']['bar']
+    return result;
+  };
 
   return BaseTask;
   
@@ -2029,18 +2138,131 @@ define('react/finalcb-first-task',['./sprintf', 'util', './status', './vcon', '.
 
 
 
+define('react/array-map-task',['util', './sprintf', './base-task'], function (util, sprintf, BaseTask) {
+
+  function format_error(errmsg, obj) {
+    return sprintf('%s - %s', errmsg, util.inspect(obj));
+  }
+
+  var REQ = 'arrayMapTask requires f, a, arrIn, out';
+  var FN_REQ = 'arrayMapTask requires f to be a function or string';
+  var A_REQ = 'arrayMapTask requires a to be an array of string param names';
+  var ARRIN_REQ = 'arrayMapTask requires arrIn to be  string param name';
+  var CB_REQ = 'arrayMapTask requires out to be an array of string param names';
+
+  function ArrayMapTask(taskDef) {
+    var self = this;
+    Object.keys(taskDef).forEach(function (k) { self[k] = taskDef[k]; });
+  }
+
+  ArrayMapTask.prototype = new BaseTask();
+  ArrayMapTask.prototype.constructor = ArrayMapTask;
+
+  ArrayMapTask.validate = function (taskDef) {
+    var errors = [];
+    if (!taskDef.f || !taskDef.a || !taskDef.out) {
+      errors.push(format_error(REQ, taskDef));
+    } else {
+      var ftype = typeof(taskDef.f);
+      if (! ((taskDef.f instanceof Function) || (ftype === 'string'))) {
+        errors.push(format_error(FN_REQ, taskDef));
+      }
+      if (! (Array.isArray(taskDef.a) &&
+             taskDef.a.every(function (x) { return (typeof(x) === 'string'); }))) {
+        errors.push(format_error(A_REQ, taskDef));
+      }
+      if (typeof(taskDef.arrIn) !== 'string') {
+        errors.push(format_error(ARRIN_REQ, taskDef));
+      }
+      if (! (Array.isArray(taskDef.out) &&
+             taskDef.out.every(function (x) { return (typeof(x) === 'string'); }))) {
+        errors.push(format_error(CB_REQ, taskDef));
+      }
+    }
+    return errors;
+  };
+
+  ArrayMapTask.prototype.prepare = function prepare(handleTaskError, vCon, contExec) {
+    var self = this;
+    self.completeCount = 0;
+    self.inArray = vCon.getVar(self.arrIn);
+    self.outArray = [];
+    self.outArray.length = self.inArray.length; // we need same size
+    // TODO where can we validate that self.array is an array?
+    self.expectedCount = self.inArray.length;
+    self.cbFun = function (err, result) {
+      /*jshint validthis:true */
+      if (err) { handleTaskError(self, err); return; } //handle error and return, we are done
+
+      var idx = this;
+      self.iterComplete([result, idx]);
+      
+      self.outArray[idx] = result;
+      self.completeCount += 1;
+      if (self.completeCount >= self.expectedCount) { // all items are processed
+        //no error, save callback args to vCon context, then continue execution
+        vCon.saveResults(self.out, [self.outArray]);
+        self.complete([self.outArray]);
+        contExec();
+      }
+    };    
+  };
+
+  ArrayMapTask.prototype.exec = function exec(vCon, handleError, contExec) {
+    var self = this;
+    try {
+      var argsNoArray = self.a.map(function (k) {
+        if (self.arrIn === k) { return sprintf('[arr:%s len:%s]', k, self.inArray.length); }
+        return vCon.getVar(k);
+      });
+      self.start(argsNoArray); //note the start time, args
+      self.inArray.forEach(function (inItem, idx) { // for each item in array exec
+        var args = self.a.map(function (k) { //get args from vCon
+          if (self.arrIn === k) { return inItem; }
+          return vCon.getVar(k);
+        });
+        self.iterStart([inItem, idx]);
+        //console.error('ArrayMapTask.exec.args=', args);
+        //console.error('ArrayMapTask.exec.vCon=', vCon);
+        var indexedCbFun = self.cbFun.bind(idx); // bind idx to this
+        args.push(indexedCbFun);   // push callback fn on end
+        var func = self.f;
+        var bindObj = vCon.getVar('self'); //global space or the original this
+        if (self.isMethodCall()) { //if method call then reset func and bindObj
+          func = vCon.getVar(self.f);
+          bindObj = self.getMethodObj(vCon);
+        } else if (typeof(func) === 'string') {
+          func = vCon.getVar(func); // we want the actual fn from this string
+        }
+        func.apply(bindObj, args);
+      });
+    } catch (err) { //catch and handle the task error, calling final cb
+      handleError(this, err);
+    }    
+  };
+
+  return ArrayMapTask;
+
+});  
+
+
+/*global define:true */
+
+
+
 define('react/task',['util', './sprintf', 'ensure-array', './cb-task', './promise-task',
        './ret-task', './when-task', './finalcb-task', './finalcb-first-task',
-       './status', './error', './vcon', './event-manager'],
+       './status', './error', './vcon', './event-manager', './subflow', './array-map-task'],
 function (util, sprintf, array, CbTask, PromiseTask,
          RetTask, WhenTask, FinalCbTask, FinalCbFirstSuccTask,
-         STATUS, error, VContext, EventManager) {
+         STATUS, error, VContext, EventManager, subflow, ArrayMapTask) {
   
   var TASK_TYPES = {
     cb: CbTask,
     ret: RetTask,
     promise: PromiseTask,
-    when: WhenTask
+    when: WhenTask,
+    arrayMap: ArrayMapTask,
   };
 
   var DEFAULT_TASK_NAME = 'task_%s';  // for unnamed tasks use task_idx, like task_0
@@ -2127,12 +2349,13 @@ function (util, sprintf, array, CbTask, PromiseTask,
   }
 
 
-  function validateLocalFunctions(inParams, taskDefs, locals) {
+  function validateLocalFunctions(ast) {
     var errors = [];
     function foo() { } //used to mock args as fns for validation check 
-    var mock_args = inParams.map(function (p) { return foo; }); //mock args with fns
-    var vCon = VContext.create(mock_args, inParams, locals);
-    var tasks = taskDefs.map(create);
+    var mock_args = ast.inParams.map(function (p) { return foo; }); //mock args with fns
+    var vCon = VContext.create(mock_args, ast.inParams, ast.locals);
+    var subflowNames = subflow.loadMockFnsIntoVCon(ast, vCon);    
+    var tasks = ast.tasks.map(create); // create from taskDefs
     var tasksWFunctions = tasks.filter(function (t) { return (t.type !== 'when'); }); // non-when tasks need f
     tasksWFunctions.forEach(function (t, idx) {
       if (!t.functionExists(vCon)) {   // error if function doesnt exist AND
@@ -2320,7 +2543,7 @@ define('react/validate',['util', './sprintf', 'ensure-array', './task'], functio
     errors = errors.concat(validateLocals(ast.locals));
     if (errors.length === 0) { // if no errors do additional validation
       if (ast.outTask.type !== 'finalcbFirst') errors = errors.concat(validateOuputsUnique(ast.tasks));
-      errors = errors.concat(taskUtil.validateLocalFunctions(ast.inParams, ast.tasks, ast.locals));
+      errors = errors.concat(taskUtil.validateLocalFunctions(ast));
       errors = errors.concat(validateNoMissingNames(ast));
     }
     return errors;
@@ -2435,9 +2658,9 @@ define('react/validate',['util', './sprintf', 'ensure-array', './task'], functio
 
 
 
-define('react/core',['./eventemitter', './error', './validate', './task', './status',
+define('react/core',['./eventemitter', './error', './validate', './task', './status', './subflow',
         './vcon', './event-manager', './input-parser', './id', './sprintf'],
-       function (EventEmitter, error, validate, taskUtil, STATUS,
+       function (EventEmitter, error, validate, taskUtil, STATUS, subflow,
                  VContext, EventManager, inputParser, idGenerator, sprintf) {
 
   var reactOptions = {
@@ -2494,7 +2717,8 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
       inParams: [],
       tasks: [],
       outTask: {},
-      locals: {}
+      locals: {},
+      sub: {}
     };
 
     function setAndValidateAST(newAST) { //set AST then validate, ret error[]
@@ -2506,11 +2730,13 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
       }
       if (Object.freeze) { //lets freeze the AST so plugin writers don't accidentally manip the ast
         Object.keys(newAST).forEach(function (k) {
+          if (k === 'sub') return; // these subflows will be frozen later
           if (typeof(newAST[k]) === 'object') Object.freeze(newAST[k]);
         });
         Object.freeze(newAST);
       }
-      flowEmitter.emit(EventManager.TYPES.AST_DEFINED, ast); 
+      flowEmitter.emit(EventManager.TYPES.AST_DEFINED, ast);
+      errors = errors.concat(subflow.create(ast, reactFactory));
       return errors;
     }
 
@@ -2527,12 +2753,12 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
       flowEmitter.emit(EventManager.TYPES.EXEC_FLOW_START, env);  // hook
       var parsedInput = inputParser(args, ast);
       var vCon = VContext.create(parsedInput.args, ast.inParams, ast.locals, this); // create var ctx with in args & locals
-
       env.parsedInput = parsedInput;
       env.options = mergeOptions(parsedInput.options);
       env.vCon = vCon;
       env.taskDefs = ast.tasks.slice(); // create copy
       env.outTaskDef = Object.create(ast.outTask); // create copy
+      subflow.loadIntoVCon(env);      
       reactEmitter.emit(EventManager.TYPES.EXEC_TASKS_PRECREATE, env);  // hook
       
       var tasks = env.taskDefs.map(taskUtil.create);
@@ -2785,6 +3011,14 @@ define('react/track-tasks',[], function () {
       task.env.flowEmitter.emit(react.events.TYPES.TASK_BEGIN, task); //fire public ev
     });
 
+    react.events.on(react.events.TYPES.EXEC_ITER_START, function (task, iterArgs) {
+      task.env.flowEmitter.emit(react.events.TYPES.ITER_BEGIN, task, iterArgs); //fire public ev
+    });
+
+    react.events.on(react.events.TYPES.EXEC_ITER_COMPLETE, function (task, iterResults) {
+      task.env.flowEmitter.emit(react.events.TYPES.ITER_COMPLETE, task, iterResults); // fire public ev
+    });
+
     react.events.on(react.events.TYPES.EXEC_TASK_COMPLETE, function (task) {
       task.endTime = Date.now();
       task.elapsedTime = task.endTime - task.startTime;
@@ -2834,16 +3068,29 @@ define('react/log-events',['util'], function (util) { // TODO replace util.inspe
      react.logEvents(flowFn, 'flow.*'); // log all flow events on flowFn only
     */
 
-    var ALL_FLOW_EVENTS = 'flow.*';
+  var ALL_FLOW_EVENTS = 'flow.*';
   var ALL_TASK_EVENTS = 'task.*';
+  var ALL_ITER_EVENTS = 'iter.*';
   var FLOW_RE = /^flow\./;
+  var TASK_RE = /^task\./;
+  var ITER_RE = /^iter\./;
 
   function flowLog(obj) {
     /*jshint validthis: true */
-    var time = new Date();
-      time.setTime(obj.time);
+
     var argsNoCb = obj.args.filter(function (a) { return (typeof(a) !== 'function'); });
-    var eventTimeStr = time.toISOString();
+    var eventTimeStr;
+    
+    if (obj.time) {
+      var time = new Date();
+      time.setTime(obj.time);
+      try {
+        eventTimeStr = time.toISOString();
+      } catch (x) {
+        console.error('could not convert flow time to ISOString time:%s err:%s', time, x, obj);
+      }      
+    }
+
     if (this.event === 'flow.complete') {
       var env = obj; 
       console.error('%s: %s \tmsecs: %s \n\targs: %s \n\tresults: %s\n',
@@ -2857,10 +3104,17 @@ define('react/log-events',['util'], function (util) { // TODO replace util.inspe
 
   function taskLog(obj) {
     /*jshint validthis: true */
-    var time = new Date();
-    time.setTime(obj.time);
     var argsNoCb = obj.args.filter(function (a) { return (typeof(a) !== 'function'); });
-    var eventTimeStr = time.toISOString();
+    var eventTimeStr;
+    if (obj.time) {
+      var time = new Date();
+      time.setTime(obj.time);
+      try {
+        eventTimeStr = time.toISOString();
+      } catch (x) {
+        console.error('could not convert task time to ISOString time:%s err:%s', time, x, obj);
+      }        
+    }
     if (this.event === 'task.complete') {
       var task = obj;
       console.error('%s: %s:%s \tmsecs: %s \n\targs: %s \n\tresults: %s\n',
@@ -2871,6 +3125,15 @@ define('react/log-events',['util'], function (util) { // TODO replace util.inspe
       console.error('%s: %s:%s \n\targs: %s\n', this.event, obj.env.name, obj.name, util.inspect(argsNoCb));
     }
     
+  }
+
+  function iterLog(obj, iterArgs) {
+    /*jshint validthis: true */
+    var item = iterArgs[0];
+    var idx = iterArgs[1];
+    var name = obj.name;
+    var args = obj.args;
+    console.error('%s: %s:%s \n\tidx: %s\targ: %s\n', this.event, obj.env.name, obj.name, idx, util.inspect(item));
   }
 
   /**
@@ -2888,15 +3151,24 @@ define('react/log-events',['util'], function (util) { // TODO replace util.inspe
   function logEvents(flowFn, eventWildcard) {
     if (!flowFn) throw new Error('flowFn is required');
     if (eventWildcard && eventWildcard !== '*') {
-      var logFn = (FLOW_RE.test(eventWildcard)) ? flowLog : taskLog;
-      flowFn.events.removeListener(eventWildcard, logFn);
-      flowFn.events.on(eventWildcard, logFn);
-    } else { // none provided, use flow.* and task.*
+      if (FLOW_RE.test(eventWildcard)) {
+        flowFn.events.removeListener(eventWildcard, flowLog);
+        flowFn.events.on(eventWildcard, flowLog);
+      } else if (TASK_RE.test(eventWildcard)) {
+        flowFn.events.removeListener(eventWildcard, taskLog);
+        flowFn.events.on(eventWildcard, taskLog);
+      } else if (ITER_RE.test(eventWildcard)) {
+        flowFn.events.removeListener(eventWildcard, iterLog);
+        flowFn.events.on(eventWildcard, iterLog);
+      }
+    } else { // none provided, use flow.* and task.* and iter.*
       //output events as tasks start and complete
       flowFn.events.removeListener(ALL_FLOW_EVENTS, flowLog);
       flowFn.events.on(ALL_FLOW_EVENTS, flowLog);
       flowFn.events.removeListener(ALL_TASK_EVENTS, taskLog);
       flowFn.events.on(ALL_TASK_EVENTS, taskLog);      
+      flowFn.events.removeListener(ALL_ITER_EVENTS, iterLog);
+      flowFn.events.on(ALL_ITER_EVENTS, iterLog);      
     }
   }
 
