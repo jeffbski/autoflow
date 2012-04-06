@@ -23,47 +23,61 @@ if (typeof(VContext) === 'undefined') {
 
   suite('vcon');
 
-  test('VContext.create with empty args returns empty vCon', function (done) {
-    t.deepEqual(VContext.create([], []).values, {}, 'should be empty object');
-    t.deepEqual(VContext.create([], ['a']).values, {}, 'should be empty object');
-    done();
+  test('vContext.allValues() should return object with all values sorted', function () {
+    var vcon = new VContext(); // normally use create
+    var fooValues = { b: 2, c: 'foo', a: 1 };
+    vcon.values = fooValues;
+    var expected = { a: 1, b: 2, c: 'foo'};
+    t.deepEqual(vcon.allValues(), expected);
   });
 
-  test('VContext.create with more args than params, ignore extra args', function (done) {
-    t.deepEqual(VContext.create([1], []).values, {}, 'should be empty object');
-    t.deepEqual(VContext.create([1, 2], ['a']).values, { a: 1 },
+  test('vContext.allValues should return flattened object with all values sorted', function () {
+    var vcon = new VContext(); // normally use create
+    var fooValues = { b: 2, c: 'foo', a: 1 };
+    var barValues = Object.create(fooValues); // use fooValues as prototype
+    barValues.a = 10;
+    barValues.c = 'bar';
+    barValues.d = true;
+    vcon.values = barValues;
+    var expected = { a: 10, b: 2, c: 'bar', d: true };
+    t.deepEqual(vcon.allValues(), expected, 'should contain flat merge of all prototype values');
+  });
+
+  test('VContext.create with empty args returns empty vCon', function () {
+    t.deepEqual(VContext.create([], []).allValues(), {}, 'should be empty object');
+    t.deepEqual(VContext.create([], ['a']).allValues(), {}, 'should be empty object');
+  });
+
+  test('VContext.create with more args than params, ignore extra args', function () {
+    t.deepEqual(VContext.create([1], []).allValues(), {}, 'should be empty object');
+    t.deepEqual(VContext.create([1, 2], ['a']).allValues(), { a: 1 },
                 'should be object with one value');
-    done();
   });
 
-  test('VContext.create sets vCon[paramName] to arg value', function (done) {
-    t.deepEqual(VContext.create([1, 2], ['a', 'b']).values, { a: 1, b: 2 },
+  test('VContext.create sets vCon[paramName] to arg value', function () {
+    t.deepEqual(VContext.create([1, 2], ['a', 'b']).allValues(), { a: 1, b: 2 },
                 'should have all values');
-    done();
   });
 
-  test('create with locals is merged with args taking precedence', function (done) {
+  test('create with locals is merged with args taking precedence', function () {
     var locals = { a: 11, c: 30 };
-    t.deepEqual(VContext.create([1, 2], ['a', 'b'], locals).values,
-                { a: 1, c: 30, b: 2 }, 'should have merge of values');
-    done();
+    t.deepEqual(VContext.create([1, 2], ['a', 'b'], locals).allValues(),
+                { a: 1, b: 2, c: 30 }, 'should have merge of values');
   });
 
-  test('create with locals should not modify original locals', function (done) {
+  test('create with locals should not modify original locals', function () {
     var locals = { a: 11, c: 30 };
-    t.deepEqual(VContext.create([1, 2], ['a', 'b'], locals).values,
-                { a: 1, c: 30, b: 2 }, 'should have merge of values');
+    t.deepEqual(VContext.create([1, 2], ['a', 'b'], locals).allValues(),
+                { a: 1, b: 2, c: 30 }, 'should have merge of values');
     t.deepEqual(locals, { a: 11, c: 30 }, 'should not modify original locals object');
-    done();
   });
 
-  test('getVar on null returns null', function (done) {
+  test('getVar on null returns null', function () {
     t.equal(VContext.create([null], ['a']).getVar('a'), null);
     t.equal(VContext.create([{ b: null }], ['a']).getVar('a.b'), null);
-    done();
   });
 
-  test('getVar on undefined or null parent returns undefined', function (done) {
+  test('getVar on undefined or null parent returns undefined', function () {
     t.equal(VContext.create([], []).getVar('a'), undefined);
     t.equal(VContext.create([], ['a']).getVar('a'), undefined);
     t.equal(VContext.create([], ['a']).getVar('a.b'), undefined);
@@ -72,18 +86,16 @@ if (typeof(VContext) === 'undefined') {
     t.equal(VContext.create([null], ['a']).getVar('a.b.c'), undefined);
     t.equal(VContext.create([1], ['a']).getVar('a.b'), undefined);
     t.equal(VContext.create([1], ['a']).getVar('a.b.c'), undefined);
-    done();
   });
 
-  test('simple getVar returns existing value', function (done) {
+  test('simple getVar returns existing value', function () {
     t.equal(VContext.create([null], ['a']).getVar('a'), null);
     t.equal(VContext.create([1], ['a']).getVar('a'), 1);
     t.equal(VContext.create([true], ['a']).getVar('a'), true);
     t.equal(VContext.create(['banana'], ['a']).getVar('a'), 'banana');
-    done();
   });
 
-  test('getVar on literals returns the literal', function (done) {
+  test('getVar on literals returns the literal', function () {
     t.equal(VContext.create([], []).getVar(true), true);
     t.equal(VContext.create([], []).getVar(false), false);
     t.equal(VContext.create([], []).getVar(null), null);  
@@ -105,89 +117,77 @@ if (typeof(VContext) === 'undefined') {
     t.equal(VContext.create([], []).getVar("'foo-bar.json'"), 'foo-bar.json');
     t.equal(VContext.create([], []).getVar('"foo-bar.json"'), 'foo-bar.json');
     t.deepEqual(VContext.create([], [], null, { a: 1}).getVar('this'), { a: 1});
-    done();
   });
 
-  test('getVar for property returns the property', function (done) {
+  test('getVar for property returns the property', function () {
     var o = { b: 100};
     t.equal(VContext.create([o], ['a']).getVar('a.b'), 100);
     o = { b: { c: 200 }};
     t.equal(VContext.create([o], ['a']).getVar('a.b.c'), 200);
-    done();  
   });
 
-  test('setVar will create objects if needed', function (done) {
+  test('setVar will create objects if needed', function () {
     var v = VContext.create([], []);
     v.setVar('foo.bar.baz', 100);
-    t.deepEqual(v.values, { foo: { bar: { baz: 100}}});
-    done();
+    t.deepEqual(v.allValues(), { foo: { bar: { baz: 100}}});
   });
 
-  test('simple setVar', function (done) {
+  test('simple setVar', function () {
     var v = VContext.create([], []);
     v.setVar('foo', 100);
-    t.deepEqual(v.values, { foo: 100});
-    done();
+    t.deepEqual(v.allValues(), { foo: 100});
   });
 
-  test('setVar will not affect other vars', function (done) {
+  test('setVar will not affect other vars', function () {
     var v = VContext.create([{ bar: 1}], ['foo']);
     v.setVar('foo.baz', 2);
-    t.deepEqual(v.values, { foo: { bar: 1, baz: 2 }});
-    done();
+    t.deepEqual(v.allValues(), { foo: { bar: 1, baz: 2 }});
   });
 
-  test('setVar with null key, will not set anything', function (done) {
+  test('setVar with null key, will not set anything', function () {
     var v = VContext.create([{ bar: 1}], ['foo']);
     v.setVar(null, 2);
-    t.deepEqual(v.values, { foo: { bar: 1 }});
-    done();  
+    t.deepEqual(v.allValues(), { foo: { bar: 1 }});
   });
 
-  test('setVar with undefined key, will not set anything', function (done) {
+  test('setVar with undefined key, will not set anything', function () {
     var v = VContext.create([{ bar: 1}], ['foo']);
     v.setVar(undefined, 2);
-    t.deepEqual(v.values, { foo: { bar: 1 }});
-    done();  
+    t.deepEqual(v.allValues(), { foo: { bar: 1 }});
   });
 
-  test('saveResults will set values for params and :LAST_RESULTS', function (done) {
+  test('saveResults will set values for params and :LAST_RESULTS', function () {
     var v = VContext.create([], []);
     v.saveResults(['foo', 'bar', 'cat'], [1, 'hello', null]);
-    t.deepEqual(v.values, { foo: 1, bar: 'hello', cat: null,
+    t.deepEqual(v.allValues(), { foo: 1, bar: 'hello', cat: null,
                             ':LAST_RESULTS': [1, 'hello', null] });
-    done();  
   });
 
-  test('saveResults set :LAST_RESULT w/all even params is short', function (done) {
+  test('saveResults set :LAST_RESULT w/all even params is short', function () {
     var v = VContext.create([], []);
     v.saveResults(['foo'], [1, 'hello', null]);
-    t.deepEqual(v.values, { foo: 1,
+    t.deepEqual(v.allValues(), { foo: 1,
                             ':LAST_RESULTS': [1, 'hello', null] });
-    done();  
   });
 
-  test('saveResults will set values for params and :LAST_RESULTS', function (done) {
+  test('saveResults will set values for params and :LAST_RESULTS', function () {
     var v = VContext.create([], []);
     v.saveResults(['foo', 'bar', 'cat'], [1, 'hello', null]);
-    t.deepEqual(v.values, { foo: 1, bar: 'hello', cat: null,
+    t.deepEqual(v.allValues(), { foo: 1, bar: 'hello', cat: null,
                             ':LAST_RESULTS': [1, 'hello', null] });
-    done();  
   });
 
-  test('saveResults upgrades undefined to null, but :LAST_RESULT is exact', function (done) {
+  test('saveResults upgrades undefined to null, but :LAST_RESULT is exact', function () {
     var v = VContext.create([], []);
     v.saveResults(['foo', 'bar', 'baz'], [1, undefined]);
-    t.deepEqual(v.values, { foo: 1, bar: null, baz: null, 
+    t.deepEqual(v.allValues(), { foo: 1, bar: null, baz: null, 
                             ':LAST_RESULTS': [1, undefined] });
-    done();  
   });
 
-  test('saveResults null params skips saving, :LAST_RESULT is exact', function (done) {
+  test('saveResults null params skips saving, :LAST_RESULT is exact', function () {
     var v = VContext.create([], []);
     v.saveResults(['foo', null], [1, 20]); //skip second param
-    t.deepEqual(v.values, { foo: 1, ':LAST_RESULTS': [1, 20] });
-    done();  
+    t.deepEqual(v.allValues(), { foo: 1, ':LAST_RESULTS': [1, 20] });
   });
 
 }());

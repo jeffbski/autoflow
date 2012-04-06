@@ -41,5 +41,6 @@ var fn = react('loadRender', 'fooPath, barPath, barP2, cb -> err, renderedOut',
 
 
 fn('foo.txt', 'bar.txt', 'BBB', function (err, renderedOut) {
+  if (err) return console.error('err: %s', err);
   console.error('results:', renderedOut);
 });
