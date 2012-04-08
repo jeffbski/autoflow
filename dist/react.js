@@ -2256,11 +2256,10 @@ define('react/array-map-task',['util', './sprintf', './base-task'], function (ut
     self.outArray.length = self.inArray.length; // we need same size
     // TODO where can we validate that self.array is an array?
     self.expectedCount = self.inArray.length;
-    self.cbFun = function (err, result) {
+    self.cbFun = function (idx, err, result) {
       /*jshint validthis:true */
       if (err) { handleTaskError(self, err); return; } //handle error and return, we are done
 
-      var idx = this;
       self.iterComplete([result, idx]);
       
       self.outArray[idx] = result;
@@ -2291,7 +2290,7 @@ define('react/array-map-task',['util', './sprintf', './base-task'], function (ut
         self.iterStart([inItem, idx]);
         //console.error('ArrayMapTask.exec.args=', args);
         //console.error('ArrayMapTask.exec.vCon=', vCon);
-        var indexedCbFun = self.cbFun.bind(idx); // bind idx to this
+        var indexedCbFun = self.cbFun.bind(null, idx); // bind idx to this
         args.push(indexedCbFun);   // push callback fn on end
         var func = self.f;
         var bindObj = vCon.getVar('self'); //global space or the original this
