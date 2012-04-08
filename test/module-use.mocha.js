@@ -57,6 +57,7 @@ if (typeof(BaseTask) === 'undefined') {
     t.isFunction(react.logEvents, 'has function to enable event logging');
     t.isFunction(react.trackTasks, 'has function to enable task and flow tracking');
     t.isFunction(react.resolvePromises, 'has fn to enable promise detection & resolution');
+    t.isFunction(react.Stream, 'has constructor fn to create a Stream');
     done();
   });
 

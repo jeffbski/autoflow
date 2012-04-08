@@ -1179,6 +1179,64 @@ define('react/error',['util'], function (util) {
 
 
 
+/*global define:true Buffer:false */
+
+
+
+/**
+   Common utilities to make it easier to share browser/server code
+*/
+
+define('react/common',[], function () {
+
+  function nextTick(fn) {
+    if (typeof(process) !== 'undefined' && typeof(process.nextTick) === 'function') {
+      return process.nextTick(fn);
+    } else {
+      return setTimeout(fn, 0);
+    }
+  }
+
+  /**
+     is true if running on server where Buffer is available
+
+     @example
+     if (util.hasBuffer()) console.log('Buffer is available here');
+
+     @return - true if Buffer is available, always false in the browser
+    */
+  function hasBuffer() {
+    return (typeof(Buffer) !== 'undefined');
+  }
+
+  /**
+     test whether object is a Buffer, always false in browser
+
+     @example
+     if (util.isBuffer(obj)) console.log('obj is a buffer');
+
+     @param obj - object to test whether it is a Buffer
+     @return - true if is a Buffer, always false in the browser
+    */
+  var isBuffer; // will be fn that tests for Buffer in node.js, otherwise false in browser
+  if (hasBuffer()) {
+    isBuffer = function (obj) {
+      return Buffer.isBuffer(obj);
+    };
+  } else { // in browser just return false, no Buffer
+    isBuffer = function (obj) {
+      return false;
+    };
+  }
+
+  return {
+    nextTick: nextTick,
+    hasBuffer: hasBuffer,
+    isBuffer: isBuffer
+  };
+
+});
+
 /*global define:true */
 
 
@@ -1483,6 +1541,10 @@ define('react/base-task',['ensure-array', './status', './event-manager'],
     return (this.status === STATUS.COMPLETE);
   };
 
+  BaseTask.prototype.isErrored = function () {
+    return (this.status === STATUS.ERRORED);
+  };
+
   BaseTask.prototype.start = function (args) { // mark task as started with args and note time
     /*jshint validthis: true */
     this.args = args;
@@ -1629,7 +1691,7 @@ define('react/input-parser',['./event-manager'], function (EventManager) {
     execOptionsArr.unshift(defaultExecOptions);
     parsedInput.options = execOptionsArr.reduce(mergeExecOptions, {});
 
-      var args = inputArgs.filter(nonExecOptionsFilter);
+    var args = inputArgs.filter(nonExecOptionsFilter);
     var splitResult = splitArgs(args, ast.inParams, parsedInput.options.outputStyle); 
     parsedInput.args = splitResult.args;
     parsedInput.cb = splitResult.cb;
@@ -2017,11 +2079,12 @@ define('react/finalcb-task',['./sprintf', 'util', './status', './event-manager']
   var OUTTASK_A_REQ = 'ast.outTask.a should be an array of string param names';
 
   function FinalCbTask(outTaskOptions) {
-      var taskDef = outTaskOptions.taskDef;
+    /*jshint forin:false */
+    var taskDef = outTaskOptions.taskDef;
     if (typeof(outTaskOptions.cbFunc) !== 'function') throw new Error('callback is not a function'); 
     var self = this;
     for (var k in taskDef) {
-      if (true) self[k] = taskDef[k];  // if to make jshint happy
+      self[k] = taskDef[k];
     }
     this.f = outTaskOptions.cbFunc;
     this.tasks = outTaskOptions.tasks;
@@ -2080,11 +2143,12 @@ define('react/finalcb-first-task',['./sprintf', 'util', './status', './vcon', '.
   var OUTTASK_A_REQ = 'ast.outTask.a should be an array of string param names';
 
   function FinalCbFirstSuccTask(outTaskOptions) {
-      var taskDef = outTaskOptions.taskDef;
+    /*jshint forin:false */
+    var taskDef = outTaskOptions.taskDef;
     if (typeof(outTaskOptions.cbFunc) !== 'function') throw new Error('callback is not a function'); 
     var self = this;
     for (var k in taskDef) {
-      if (true) self[k] = taskDef[k];  // if to make jshint happy
+      self[k] = taskDef[k];
     }
     this.f = outTaskOptions.cbFunc;
     this.tasks = outTaskOptions.tasks;
@@ -2219,6 +2283,7 @@ define('react/array-map-task',['util', './sprintf', './base-task'], function (ut
       });
       self.start(argsNoArray); //note the start time, args
       self.inArray.forEach(function (inItem, idx) { // for each item in array exec
+        if (self.isErrored()) return; // already errored
         var args = self.a.map(function (k) { //get args from vCon
           if (self.arrIn === k) { return inItem; }
           return vCon.getVar(k);
@@ -2252,12 +2317,1133 @@ define('react/array-map-task',['util', './sprintf', './base-task'], function (ut
 
 
 
+define('react/stream-task',['util', './sprintf', './base-task', './common'],
+       function (util, sprintf, BaseTask, common) {
+
+  function format_error(errmsg, obj) {
+    return sprintf('%s - %s', errmsg, util.inspect(obj));
+  }
+
+  var REQ = 'streamTask requires f, a, arrIn, out';
+  var FN_REQ = 'streamTask requires f to be a function or string';
+  var A_REQ = 'streamTask requires a to be an array of string param names';
+  var STREAMIN_REQ = 'streamTask requires streamIn to be  string param name';
+  var STREAMOUT_REQ = 'streamTask requires streamOut to be  string param name';
+  var CB_REQ = 'streamTask requires out to be an array of string param names';
+
+  function StreamTask(taskDef) {
+    var self = this;
+    Object.keys(taskDef).forEach(function (k) { self[k] = taskDef[k]; });
+  }
+
+  StreamTask.prototype = new BaseTask();
+  StreamTask.prototype.constructor = StreamTask;
+
+  StreamTask.validate = function (taskDef) {
+    var errors = [];
+    if (!taskDef.f || !taskDef.a || !taskDef.out) {
+      errors.push(format_error(REQ, taskDef));
+    } else {
+      var ftype = typeof(taskDef.f);
+      if (! ((taskDef.f instanceof Function) || (ftype === 'string'))) {
+        errors.push(format_error(FN_REQ, taskDef));
+      }
+      if (! (Array.isArray(taskDef.a) &&
+             taskDef.a.every(function (x) { return (typeof(x) === 'string'); }))) {
+        errors.push(format_error(A_REQ, taskDef));
+      }
+      if (typeof(taskDef.streamIn) !== 'string') {
+        errors.push(format_error(STREAMIN_REQ, taskDef));
+      }
+      if (typeof(taskDef.streamOut) !== 'string') {
+        errors.push(format_error(STREAMIN_REQ, taskDef));
+      }
+      if (! (Array.isArray(taskDef.out) &&
+             taskDef.out.every(function (x) { return (typeof(x) === 'string'); }))) {
+        errors.push(format_error(CB_REQ, taskDef));
+      }
+    }
+    return errors;
+  };
+
+
+  /**
+     Since the stream processing is async and can return out of order
+     make sure to queue up out of order results until the lower index
+     ones arrive. Once lower ones have caught up can clear the queue.
+    */
+  StreamTask.prototype.sendOrStoreValue = function (idx, value) {
+    var self = this;
+    if (idx === self.idx) { // we have just received the next value we need to send
+      console.log('sending idx:%d, value:', idx, value, self); //TODO remove
+      self.outStream.emit('data', value);
+      self.idx += 1;
+      if (self.highestIdxInArray >= self.idx) { // we have some values stored
+        value = self.arrayIdxValues[self.idx];
+        if (typeof(value) !== 'undefined') { // found it
+          idx = self.idx;
+          console.log('reposting idx:%d, value:', idx, value, self); //TODO remove
+          common.nextTick(function () { // call nextTick since js recursion is not recommended with small stack
+            StreamTask.prototype.sendOrStoreValue.call(self, idx, value);
+          });
+          if (self.highestIdxInArray === idx) { // clear whole array
+            console.log('clearing array', self); //TODO remove
+            self.arrayIdxValues = [];
+          } else {
+            self.arrayIdxValues[idx] = null; // clear up some storage              
+          }
+        }
+      } else { // check if we have ended
+        self.endCheck();
+      }
+    } else { // we have received something out of order
+      console.log('queueing idx:%d, value:%s, self.idx:%d', idx, value, self.idx); //TODO remove
+      self.arrayIdxValues[idx] = (typeof(value) !== 'undefined') ? value : null; //upgrade undefined to null
+      if (idx > self.highestIdxInArray) self.highestIdxInArray = idx;
+    }
+  };
+  
+
+  
+
+  StreamTask.prototype.prepare = function prepare(handleTaskError, vCon, contExec) {
+    var self = this;
+    self.inStream = vCon.getVar(self.streamIn);
+    self.outStream = vCon.getVar(self.streamOut);
+    self.idx = 0; // current index to send next
+    self.arrayIdxValues = []; // values that finished out of order
+    self.highestIdxInArray = null; // highest index saved in array, after sending, can clear array
+    // TODO where can we validate that self.inStream is a stream
+    // TODO where can we validate that self.outStream is a stream
+    self.cbFun = function (idx, err, result) {
+      if (err) { handleTaskError(self, err); return; } //handle error and return, we are done
+
+      self.iterComplete([result, idx]);
+      self.sendOrStoreValue(idx, result);
+    };
+    self.endCheck = function () {
+      if (this.isErrored()) return; // already errored
+      if (self.inStreamEnded && self.idx === self.inStreamIdx) { // no more to send
+        console.log('endCheck true, will end'); //TODO remove
+        var objArr = [{ dataCount: self.idx }]; // for debugging
+        vCon.saveResults(self.out, objArr);
+        self.complete(objArr);
+        contExec();
+      } else {
+        console.log('endCheck false', self); //TODO remove
+      }
+    };
+  };
+
+  StreamTask.prototype.exec = function exec(vCon, handleError, contExec) {
+    var self = this;
+    try {
+      var argsStreamListed = self.a.map(function (k) {
+        if (self.streamIn === k) { return sprintf('[stream:%s]', k); }
+        return vCon.getVar(k);
+      });
+      self.start(argsStreamListed); //note the start time, args
+      self.inStreamIdx = 0;
+      self.inStream.on('data', function (data) {
+        if (self.isErrored()) return; // already errored
+        var idx = self.inStreamIdx; // make copy
+        var args = self.a.map(function (k) { //get args from vCon
+          if (self.streamIn === k) { return data; }
+          return vCon.getVar(k);
+        });
+        self.iterStart([data, idx]);
+        //console.error('StreamTask.exec.args=', args);
+        //console.error('StreamTask.exec.vCon=', vCon);
+        var indexedCbFun = self.cbFun.bind(null, idx); // bind idx to first arg
+        args.push(indexedCbFun);   // push callback fn on end
+        var func = self.f;
+        var bindObj = vCon.getVar('self'); //global space or the original this
+        if (self.isMethodCall()) { //if method call then reset func and bindObj
+          func = vCon.getVar(self.f);
+          bindObj = self.getMethodObj(vCon);
+        } else if (typeof(func) === 'string') {
+          func = vCon.getVar(func); // we want the actual fn from this string
+        }
+        func.apply(bindObj, args);
+        self.inStreamIdx += 1;
+      }).on('end', function () {
+        self.inStreamEnded = true;
+        self.endCheck();
+      }).on('error', function (err) {
+        self.cbFun.call(null, self.inStreamIdx, err);
+      });
+    } catch (err) { //catch and handle the task error, calling final cb
+      handleError(this, err);
+    }    
+  };
+
+  return StreamTask;
+
+});  
+
+
+/*global define:true */
+
+
+
+define('react/parse',['./sprintf'], function (sprintf) {
+
+  function splitTrimFilterArgs(commaSepArgs) { //parse 'one, two' into ['one', 'two']
+    if (!commaSepArgs) return [];
+    return commaSepArgs.split(',')            //split on commas
+      .map(function (s) { return s.trim(); }) //trim
+      .filter(function (s) { return (s); });  //filter out empty strings
+  }
+
+  /**
+     @param patternFn regex + fn or splitStr + fn
+  */
+  function parseReduce(accum, patternFn) {
+    if (typeof(accum) !== 'string') return accum; // already matched
+    var m = (patternFn.regex) ? patternFn.regex.exec(accum) : accum.split(patternFn.splitStr);
+    if (m) return patternFn.fn(m, accum); // pass in matches and origStr, return result obj
+    return accum; // no match, return str, will try next matcher
+  }
+
+  function parseStr(str, parseMatchers, errStr) {
+    var result = parseMatchers.reduce(parseReduce, str);
+    if (typeof(result) !== 'string') { // matched
+      return result;
+    } else { // no match
+      throw new Error(sprintf(errStr, str));
+    }  
+  }
+
+  return {
+    splitTrimFilterArgs: splitTrimFilterArgs,
+    parseStr: parseStr
+  };
+
+});  
+
+
+/*global define:true */
+
+
+
+define('react/track-tasks',[], function () {
+  
+  /**
+     Track the tasks, start, complete, args, results, elapsed time
+     Emits events that can be monitored
+
+     - track start and complete
+     - record args each task was called with
+     - record results at completion
+     - record start, end, and calc elapsed time
+     - emits flow.begin with flowEnv
+     - emits task.begin with task
+     - emits task.complete with task
+     - emits flow complete with flowEnv
+     - emits flow errored with flowEnv
+
+     @example
+     var react = require('react');
+     react.trackTasks(); // enable task and flow tracking
+    */
+
+
+  var trackingTasks = false;
+
+  function trackTasks(react) {
+    if (trackingTasks) return;  // already tracking
+    trackingTasks = true;
+
+    react.events.on(react.events.TYPES.EXEC_FLOW_START, function (env) {
+      env.startTime = Date.now();
+      env.flowEmitter.emit(react.events.TYPES.FLOW_BEGIN, env); //fire public ev
+    });
+
+    react.events.on(react.events.TYPES.EXEC_TASK_START, function (task) {
+      task.startTime = Date.now();
+      task.env.flowEmitter.emit(react.events.TYPES.TASK_BEGIN, task); //fire public ev
+    });
+
+    react.events.on(react.events.TYPES.EXEC_ITER_START, function (task, iterArgs) {
+      task.env.flowEmitter.emit(react.events.TYPES.ITER_BEGIN, task, iterArgs); //fire public ev
+    });
+
+    react.events.on(react.events.TYPES.EXEC_ITER_COMPLETE, function (task, iterResults) {
+      task.env.flowEmitter.emit(react.events.TYPES.ITER_COMPLETE, task, iterResults); // fire public ev
+    });
+
+    react.events.on(react.events.TYPES.EXEC_TASK_COMPLETE, function (task) {
+      task.endTime = Date.now();
+      task.elapsedTime = task.endTime - task.startTime;
+      task.env.flowEmitter.emit(react.events.TYPES.TASK_COMPLETE, task); // fire public ev
+    });
+
+    react.events.on(react.events.TYPES.EXEC_TASK_ERRORED, function (task) {
+      task.endTime = Date.now();
+      task.elapsedTime = task.endTime - task.startTime;
+      task.env.flowEmitter.emit(react.events.TYPES.TASK_ERRORED, task); // fire public ev
+    });
+
+    react.events.on(react.events.TYPES.EXEC_FLOW_COMPLETE, function (env) {
+      env.endTime = Date.now();
+      env.elapsedTime = env.endTime - env.startTime;
+      env.flowEmitter.emit(react.events.TYPES.FLOW_COMPLETE, env); //fire public ev
+    });
+
+    react.events.on(react.events.TYPES.EXEC_FLOW_ERRORED, function (env) {
+      env.endTime = Date.now();
+      env.elapsedTime = env.endTime - env.startTime;
+      env.flowEmitter.emit(react.events.TYPES.FLOW_ERRORED, env); //fire public ev
+    });
+
+  }
+
+  return trackTasks; 
+
+});  
+
+/*global define:true */
+
+
+
+define('react/log-events',['util'], function (util) { // TODO replace util.inspect with something portable to browser
+
+  var logEventsMod = { };
+  
+  /**
+     Log events to console.error
+
+     @example
+     var react = require('react');
+     react.logEvents(); // log all task and flow events on all react functions
+     react.logEvents('task.*'); // log all task events on all react functions
+     react.logEvents(flowFn); // log all task and flow events on flowFn only
+     react.logEvents(flowFn, 'flow.*'); // log all flow events on flowFn only
+    */
+
+  var ALL_FLOW_EVENTS = 'flow.*';
+  var ALL_TASK_EVENTS = 'task.*';
+  var ALL_ITER_EVENTS = 'iter.*';
+  var FLOW_RE = /^flow\./;
+  var TASK_RE = /^task\./;
+  var ITER_RE = /^iter\./;
+
+  function flowLog(obj) {
+    /*jshint validthis: true */
+
+    var argsNoCb = obj.args.filter(function (a) { return (typeof(a) !== 'function'); });
+    var eventTimeStr;
+    
+    if (obj.time) {
+      var time = new Date();
+      time.setTime(obj.time);
+      try {
+        eventTimeStr = time.toISOString();
+      } catch (x) {
+        console.error('could not convert flow time to ISOString time:%s err:%s', time, x, obj);
+      }      
+    }
+
+    if (this.event === 'flow.complete') {
+      var env = obj; 
+      console.error('%s: %s \tmsecs: %s \n\targs: %s \n\tresults: %s\n',
+                    this.event, env.name, env.elapsedTime, util.inspect(argsNoCb), util.inspect(env.results));   
+    } else {
+      var name = obj.name;
+      var args = obj.args;
+      console.error('%s: %s \n\targs: %s\n', this.event, name, util.inspect(argsNoCb));
+    }    
+  }
+
+  function taskLog(obj) {
+    /*jshint validthis: true */
+    var argsNoCb = obj.args.filter(function (a) { return (typeof(a) !== 'function'); });
+    var eventTimeStr;
+    if (obj.time) {
+      var time = new Date();
+      time.setTime(obj.time);
+      try {
+        eventTimeStr = time.toISOString();
+      } catch (x) {
+        console.error('could not convert task time to ISOString time:%s err:%s', time, x, obj);
+      }        
+    }
+    if (this.event === 'task.complete') {
+      var task = obj;
+      console.error('%s: %s:%s \tmsecs: %s \n\targs: %s \n\tresults: %s\n',
+                    this.event, task.env.name, task.name, task.elapsedTime, util.inspect(argsNoCb), util.inspect(task.results));
+    } else {
+      var name = obj.name;
+      var args = obj.args;
+      console.error('%s: %s:%s \n\targs: %s\n', this.event, obj.env.name, obj.name, util.inspect(argsNoCb));
+    }
+    
+  }
+
+  function iterLog(obj, iterArgs) {
+    /*jshint validthis: true */
+    var item = iterArgs[0];
+    var idx = iterArgs[1];
+    var name = obj.name;
+    var args = obj.args;
+    console.error('%s: %s:%s \n\tidx: %s\targ: %s\n', this.event, obj.env.name, obj.name, idx, util.inspect(item));
+  }
+
+  /**
+     Log flow and task events for a flowFn or all of react.
+     If called multiple times, remove previous listener (if any) before
+     adding.
+     
+     @example
+     var react = require('react');
+     react.logEvents(flowFn, eventWildcard); //log events on flowfn matching wildcard
+     
+     @param flowFn Flow function or global react object
+     @param eventWildcard wildcarded event type, if not provided use flow.* and task.*
+  */
+  function logEvents(flowFn, eventWildcard) {
+    if (!flowFn) throw new Error('flowFn is required');
+    if (eventWildcard && eventWildcard !== '*') {
+      if (FLOW_RE.test(eventWildcard)) {
+        flowFn.events.removeListener(eventWildcard, flowLog);
+        flowFn.events.on(eventWildcard, flowLog);
+      } else if (TASK_RE.test(eventWildcard)) {
+        flowFn.events.removeListener(eventWildcard, taskLog);
+        flowFn.events.on(eventWildcard, taskLog);
+      } else if (ITER_RE.test(eventWildcard)) {
+        flowFn.events.removeListener(eventWildcard, iterLog);
+        flowFn.events.on(eventWildcard, iterLog);
+      }
+    } else { // none provided, use flow.* and task.* and iter.*
+      //output events as tasks start and complete
+      flowFn.events.removeListener(ALL_FLOW_EVENTS, flowLog);
+      flowFn.events.on(ALL_FLOW_EVENTS, flowLog);
+      flowFn.events.removeListener(ALL_TASK_EVENTS, taskLog);
+      flowFn.events.on(ALL_TASK_EVENTS, taskLog);      
+      flowFn.events.removeListener(ALL_ITER_EVENTS, iterLog);
+      flowFn.events.on(ALL_ITER_EVENTS, iterLog);      
+    }
+  }
+
+  logEventsMod.logEvents = logEvents;
+  return logEventsMod;
+
+});  
+
+/*global define:true */
+
+
+
+define('react/promise-resolve',[], function () {
+
+  /**
+     Auto resolve promises passed in as arguments to the flow
+
+     - Detects promises by checking for .then()
+     - Create promise name for param (param__promise)
+     - moves existing vCon promise into the param__promise
+     - creates WhenTask which resolves param__promise into param
+  */
+
+
+    var PROMISE_SUFFIX = '__promise';  // added to param names that are promises
+
+    var resolvingPromises = false;
+
+  function resolvePromises(react) {
+    if (resolvingPromises) return; // already resolving
+    resolvingPromises = true;
+
+    react.events.on(react.events.TYPES.EXEC_TASKS_PRECREATE, function (env) {
+      var vConValues = env.vCon.values;
+      var promiseParams = env.ast.inParams.filter(function (p) {
+        var value = vConValues[p];
+        return (value && typeof(value.then) === 'function');
+      });
+      promiseParams.forEach(function (p) {
+        var promiseName = p + PROMISE_SUFFIX;
+        vConValues[promiseName] = vConValues[p];
+        vConValues[p] = undefined;
+        env.taskDefs.push({
+          type: 'when',
+          a: [promiseName],
+          out: [p]
+        });
+      });
+    });
+
+  }
+
+  return resolvePromises;
+
+});  
+
+/*global define:true */
+
+
+
+define('react/event-collector',[], function () {
+
+  /**
+     create an instance of the event collector
+  */
+  function instantiate(react) {
+    react.trackTasks(); // enable task tracking
+
+    var AST_EVENTS_RE = /^ast\./;
+    var TASK_EVENTS_RE = /^task\./;
+    var FLOW_EVENTS_RE = /^flow\./;
+
+    /**
+       Accumulator to make it easy to capture events
+
+       @example
+       var react = require('react');
+       var collector = react.createEventCollector();
+       collector.capture(); // capture all flow and task events for all react flows
+       collector.capture('flow.*'); // capture all flow events for all react flows
+       collector.capture(flowFn, 'task.*'); // capture task events on a flow
+       collector.capture(flowFn, 'flow.*'); // add capture flow events on a flow
+       var events = collector.list();  // retrieve the list of events
+       collector.clear();  // clear the list of events;
+    */
+    function EventCollector() {
+      this.events = [];
+    }
+
+    /**
+       register listener to capture events for a specific flow
+       @param flowFn the react flow function or can pass global react
+       @param eventId event id or wildcarded id
+    */
+    EventCollector.prototype.capture = function (flowFn, eventId) {
+      /*jshint validthis: true */
+      if (!eventId && typeof(flowFn) === 'string') { // only eventId provided
+        eventId = flowFn;
+        flowFn = react; // global react
+      } else if (!flowFn) flowFn = react; // global react
+      if (!eventId) eventId = '*'; // default to all
+      var emitter = flowFn.events;
+      var self = this;
+      function accumEvents(obj) {
+        var eventObject = {
+          event: this.event,
+          time: Date.now()
+        };
+        if (FLOW_EVENTS_RE.test(this.event)) {
+          eventObject.env = obj;
+        } else if (TASK_EVENTS_RE.test(this.event)) {
+          eventObject.task = obj;
+        } else if (AST_EVENTS_RE.test(this.event)) {
+          eventObject.ast = obj;      
+        }
+        self.events.push(eventObject);      
+      }
+      emitter.on(eventId, accumEvents);
+    };
+
+    EventCollector.prototype.list = function () {
+      return this.events;
+    };
+
+    EventCollector.prototype.clear = function () {
+      this.events = []; // clear
+    };
+
+    return new EventCollector();  
+  }
+
+  return instantiate; // return the factory for creating EventCollector
+  
+});  
+
+/*global define:true EventEmitter2:false */
+
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+/**
+   apto-deferred stream - modified to work in browser
+   RequireJS uses this to load files for local browser in development
+   Use one of the optimized dist/ version for production and general use
+  */
+
+define('stream',['eventemitter2'], function (EventEmitterMod) {
+/*jshint latedef:false */
+
+  // EventEmitter doesn't return itself in browser so need to get the global
+  // EventEmitter api changed, so accomodate which ever version is available
+  var EventEmitter = (EventEmitterMod) ?
+    ((EventEmitterMod.EventEmitter2) ? EventEmitterMod.EventEmitter2 : EventEmitterMod) : EventEmitter2;
+  
+
+
+  function Stream() {
+    EventEmitter.call(this);
+  }
+
+  Stream.prototype = new EventEmitter();
+  Stream.prototype.constructor = Stream;
+
+
+  // Backwards-compat with node 0.4.x
+  Stream.Stream = Stream;
+
+  Stream.prototype.pipe = function (dest, options) {
+    var source = this;
+
+    function ondata(chunk) {
+      if (dest.writable) {
+        if (false === dest.write(chunk) && source.pause) {
+          source.pause();
+        }
+      }
+    }
+
+    source.on('data', ondata);
+
+    function ondrain() {
+      if (source.readable && source.resume) {
+        source.resume();
+      }
+    }
+
+    dest.on('drain', ondrain);
+
+    // If the 'end' option is not supplied, dest.end() will be called when
+    // source gets the 'end' or 'close' events.  Only dest.end() once.
+    if (!dest._isStdio && (!options || options.end !== false)) {
+      source.on('end', onend);
+      source.on('close', onclose);
+    }
+
+    var didOnEnd = false;
+    function onend() {
+      if (didOnEnd) return;
+      didOnEnd = true;
+
+      // remove the listeners
+      cleanup();
+
+      dest.end();
+    }
+
+
+    function onclose() {
+      if (didOnEnd) return;
+      didOnEnd = true;
+
+      // remove the listeners
+      cleanup();
+
+      dest.destroy();
+    }
+
+    // don't leave dangling pipes when there are errors.
+    function onerror(er) {
+      /*jshint validthis:true */
+      cleanup();
+      if (this.listeners('error').length === 0) {
+        throw er; // Unhandled stream error in pipe.
+      }
+    }
+
+    source.on('error', onerror);
+    dest.on('error', onerror);
+
+    // remove all the event listeners that were added.
+    function cleanup() {
+      source.removeListener('data', ondata);
+      dest.removeListener('drain', ondrain);
+
+      source.removeListener('end', onend);
+      source.removeListener('close', onclose);
+
+      source.removeListener('error', onerror);
+      dest.removeListener('error', onerror);
+
+      source.removeListener('end', cleanup);
+      source.removeListener('close', cleanup);
+
+      dest.removeListener('end', cleanup);
+      dest.removeListener('close', cleanup);
+    }
+
+    source.on('end', cleanup);
+    source.on('close', cleanup);
+
+    dest.on('end', cleanup);
+    dest.on('close', cleanup);
+
+    dest.emit('pipe', source);
+
+    // Allow for unix-like usage: A.pipe(B).pipe(C)
+    return dest;
+  };
+
+  /**
+     Write streams need to have an end, so borrowed this from
+     memorystream. Other implementations can override this as
+     necessary.
+    */
+  Stream.prototype.end = function (chunk, encoding) {
+    if (typeof chunk !== 'undefined') {
+      this.write(chunk, encoding);
+    }
+    this.writable = false;
+    this.readable = false;
+    this._emitEnd();
+  };
+
+  Stream.prototype._emitEnd = function () {
+    if (! this._ended) {
+      this._ended = true;
+      this.emit('end');
+    }
+  };
+
+
+  return Stream;
+});
+
+
+/*global define:true Buffer:false */
+
+
+
+
+/**
+   Adaptation of node-memorystream that will run in browser and server with AMD.
+   Allows easy piping, pause, resume.
+   Requires a browser/server compatible version of Stream
+   Based on https://github.com/JSBizon/node-memorystream
+*/
+
+define('react/memory-stream',['stream', './common'], function (Stream, common) {
+
+  /**
+     Adaptation of node-memorystream that will run in browser and server with AMD.
+     Allows easy piping, pause, resume.
+     Requires a browser/server compatible version of Stream
+     Based on https://github.com/JSBizon/node-memorystream
+
+     This is a super class for DeferredStream which has
+     capabilities of Deferred and Stream. Normally you do not
+     use this class directly, it is actually the constructor
+     returned when requiring apto-deferred.
+
+     @param [data] - optional data or data array to create in the stream
+     @param [options] - optional object with options
+     @param options.readable - default true, set false if not readable
+     @param options.writable - default true, set false if not writable
+     @param options.maxbufsize - null, specify max buffer size, if exceeds write will return false
+     @param options.bufoveflow - null, specify overflow size, if exceeds emits `error` event Buffer overflow
+     @param options.frequence - null, delay between emit `data` event in ms
+    */
+  function MemoryStream(data, options) {
+
+    Stream.call(this);
+    var self = this;
+
+    this.queue = [];
+
+    if (data) {
+      if (!Array.isArray(data)) {
+        data = [data];
+      }
+
+      data.forEach(function (chunk) {
+        if (common.hasBuffer()) { // can only do if we have Buffer
+          if (!common.isBuffer(chunk)) {
+            chunk = new Buffer(chunk);
+          }
+        }
+
+        self.queue.push(chunk);
+      });
+    }
+
+    this.paused = false;
+    this.reachmaxbuf = false;
+
+    options = options || {};
+
+    this.readableVal = options.hasOwnProperty('readable') ? options.readable : true;
+
+    this.__defineGetter__("readable", function () {
+      return self.readableVal;
+    });
+
+    this.__defineSetter__("readable", function (val) {
+      self.readableVal = val;
+      if (val) {
+        self._next();
+      }
+    });
+
+    this.writable = options.hasOwnProperty('writable') ? options.writable : true;
+    this.maxbufsize = options.hasOwnProperty('maxbufsize') ? options.maxbufsize : null;
+    this.bufoverflow = options.hasOwnProperty('bufoveflow') ? options.bufoveflow : null;
+    this.frequence = options.hasOwnProperty('frequence') ? options.frequence : null;
+
+    common.nextTick(function () {
+      self._next();
+    });
+  }
+
+  MemoryStream.prototype = new Stream();
+  MemoryStream.prototype.constructor = MemoryStream;
+
+  /**
+     Convenience factory method for creating a read stream,
+     setting the necessary options
+    */
+  MemoryStream.createReadStream = function (data, options) {
+    options = options || {};
+    options.readable = true;
+    options.writable = false;
+
+    return new MemoryStream(data, options);
+  };
+
+  /**
+     Convenience factory method for creating a write stream,
+     setting the necessary options.
+    */
+  MemoryStream.createWriteStream = function (data, options) {
+    options = options || {};
+    options.readable = false;
+    options.writable = true;
+
+    return new MemoryStream(data, options);
+  };
+
+
+  MemoryStream.prototype._next = function () {
+    var self = this;
+    function next() {
+      function dodo() {
+        if (self.flush() && self.readable) {
+          common.nextTick(next);
+        }
+      }
+      if (self.frequence) {
+        setTimeout(dodo, self.frequence);
+      } else {
+        dodo();
+      }
+    }
+    if (! this.paused) {
+      next();
+    }
+  };
+
+  /**
+     If options.readable = false, MemoryStream will accumulate data
+     written to it, then you can get the result using `toString()`.
+
+     @example
+     var http = require('http'),
+     MemoryStream = require('memorystream');
+
+     var options = {
+       host: 'google.com'
+     };
+     var memStream = new MemoryStream(null, {
+       readable : false
+     });
+
+    var req = http.get(options, function(res) {
+      res.pipe(memStream);
+      res.on('end', function() {
+        console.log(memStream.toString());
+      });
+    });
+   */
+  MemoryStream.prototype.toString = MemoryStream.prototype.getAll = function () {
+    var self = this;
+    var ret = '';
+    this.queue.forEach(function (data) {
+      if (self._decoder) {
+        var string = self._decoder.write(data);
+        if (string.length) {
+          ret += data;
+        }
+      } else {
+        ret += data;
+      }
+    });
+    return ret;
+  };
+
+  /**
+     Can only do the setEncoding if we have Buffer (on server),
+     on browser it will never do this.
+    */
+  MemoryStream.prototype.setEncoding = function (encoding) {
+    if (common.hasBuffer()) { // running on server?
+      var StringDecoder = require('string_decoder').StringDecoder;
+      this._decoder = new StringDecoder(encoding);
+    }
+  };
+
+
+  MemoryStream.prototype.pause = function () {
+    if (this.readable) {
+      this.paused = true;
+    }
+  };
+
+  MemoryStream.prototype.resume = function () {
+    if (this.readable) {
+      this.paused = false;
+      this._next();
+    }
+  };
+
+  MemoryStream.prototype.end = function (chunk, encoding) {
+    if (typeof chunk !== 'undefined') {
+      this.write(chunk, encoding);
+    }
+    this.writable = false;
+    if (this.queue.length === 0) {
+      this.readable = false;
+    }
+    this._emitEnd();
+  };
+
+  MemoryStream.prototype._getQueueSize = function () {
+    var queuesize = 0, i = 0;
+    for (i = 0; i < this.queue.length; i++) {
+      queuesize += Array.isArray(this.queue[i]) ? this.queue[i][0].length : this.queue[i].length;
+    }
+    return queuesize;
+  };
+
+
+  MemoryStream.prototype._emitEnd = function () {
+    if (! this._ended) {
+      this._ended = true;
+      this.emit('end');
+    }
+  };
+
+
+  MemoryStream.prototype._getQueueSize = function () {
+    var queuesize = 0, i = 0;
+    for (i = 0; i < this.queue.length; i++) {
+      queuesize += Array.isArray(this.queue[i]) ? this.queue[i][0].length : this.queue[i].length;
+    }
+    return queuesize;
+  };
+
+
+  MemoryStream.prototype.flush = function () {
+    if (! this.paused && this.readable && this.queue.length > 0) {
+      var data = this.queue.shift();
+      var cb;
+
+      if (Array.isArray(data)) {
+        cb = data[1];
+        data = data[0];
+      }
+
+      if (this._decoder) {
+        var string = this._decoder.write(data);
+        if (string.length) {
+          this.emit('data', string);
+        }
+      } else {
+        this.emit('data', data);
+      }
+
+      if (cb) {
+        cb(null);
+      }
+
+      if (this.reachmaxbuf && this.maxbufsize >= this._getQueueSize()) {
+        this.reachmaxbuf = false;
+        this.emit('drain');
+      }
+
+      return true;
+    }
+
+    if (!this.writable && !this.queue.length) {
+      this._emitEnd();
+    }
+
+    return false;
+  };
+
+  MemoryStream.prototype.write = function (chunk, encoding, callback) {
+
+    if (! this.writable) {
+      throw new Error('The memory stream is no longer writable.');
+    }
+
+    if (typeof encoding === 'function') {
+      callback = encoding;
+      encoding = undefined;
+    }
+
+    if (common.hasBuffer()) {
+      if (! (chunk instanceof Buffer)) {
+        chunk = new Buffer(chunk, encoding);
+      }
+    }
+
+    var queuesize = chunk.length;
+    if (this.maxbufsize || this.bufoverflow) {
+      queuesize += this._getQueueSize();
+      if (this.bufoveflow && queuesize > this.bufoveflow) {
+        this.emit('error', "Buffer overflowed (" + this.bufoverflow + "/" + queuesize + ")");
+        return;
+      }
+    }
+
+    if (typeof callback === 'function') {
+      this.queue.push([chunk, callback]);
+    } else {
+      this.queue.push(chunk);
+    }
+
+    this._next();
+
+    if (this.maxbufsize && queuesize > this.maxbufsize) {
+      this.reachmaxbuf = true;
+      return false;
+    }
+
+    return true;
+  };
+
+  MemoryStream.prototype.destroy = function () {
+
+    this.end();
+
+    this.queue = [];
+
+    this.readable = false;
+    this.writable = false;
+  };
+
+
+  MemoryStream.prototype.destroySoon = function () {
+    this.writable = false;
+
+    this._destroy = true;
+
+    if (! this.readable || this.queue.length === 0) {
+      this.destroy();
+    }
+
+  };
+
+  return MemoryStream;
+
+});
+
+
+/*global define:true */
+
+
+
+define('react/finalstream-task',['./sprintf', 'util', './status', './event-manager', './memory-stream'],
+       function (sprintf, util, STATUS, EventManager, Stream) {
+
+  var OUTTASK_A_REQ = 'ast.outTask.a should be an array of string param names of len <= 1';
+  var OUTTASK_STREAM = 'ast.outTask.stream should be a string';         
+
+  function FinalStreamTask(outTaskOptions) {
+    /*jshint forin:false */
+    var taskDef = outTaskOptions.taskDef;
+    var self = this;
+    for (var k in taskDef) {
+      self[k] = taskDef[k];
+    }
+    this.f = true; // just set this so core exec
+    this.tasks = outTaskOptions.tasks;
+    this.vCon = outTaskOptions.vCon;
+    this.stream = (taskDef.stream) ? this.vCon.getVar(taskDef.stream) : new Stream(); // if td.stream use
+    this.retValue = this.stream;
+    this.execOptions = outTaskOptions.execOptions;
+    this.env = outTaskOptions.env;
+    if (taskDef.a && taskDef.a.length > 1) throw new Error(format_error(OUTTASK_A_REQ, taskDef.a));
+  }
+
+  function format_error(errmsg, obj) {
+    return sprintf('%s - %s', errmsg, util.inspect(obj));
+  }
+
+
+  FinalStreamTask.validate = function (taskDef) {
+    var errors = [];
+    if (! (Array.isArray(taskDef.a) && taskDef.a.length <= 1 &&
+           taskDef.a.every(function (x) { return (typeof(x) === 'string'); }))) {
+      errors.push(format_error(OUTTASK_A_REQ, taskDef));
+    }
+    if (typeof(taskDef.stream) !== 'undefined' && typeof(taskDef.stream) !== 'string') {
+      errors.push(format_error(OUTTASK_STREAM, taskDef));      
+    }
+    return errors;
+  };
+
+  FinalStreamTask.prototype.isReady = function () {
+    return (this.tasks.every(function (t) { return (t.status === STATUS.COMPLETE); }));
+  };
+
+  FinalStreamTask.prototype.exec = function (err) {
+    if (err) {
+      this.env.error = err;
+      this.env.flowEmitter.emit(EventManager.TYPES.EXEC_FLOW_ERRORED, this.env);
+      this.stream.emit('error', err);
+      this.stream.end();
+      this.stream.destroy();
+    } else { // no error, call with args
+      var vCon = this.vCon;
+      var finalArgs = this.a.map(function (k) { return vCon.getVar(k); });
+      if (finalArgs.length) this.stream.write(finalArgs[0].toString());
+      this.stream.end();
+      this.env.results = finalArgs;
+      this.env.flowEmitter.emit(EventManager.TYPES.EXEC_FLOW_COMPLETE, this.env);
+    }
+  };
+
+  return FinalStreamTask;
+
+});  
+
+/*global define:true */
+
+
+
 define('react/task',['util', './sprintf', 'ensure-array', './cb-task', './promise-task',
        './ret-task', './when-task', './finalcb-task', './finalcb-first-task',
-       './status', './error', './vcon', './event-manager', './subflow', './array-map-task'],
+       './status', './error', './vcon', './event-manager', './subflow',
+        './array-map-task', './stream-task', './finalstream-task'],
 function (util, sprintf, array, CbTask, PromiseTask,
          RetTask, WhenTask, FinalCbTask, FinalCbFirstSuccTask,
-         STATUS, error, VContext, EventManager, subflow, ArrayMapTask) {
+         STATUS, error, VContext, EventManager, subflow,
+         ArrayMapTask, StreamTask, FinalStreamTask) {
   
   var TASK_TYPES = {
     cb: CbTask,
@@ -2265,6 +3451,7 @@ function (util, sprintf, array, CbTask, PromiseTask,
     promise: PromiseTask,
     when: WhenTask,
     arrayMap: ArrayMapTask,
+    stream: StreamTask
   };
 
   var DEFAULT_TASK_NAME = 'task_%s';  // for unnamed tasks use task_idx, like task_0
@@ -2273,7 +3460,8 @@ function (util, sprintf, array, CbTask, PromiseTask,
 
   var OUT_TASK_TYPES = {
     finalcb: FinalCbTask,   //first task is the default if no type specified in taskDef
-    finalcbFirst: FinalCbFirstSuccTask
+    finalcbFirst: FinalCbFirstSuccTask,
+    finalStream: FinalStreamTask
   };
   function outTaskTypeKeys() { return Object.keys(OUT_TASK_TYPES); }
 
@@ -2780,7 +3968,7 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
         if (t.prepare) t.prepare(handleError, vCon, contExec, flowEmitter);
       }); // create callbacks
       contExec();   // start things off
-      return outTask.retValue; // could return promise
+      return outTask.retValue; // could return promise, stream, or eventemitter
     }
 
     var reactFn = exec;        // make the exec() the function returned
@@ -2794,46 +3982,6 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
   reactFactory.events = reactEmitter;    // global react emitter
   return reactFactory; // module returns reactFactory to create a react fn
 });  
-
-/*global define:true */
-
-
-
-define('react/parse',['./sprintf'], function (sprintf) {
-
-  function splitTrimFilterArgs(commaSepArgs) { //parse 'one, two' into ['one', 'two']
-    if (!commaSepArgs) return [];
-    return commaSepArgs.split(',')            //split on commas
-      .map(function (s) { return s.trim(); }) //trim
-      .filter(function (s) { return (s); });  //filter out empty strings
-  }
-
-  /**
-     @param patternFn regex + fn or splitStr + fn
-  */
-  function parseReduce(accum, patternFn) {
-    if (typeof(accum) !== 'string') return accum; // already matched
-    var m = (patternFn.regex) ? patternFn.regex.exec(accum) : accum.split(patternFn.splitStr);
-    if (m) return patternFn.fn(m, accum); // pass in matches and origStr, return result obj
-    return accum; // no match, return str, will try next matcher
-  }
-
-  function parseStr(str, parseMatchers, errStr) {
-    var result = parseMatchers.reduce(parseReduce, str);
-    if (typeof(result) !== 'string') { // matched
-      return result;
-    } else { // no match
-      throw new Error(sprintf(errStr, str));
-    }  
-  }
-
-  return {
-    splitTrimFilterArgs: splitTrimFilterArgs,
-    parseStr: parseStr
-  };
-
-});  
-
 
 /*global define:true */
 
@@ -2975,343 +4123,10 @@ define('react/dsl',['./sprintf', './core', './parse', './task'],
 
 
 
-define('react/track-tasks',[], function () {
-  
-  /**
-     Track the tasks, start, complete, args, results, elapsed time
-     Emits events that can be monitored
-
-     - track start and complete
-     - record args each task was called with
-     - record results at completion
-     - record start, end, and calc elapsed time
-     - emits flow.begin with flowEnv
-     - emits task.begin with task
-     - emits task.complete with task
-     - emits flow complete with flowEnv
-     - emits flow errored with flowEnv
-
-     @example
-     var react = require('react');
-     react.trackTasks(); // enable task and flow tracking
-    */
-
-
-  var trackingTasks = false;
-
-  function trackTasks(react) {
-    if (trackingTasks) return;  // already tracking
-    trackingTasks = true;
-
-    react.events.on(react.events.TYPES.EXEC_FLOW_START, function (env) {
-      env.startTime = Date.now();
-      env.flowEmitter.emit(react.events.TYPES.FLOW_BEGIN, env); //fire public ev
-    });
-
-    react.events.on(react.events.TYPES.EXEC_TASK_START, function (task) {
-      task.startTime = Date.now();
-      task.env.flowEmitter.emit(react.events.TYPES.TASK_BEGIN, task); //fire public ev
-    });
-
-    react.events.on(react.events.TYPES.EXEC_ITER_START, function (task, iterArgs) {
-      task.env.flowEmitter.emit(react.events.TYPES.ITER_BEGIN, task, iterArgs); //fire public ev
-    });
-
-    react.events.on(react.events.TYPES.EXEC_ITER_COMPLETE, function (task, iterResults) {
-      task.env.flowEmitter.emit(react.events.TYPES.ITER_COMPLETE, task, iterResults); // fire public ev
-    });
-
-    react.events.on(react.events.TYPES.EXEC_TASK_COMPLETE, function (task) {
-      task.endTime = Date.now();
-      task.elapsedTime = task.endTime - task.startTime;
-      task.env.flowEmitter.emit(react.events.TYPES.TASK_COMPLETE, task); // fire public ev
-    });
-
-    react.events.on(react.events.TYPES.EXEC_TASK_ERRORED, function (task) {
-      task.endTime = Date.now();
-      task.elapsedTime = task.endTime - task.startTime;
-      task.env.flowEmitter.emit(react.events.TYPES.TASK_ERRORED, task); // fire public ev
-    });
-
-    react.events.on(react.events.TYPES.EXEC_FLOW_COMPLETE, function (env) {
-      env.endTime = Date.now();
-      env.elapsedTime = env.endTime - env.startTime;
-      env.flowEmitter.emit(react.events.TYPES.FLOW_COMPLETE, env); //fire public ev
-    });
-
-    react.events.on(react.events.TYPES.EXEC_FLOW_ERRORED, function (env) {
-      env.endTime = Date.now();
-      env.elapsedTime = env.endTime - env.startTime;
-      env.flowEmitter.emit(react.events.TYPES.FLOW_ERRORED, env); //fire public ev
-    });
-
-  }
-
-  return trackTasks; 
-
-});  
-
-/*global define:true */
-
-
-
-define('react/log-events',['util'], function (util) { // TODO replace util.inspect with something portable to browser
-
-  var logEventsMod = { };
-  
-  /**
-     Log events to console.error
-
-     @example
-     var react = require('react');
-     react.logEvents(); // log all task and flow events on all react functions
-     react.logEvents('task.*'); // log all task events on all react functions
-     react.logEvents(flowFn); // log all task and flow events on flowFn only
-     react.logEvents(flowFn, 'flow.*'); // log all flow events on flowFn only
-    */
-
-  var ALL_FLOW_EVENTS = 'flow.*';
-  var ALL_TASK_EVENTS = 'task.*';
-  var ALL_ITER_EVENTS = 'iter.*';
-  var FLOW_RE = /^flow\./;
-  var TASK_RE = /^task\./;
-  var ITER_RE = /^iter\./;
-
-  function flowLog(obj) {
-    /*jshint validthis: true */
-
-    var argsNoCb = obj.args.filter(function (a) { return (typeof(a) !== 'function'); });
-    var eventTimeStr;
-    
-    if (obj.time) {
-      var time = new Date();
-      time.setTime(obj.time);
-      try {
-        eventTimeStr = time.toISOString();
-      } catch (x) {
-        console.error('could not convert flow time to ISOString time:%s err:%s', time, x, obj);
-      }      
-    }
-
-    if (this.event === 'flow.complete') {
-      var env = obj; 
-      console.error('%s: %s \tmsecs: %s \n\targs: %s \n\tresults: %s\n',
-                    this.event, env.name, env.elapsedTime, util.inspect(argsNoCb), util.inspect(env.results));   
-    } else {
-      var name = obj.name;
-      var args = obj.args;
-      console.error('%s: %s \n\targs: %s\n', this.event, name, util.inspect(argsNoCb));
-    }    
-  }
-
-  function taskLog(obj) {
-    /*jshint validthis: true */
-    var argsNoCb = obj.args.filter(function (a) { return (typeof(a) !== 'function'); });
-    var eventTimeStr;
-    if (obj.time) {
-      var time = new Date();
-      time.setTime(obj.time);
-      try {
-        eventTimeStr = time.toISOString();
-      } catch (x) {
-        console.error('could not convert task time to ISOString time:%s err:%s', time, x, obj);
-      }        
-    }
-    if (this.event === 'task.complete') {
-      var task = obj;
-      console.error('%s: %s:%s \tmsecs: %s \n\targs: %s \n\tresults: %s\n',
-                    this.event, task.env.name, task.name, task.elapsedTime, util.inspect(argsNoCb), util.inspect(task.results));
-    } else {
-      var name = obj.name;
-      var args = obj.args;
-      console.error('%s: %s:%s \n\targs: %s\n', this.event, obj.env.name, obj.name, util.inspect(argsNoCb));
-    }
-    
-  }
-
-  function iterLog(obj, iterArgs) {
-    /*jshint validthis: true */
-    var item = iterArgs[0];
-    var idx = iterArgs[1];
-    var name = obj.name;
-    var args = obj.args;
-    console.error('%s: %s:%s \n\tidx: %s\targ: %s\n', this.event, obj.env.name, obj.name, idx, util.inspect(item));
-  }
-
-  /**
-     Log flow and task events for a flowFn or all of react.
-     If called multiple times, remove previous listener (if any) before
-     adding.
-     
-     @example
-     var react = require('react');
-     react.logEvents(flowFn, eventWildcard); //log events on flowfn matching wildcard
-     
-     @param flowFn Flow function or global react object
-     @param eventWildcard wildcarded event type, if not provided use flow.* and task.*
-  */
-  function logEvents(flowFn, eventWildcard) {
-    if (!flowFn) throw new Error('flowFn is required');
-    if (eventWildcard && eventWildcard !== '*') {
-      if (FLOW_RE.test(eventWildcard)) {
-        flowFn.events.removeListener(eventWildcard, flowLog);
-        flowFn.events.on(eventWildcard, flowLog);
-      } else if (TASK_RE.test(eventWildcard)) {
-        flowFn.events.removeListener(eventWildcard, taskLog);
-        flowFn.events.on(eventWildcard, taskLog);
-      } else if (ITER_RE.test(eventWildcard)) {
-        flowFn.events.removeListener(eventWildcard, iterLog);
-        flowFn.events.on(eventWildcard, iterLog);
-      }
-    } else { // none provided, use flow.* and task.* and iter.*
-      //output events as tasks start and complete
-      flowFn.events.removeListener(ALL_FLOW_EVENTS, flowLog);
-      flowFn.events.on(ALL_FLOW_EVENTS, flowLog);
-      flowFn.events.removeListener(ALL_TASK_EVENTS, taskLog);
-      flowFn.events.on(ALL_TASK_EVENTS, taskLog);      
-      flowFn.events.removeListener(ALL_ITER_EVENTS, iterLog);
-      flowFn.events.on(ALL_ITER_EVENTS, iterLog);      
-    }
-  }
-
-  logEventsMod.logEvents = logEvents;
-  return logEventsMod;
-
-});  
-
-/*global define:true */
-
-
-
-define('react/promise-resolve',[], function () {
-
-  /**
-     Auto resolve promises passed in as arguments to the flow
-
-     - Detects promises by checking for .then()
-     - Create promise name for param (param__promise)
-     - moves existing vCon promise into the param__promise
-     - creates WhenTask which resolves param__promise into param
-  */
-
-
-    var PROMISE_SUFFIX = '__promise';  // added to param names that are promises
-
-    var resolvingPromises = false;
-
-  function resolvePromises(react) {
-    if (resolvingPromises) return; // already resolving
-    resolvingPromises = true;
-
-    react.events.on(react.events.TYPES.EXEC_TASKS_PRECREATE, function (env) {
-      var vConValues = env.vCon.values;
-      var promiseParams = env.ast.inParams.filter(function (p) {
-        var value = vConValues[p];
-        return (value && typeof(value.then) === 'function');
-      });
-      promiseParams.forEach(function (p) {
-        var promiseName = p + PROMISE_SUFFIX;
-        vConValues[promiseName] = vConValues[p];
-        vConValues[p] = undefined;
-        env.taskDefs.push({
-          type: 'when',
-          a: [promiseName],
-          out: [p]
-        });
-      });
-    });
-
-  }
-
-  return resolvePromises;
-
-});  
-
-/*global define:true */
-
-
-
-define('react/event-collector',[], function () {
-
-  /**
-     create an instance of the event collector
-  */
-  function instantiate(react) {
-    react.trackTasks(); // enable task tracking
-
-    var AST_EVENTS_RE = /^ast\./;
-    var TASK_EVENTS_RE = /^task\./;
-    var FLOW_EVENTS_RE = /^flow\./;
-
-    /**
-       Accumulator to make it easy to capture events
-
-       @example
-       var react = require('react');
-       var collector = react.createEventCollector();
-       collector.capture(); // capture all flow and task events for all react flows
-       collector.capture('flow.*'); // capture all flow events for all react flows
-       collector.capture(flowFn, 'task.*'); // capture task events on a flow
-       collector.capture(flowFn, 'flow.*'); // add capture flow events on a flow
-       var events = collector.list();  // retrieve the list of events
-       collector.clear();  // clear the list of events;
-    */
-    function EventCollector() {
-      this.events = [];
-    }
-
-    /**
-       register listener to capture events for a specific flow
-       @param flowFn the react flow function or can pass global react
-       @param eventId event id or wildcarded id
-    */
-    EventCollector.prototype.capture = function (flowFn, eventId) {
-      /*jshint validthis: true */
-      if (!eventId && typeof(flowFn) === 'string') { // only eventId provided
-        eventId = flowFn;
-        flowFn = react; // global react
-      } else if (!flowFn) flowFn = react; // global react
-      if (!eventId) eventId = '*'; // default to all
-      var emitter = flowFn.events;
-      var self = this;
-      function accumEvents(obj) {
-        var eventObject = {
-          event: this.event,
-          time: Date.now()
-        };
-        if (FLOW_EVENTS_RE.test(this.event)) {
-          eventObject.env = obj;
-        } else if (TASK_EVENTS_RE.test(this.event)) {
-          eventObject.task = obj;
-        } else if (AST_EVENTS_RE.test(this.event)) {
-          eventObject.ast = obj;      
-        }
-        self.events.push(eventObject);      
-      }
-      emitter.on(eventId, accumEvents);
-    };
-
-    EventCollector.prototype.list = function () {
-      return this.events;
-    };
-
-    EventCollector.prototype.clear = function () {
-      this.events = []; // clear
-    };
-
-    return new EventCollector();  
-  }
-
-  return instantiate; // return the factory for creating EventCollector
-  
-});  
-
-/*global define:true */
-
-
-
-define('react',['./core', './dsl', './track-tasks', './log-events', './promise-resolve', './event-collector'],
-       function (core, dsl, trackTasksFn, logEventsMod, resolvePromisesFn, eventCollectorFactory) {
+define('react',['./core', './dsl', './track-tasks', './log-events', './promise-resolve',
+        './event-collector', './memory-stream'],
+       function (core, dsl, trackTasksFn, logEventsMod, resolvePromisesFn,
+                 eventCollectorFactory, MemoryStream) {
 
   var react = dsl; // core + default dsl
          
@@ -3358,7 +4173,8 @@ define('react',['./core', './dsl', './track-tasks', './log-events', './promise-r
   react.logEvents = logEvents;  // enable event logging
   react.resolvePromises = resolvePromises; // enable promise resolution
   react.trackTasks = trackTasks; // enable tracking of tasks
-  react.createEventCollector = createEventCollector; // create instance of EventCollector       
+  react.createEventCollector = createEventCollector; // create instance of EventCollector
+  react.Stream = MemoryStream; // constructor for MemoryStream       
   return react;
   
 });
