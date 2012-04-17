@@ -2145,7 +2145,6 @@ define('react/array-map-task',['util', './sprintf', './base-task'], function (ut
   var REQ = 'arrayMapTask requires f, a, arrIn, out';
   var FN_REQ = 'arrayMapTask requires f to be a function or string';
   var A_REQ = 'arrayMapTask requires a to be an array of string param names';
-  var ARRIN_REQ = 'arrayMapTask requires arrIn to be  string param name';
   var CB_REQ = 'arrayMapTask requires out to be an array of string param names';
 
   function ArrayMapTask(taskDef) {
@@ -2168,9 +2167,6 @@ define('react/array-map-task',['util', './sprintf', './base-task'], function (ut
       if (! (Array.isArray(taskDef.a) &&
              taskDef.a.every(function (x) { return (typeof(x) === 'string'); }))) {
         errors.push(format_error(A_REQ, taskDef));
-      }
-      if (typeof(taskDef.arrIn) !== 'string') {
-        errors.push(format_error(ARRIN_REQ, taskDef));
       }
       if (! (Array.isArray(taskDef.out) &&
              taskDef.out.every(function (x) { return (typeof(x) === 'string'); }))) {
@@ -3778,9 +3774,40 @@ define('react/validate',['util', './sprintf', 'ensure-array', './task'], functio
 
 
 
-define('react/core',['./eventemitter', './error', './validate', './task', './status',
+define('react/exec',['./task', './id'], function (taskUtil, idGenerator) {
+
+  function flowExecutor(env) {
+    var tasks = env.taskDefs.map(taskUtil.create);
+    var tasksByName = taskUtil.nameTasks(tasks); // map names to working tasks
+    var outTask = taskUtil.createOutTask(env.outTaskDef, env.parsedInput.cb, tasks, env.vCon, env.options, env);
+    var handleError = taskUtil.createErrorHandler(env.vCon, outTask);
+
+    function contExec() {
+      if (!outTask.f) { return; } //stop execution, we already hit an error, f was cleared
+      if (outTask.isReady()) return outTask.exec(); // all tasks done, exec cb, return
+      taskUtil.findReadyAndExec(env.vCon, tasks, tasksByName, handleError, contExec, env);  //exec tasks that ready to run
+    }
+
+    tasks.forEach(function (t) {
+      t.id = idGenerator.createUniqueId();
+      t.env = env;
+      if (t.prepare) t.prepare(handleError, env.vCon, contExec, env.flowEmitter);
+    }); // create callbacks
+    contExec();   // start things off
+    return outTask;
+  }
+
+  return flowExecutor;
+  
+});
+
+/*global define:true */
+
+
+
+define('react/core',['./eventemitter', './error', './validate', './task', './status', './exec',
         './vcon', './event-manager', './input-parser', './id', './sprintf'],
-       function (EventEmitter, error, validate, taskUtil, STATUS,
+       function (EventEmitter, error, validate, taskUtil, STATUS, flowExecutor,
                  VContext, EventManager, inputParser, idGenerator, sprintf) {
 
   var reactOptions = {
@@ -3806,6 +3833,7 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
     return sprintf('flow_%s', idGenerator.createUniqueId());
   }
 
+
   /**
      Creates react function which the AST can be manipulated and then
      is ready to be executed. Can be used directly or a DSL can wrap this
@@ -3815,12 +3843,12 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
      var react = require('react');
      var fn = react();
      var valid2 = fn.setAndValidateAST({
-     name: 'optionalName',
-     inParams: ['a', 'b'],
-     tasks: [
-     { type: 'cb', f: multiply, a: ['a', 'b'], out: ['c'] }
-     ],
-     outTask: { a: ['c'] }
+       name: 'optionalName',
+       inParams: ['a', 'b'],
+       tasks: [
+         { type: 'cb', f: multiply, a: ['a', 'b'], out: ['c'] }
+       ],
+       outTask: { a: ['c'] }
      });
      console.log(fn.ast); // view
      fn(123, 456, cb);
@@ -3878,24 +3906,7 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
       reactEmitter.emit(EventManager.TYPES.EXEC_TASKS_PRECREATE, env);  // hook
 
       // flowExecutor can start here using env
-      
-      var tasks = env.taskDefs.map(taskUtil.create);
-      var tasksByName = taskUtil.nameTasks(tasks); // map names to working tasks
-      var outTask = taskUtil.createOutTask(env.outTaskDef, env.parsedInput.cb, tasks, env.vCon, env.options, env);
-      var handleError = taskUtil.createErrorHandler(env.vCon, outTask);
-
-      function contExec() {
-        if (!outTask.f) { return; } //stop execution, we already hit an error, f was cleared
-        if (outTask.isReady()) return outTask.exec(); // all tasks done, exec cb, return
-        taskUtil.findReadyAndExec(env.vCon, tasks, tasksByName, handleError, contExec, env);  //exec tasks that ready to run
-      }
-
-      tasks.forEach(function (t) {
-        t.id = idGenerator.createUniqueId();
-        t.env = env;
-        if (t.prepare) t.prepare(handleError, env.vCon, contExec, env.flowEmitter);
-      }); // create callbacks
-      contExec();   // start things off
+      var outTask = flowExecutor(env);
       return outTask.retValue; // could return promise, stream, or eventemitter
     }
 
