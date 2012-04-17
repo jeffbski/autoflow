@@ -1253,74 +1253,6 @@ define('react/status',[], function () {
 
 
 
-define('react/subflow',[], function () {
-
-  /**
-     Create subflows if any on the provided AST and return any errors
-
-     @param ast - ast which will be updated with subflow fns
-     @return errors array
-    */
-  function create(ast, reactFactory) { // create subflows if any, return array of errors
-    return Object.keys(ast.sub).reduce(function (errors, subName) {
-      var subFn = reactFactory();
-      subFn.parent = ast.name; // set parent's name on the child
-      var subAST = ast.sub[subName];
-      var subErrors = subFn.setAndValidateAST(subAST);
-      ast.sub[subName] = subFn;
-      return errors.concat(subErrors);
-    }, []);
-  }
-
-  /**
-     Load the subflows into VContext
-
-     @param env - flow environment
-     @return subflowNames - vCon strings referring to the subflows loaded
-    */
-  function loadIntoVCon(env) {
-    var ast = env.ast;
-    if (!ast.sub) return;
-    var subflowNames = Object.keys(ast.sub).reduce(function (accum, flowName) {
-      var subflowName = 'sub:' + flowName;
-      var subFn = ast.sub[flowName];
-      // subFn.parentEnv = env; // set the parent's env on this child fn      
-      env.vCon.setVar(subflowName, subFn);
-      accum.push(subflowName);
-      return accum;
-    }, []);
-    return subflowNames;
-  }
-
-  /**
-     Load mock fn subflows into VContext for validation purposes
-     @param ast - ast with possible subflows
-     @param vCon - VContext which will be updated with subflows
-     @return subflowNames - vCon strings referring to the subflows loaded
-    */     
-  function loadMockFnsIntoVCon(ast, vCon) {
-    if (!ast.sub) return;
-    var subflowNames = Object.keys(ast.sub).reduce(function (accum, flowName) {
-      var subflowName = 'sub:' + flowName;
-      vCon.setVar(subflowName, function () { }); // mock functions
-      accum.push(subflowName);
-      return accum;
-    }, []);
-    return subflowNames;
-  }
-
-  return {
-    create: create,
-    loadIntoVCon: loadIntoVCon,
-    loadMockFnsIntoVCon: loadMockFnsIntoVCon
-  };
-  
-});
-
-/*global define:true */
-
-
-
 define('react/vcon',[], function () {
   
   var LAST_RESULTS_KEY = ':LAST_RESULTS';
@@ -3437,11 +3369,11 @@ define('react/finalstream-task',['./sprintf', 'util', './status', './event-manag
 
 define('react/task',['util', './sprintf', 'ensure-array', './cb-task', './promise-task',
        './ret-task', './when-task', './finalcb-task', './finalcb-first-task',
-       './status', './error', './vcon', './event-manager', './subflow',
+       './status', './error', './vcon', './event-manager',
         './array-map-task', './stream-task', './finalstream-task'],
 function (util, sprintf, array, CbTask, PromiseTask,
          RetTask, WhenTask, FinalCbTask, FinalCbFirstSuccTask,
-         STATUS, error, VContext, EventManager, subflow,
+         STATUS, error, VContext, EventManager,
          ArrayMapTask, StreamTask, FinalStreamTask) {
   
   var TASK_TYPES = {
@@ -3543,7 +3475,6 @@ function (util, sprintf, array, CbTask, PromiseTask,
     function foo() { } //used to mock args as fns for validation check 
     var mock_args = ast.inParams.map(function (p) { return foo; }); //mock args with fns
     var vCon = VContext.create(mock_args, ast.inParams, ast.locals);
-    var subflowNames = subflow.loadMockFnsIntoVCon(ast, vCon);    
     var tasks = ast.tasks.map(create); // create from taskDefs
     var tasksWFunctions = tasks.filter(function (t) { return (t.type !== 'when'); }); // non-when tasks need f
     tasksWFunctions.forEach(function (t, idx) {
@@ -3847,9 +3778,9 @@ define('react/validate',['util', './sprintf', 'ensure-array', './task'], functio
 
 
 
-define('react/core',['./eventemitter', './error', './validate', './task', './status', './subflow',
+define('react/core',['./eventemitter', './error', './validate', './task', './status',
         './vcon', './event-manager', './input-parser', './id', './sprintf'],
-       function (EventEmitter, error, validate, taskUtil, STATUS, subflow,
+       function (EventEmitter, error, validate, taskUtil, STATUS,
                  VContext, EventManager, inputParser, idGenerator, sprintf) {
 
   var reactOptions = {
@@ -3906,8 +3837,7 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
       inParams: [],
       tasks: [],
       outTask: {},
-      locals: {},
-      sub: {}
+      locals: {}
     };
 
     function setAndValidateAST(newAST) { //set AST then validate, ret error[]
@@ -3919,13 +3849,11 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
       }
       if (Object.freeze) { //lets freeze the AST so plugin writers don't accidentally manip the ast
         Object.keys(newAST).forEach(function (k) {
-          if (k === 'sub') return; // these subflows will be frozen later
           if (typeof(newAST[k]) === 'object') Object.freeze(newAST[k]);
         });
         Object.freeze(newAST);
       }
       flowEmitter.emit(EventManager.TYPES.AST_DEFINED, ast);
-      errors = errors.concat(subflow.create(ast, reactFactory));
       return errors;
     }
 
@@ -3947,24 +3875,25 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
       env.vCon = vCon;
       env.taskDefs = ast.tasks.slice(); // create copy
       env.outTaskDef = Object.create(ast.outTask); // create copy
-      subflow.loadIntoVCon(env);      
       reactEmitter.emit(EventManager.TYPES.EXEC_TASKS_PRECREATE, env);  // hook
+
+      // flowExecutor can start here using env
       
       var tasks = env.taskDefs.map(taskUtil.create);
       var tasksByName = taskUtil.nameTasks(tasks); // map names to working tasks
-      var outTask = taskUtil.createOutTask(env.outTaskDef, parsedInput.cb, tasks, vCon, env.options, env);
-      var handleError = taskUtil.createErrorHandler(vCon, outTask);
+      var outTask = taskUtil.createOutTask(env.outTaskDef, env.parsedInput.cb, tasks, env.vCon, env.options, env);
+      var handleError = taskUtil.createErrorHandler(env.vCon, outTask);
 
       function contExec() {
         if (!outTask.f) { return; } //stop execution, we already hit an error, f was cleared
         if (outTask.isReady()) return outTask.exec(); // all tasks done, exec cb, return
-        taskUtil.findReadyAndExec(vCon, tasks, tasksByName, handleError, contExec, env);  //exec tasks that ready to run
+        taskUtil.findReadyAndExec(env.vCon, tasks, tasksByName, handleError, contExec, env);  //exec tasks that ready to run
       }
 
       tasks.forEach(function (t) {
         t.id = idGenerator.createUniqueId();
         t.env = env;
-        if (t.prepare) t.prepare(handleError, vCon, contExec, flowEmitter);
+        if (t.prepare) t.prepare(handleError, env.vCon, contExec, env.flowEmitter);
       }); // create callbacks
       contExec();   // start things off
       return outTask.retValue; // could return promise, stream, or eventemitter
