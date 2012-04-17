@@ -13,7 +13,6 @@
     eventemitter2: "node_modules/eventemitter2/lib/eventemitter2",
     stream: "vendor/node/stream",
     util: "vendor/node/util",
-    sprint: "node_modules/sprint/lib/sprint",
     "ensure-array": "node_modules/ensure-array/ensure-array"
   },
   name: "react",
