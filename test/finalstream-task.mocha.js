@@ -24,26 +24,26 @@ if (typeof(taskUtil) === 'undefined') {
   suite('finalstream-task');
 
   test('invalid taskdef missing arr errors', function (done) {
-    var errors = taskUtil.validateOutTask({ type:'finalStream' });
+    var errors = taskUtil.validateOutTask({ type: 'finalStream' });
     t.deepEqual(errors, [ 'ast.outTask.a should be an array of string param names of len <= 1 - { type: \'finalStream\' }' ]);
     done();
   });
 
   test('invalid taskdef arr too large errors', function (done) {
-    var errors = taskUtil.validateOutTask({ a:['foo', 'bar'], type:'finalStream' });
+    var errors = taskUtil.validateOutTask({ a: ['foo', 'bar'], type: 'finalStream' });
     t.deepEqual(errors, [ 'ast.outTask.a should be an array of string param names of len <= 1 - { a: [ \'foo\', \'bar\' ], type: \'finalStream\' }' ]);
     done();
   });
 
   test('invalid taskdef stream not string errors', function (done) {
-    var errors = taskUtil.validateOutTask({ a:[], stream: 1, type:'finalStream' });
+    var errors = taskUtil.validateOutTask({ a: [], stream: 1, type: 'finalStream' });
     t.deepEqual(errors, [ 'ast.outTask.stream should be a string - { a: [], stream: 1, type: \'finalStream\' }' ]);
     done();
   });
   
   test('valid taskdef creates outTask', function (done) {
     function foo() { }
-    var finalTask = taskUtil.createOutTask({ a: ['bar'], type:'finalStream' });
+    var finalTask = taskUtil.createOutTask({ a: ['bar'], type: 'finalStream' });
     t.deepEqual(finalTask.a, ['bar']);
     done();
   });
