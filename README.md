@@ -186,6 +186,7 @@ See the [Advanced React](https://github.com/jeffbski/react/blob/master/doc/advan
 
 ## Status
 
+ - 2012-04-25 - Browser compatibility issue with process check, (v0.6.1)
  - 2012-04-05 - Remove dependency on sprint, use util.format
  - 2012-03-28 - Make react AMD-enabled and compatible with ES5 browsers and node.js, provide single file dist and min, add browser tests (v0.6.0)
  - 2012-03-24 - Add Travis-CI, remove promised-io since failing to install in travis-ci for node 0.6/0.7, switch from tap to mocha/chai
