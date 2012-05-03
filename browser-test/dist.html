@@ -19,7 +19,7 @@
         }
       ],
       paths: {
-        jQuery: "vendor/jquery/jquery-1.7.1",
+        jquery: "vendor/jquery/jquery-1.7.1",
         eventemitter2: "dist/react",
         stream: "dist/react",
         util: "dist/react",
@@ -28,15 +28,16 @@
       }
     });
 
-    require(["react", "jQuery"],
+    require(["react", "jquery"],
             function (react, jquery) {
 
-      require(["react/sprintf", "react/validate", "react/task", "react/cb-task",
-               "react/vcon", "react/event-manager", "react/input-parser",
-               "react/base-task", "react/ret-task", "util"],
-             function (sprintf, validate, taskUtil, CbTask,
-                       VContext, EventManager, inputParser,
-                       BaseTask, RetTask, util) {
+
+      require(["react/sprintf", "util", "react/validate", "react/task",
+               "react/cb-task", "react/vcon", "react/event-manager", "react/input-parser",
+               "react/base-task", "react/ret-task", "react/iter-streams", "react/common"],
+              function (sprintf, util, validate, taskUtil,
+                        CbTask, VContext, EventManager, inputParser,
+                        BaseTask, RetTask, iterStreams, common) {
         // save refs on window for these
         window.react = react;
         window.sprintf = sprintf;
@@ -50,8 +51,10 @@
         window.BaseTask = BaseTask;
         window.RetTask = RetTask;
         window.validate = validate;
-        window.Deferred = jQuery.Deferred;
-        window.Deferred.when = jQuery.when;
+        window.iterStreams = iterStreams;
+        window.common = common;
+        window.Deferred = jquery.Deferred;
+        window.Deferred.when = jquery.when;
         var testFiles = [
           "test/ast.mocha",
           "test/cb-task.mocha",
@@ -64,6 +67,7 @@
           "test/finalcb-task.mocha",
           "test/finalstream-task.mocha",
           "test/input-parser.mocha",
+          "test/iter-streams.mocha",
           "test/module-use.mocha",
           "test/promise-auto-resolve.mocha",
           "test/ret-task.mocha",
@@ -76,7 +80,7 @@
         require(testFiles, function () {
           var runner = mocha.run().on('end', function () {
             console.log('mocha finished');
-            jQuery("#mocha-result").text('completed');
+            jquery("#mocha-result").text('completed');
           });
           //mocha.reporters.TAP(runner);
         });
