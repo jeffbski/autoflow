@@ -34,10 +34,12 @@
 
       require(["react/sprintf", "util", "react/validate", "react/task",
                "react/cb-task", "react/vcon", "react/event-manager", "react/input-parser",
-               "react/base-task", "react/ret-task", "react/iter-streams", "react/common"],
+               "react/base-task", "react/ret-task", "react/iter-streams", "react/common",
+               "react/memory-stream"],
               function (sprintf, util, validate, taskUtil,
                         CbTask, VContext, EventManager, inputParser,
-                        BaseTask, RetTask, iterStreams, common) {
+                        BaseTask, RetTask, iterStreams, common,
+                        MemoryStream) {
         // save refs on window for these
         window.react = react;
         window.sprintf = sprintf;
@@ -55,6 +57,7 @@
         window.common = common;
         window.Deferred = jquery.Deferred;
         window.Deferred.when = jquery.when;
+        window.MemoryStream = MemoryStream;
         var testFiles = [
           "test/ast.mocha",
           "test/cb-task.mocha",

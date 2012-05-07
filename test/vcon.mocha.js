@@ -18,7 +18,7 @@ if (typeof(VContext) === 'undefined') {
   var t = chai.assert;
 
   /**
-     Testing Variable Context 
+     Testing Variable Context
   */
 
   suite('vcon');
@@ -98,10 +98,10 @@ if (typeof(VContext) === 'undefined') {
   test('getVar on literals returns the literal', function () {
     t.equal(VContext.create([], []).getVar(true), true);
     t.equal(VContext.create([], []).getVar(false), false);
-    t.equal(VContext.create([], []).getVar(null), null);  
+    t.equal(VContext.create([], []).getVar(null), null);
     t.equal(VContext.create([], []).getVar('true'), true);
     t.equal(VContext.create([], []).getVar('false'), false);
-    t.equal(VContext.create([], []).getVar('null'), null);  
+    t.equal(VContext.create([], []).getVar('null'), null);
     t.equal(VContext.create([], []).getVar(-100), -100);
     t.equal(VContext.create([], []).getVar(100), 100);
     t.equal(VContext.create([], []).getVar(123.4), 123.4);
@@ -180,7 +180,7 @@ if (typeof(VContext) === 'undefined') {
   test('saveResults upgrades undefined to null, but :LAST_RESULT is exact', function () {
     var v = VContext.create([], []);
     v.saveResults(['foo', 'bar', 'baz'], [1, undefined]);
-    t.deepEqual(v.allValues(), { foo: 1, bar: null, baz: null, 
+    t.deepEqual(v.allValues(), { foo: 1, bar: null, baz: null,
                             ':LAST_RESULTS': [1, undefined] });
   });
 
@@ -188,6 +188,16 @@ if (typeof(VContext) === 'undefined') {
     var v = VContext.create([], []);
     v.saveResults(['foo', null], [1, 20]); //skip second param
     t.deepEqual(v.allValues(), { foo: 1, ':LAST_RESULTS': [1, 20] });
+  });
+
+  test('clone makes copy using origina context as prototype', function () {
+    var v = VContext.create([], [], { a: 10, b: 20 });
+    t.equal(v.getVar('a'), 10);
+    var vClone = v.clone();
+    t.equal(vClone.getVar('a'), 10, 'before change, clone val is same');
+    vClone.setVar('a', 100);
+    t.equal(vClone.getVar('a'), 100, 'clone val is updated');
+    t.equal(v.getVar('a'), 10, 'original still same');
   });
 
 }());

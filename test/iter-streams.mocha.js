@@ -1,5 +1,5 @@
 'use strict';
-/*global iterStreams:true common:true */
+/*global iterStreams:true common:true MemoryStream:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
@@ -11,6 +11,10 @@ if (typeof(iterStreams) === 'undefined') {
 
 if (typeof(common) === 'undefined') {
   var common = require('../lib/common');
+}
+
+if (typeof(MemoryStream) === 'undefined') {
+  var MemoryStream = require('../lib/memory-stream');
 }
 
 (function () {
@@ -28,25 +32,32 @@ if (typeof(common) === 'undefined') {
     t.isObject(iterStreams);
   });
 
-  test('StreamIterator adds idx to data and end', function (done) {
-    var streamIter = new iterStreams.StreamIterator();
+  test('MemoryStream can read string array and iterate as stream', function (done) {
+    var arr = ['one', 'two'];
+    var ms = MemoryStream.createReadStream(arr, { useRawData: true });
     var accum = [];
-    streamIter.on('data', function (data, idx) {
+    ms.on('data', function (data, idx) {
       if (common.isBuffer(data)) data = data.toString();
-      accum.push([data, idx]);
+      accum.push(data);
     });
-    streamIter.on('end', function (count) {
-      t.equal(count, 2);
-      var expectedAccum = [
-        ['one', 0],
-        ['two', 1]
-      ];
-      t.deepEqual(accum, expectedAccum);
+    ms.on('end', function () {
+      t.deepEqual(accum, arr);
       done();
     });
-    streamIter.write('one');
-    streamIter.write('two');
-    streamIter.end();
+  });
+
+  test('MemoryStream can read integer array and iterate as stream', function (done) {
+    var arr = [100, 200];
+    var ms = MemoryStream.createReadStream(arr, { useRawData: true });
+    var accum = [];
+    ms.on('data', function (data, idx) {
+      if (common.isBuffer(data)) data = data.toString();
+      accum.push(data);
+    });
+    ms.on('end', function () {
+      t.deepEqual(accum, arr);
+      done();
+    });
   });
 
 }());
