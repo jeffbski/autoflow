@@ -134,7 +134,7 @@ if (typeof(react) === 'undefined') {
   });
 
 
-  test('arrayIterator with outArrayMapTask runs each value through flow, ret result[]', function (done) {
+  test('arrayIterator with outArrayMapTask runs each value through flow (sync), ret result[]', function (done) {
     function add(a, b, cb) { return cb(null, a + b); }
     function multiply(c, d, cb) { return cb(null, c * d); }
 
@@ -142,8 +142,37 @@ if (typeof(react) === 'undefined') {
     var errors = fn.setAndValidateAST({
       inParams: ['arr', 'addend', 'multiplier'],
       tasks: [
-        { f: add,      a: [':it', 'b'],        out: ['addResult']  },
-        { f: multiply, a: ['addResult', 'd'],  out: ['multResult'] }
+        { f: add,      a: [':it', 'addend'],        out: ['addResult']  },
+        { f: multiply, a: ['addResult', 'multiplier'],  out: [':result'] }
+      ],
+      outTask: { a: ['multResult'] },
+      arrayIterator: 'arr',
+      arrayMapAccumulator: 'multResult'
+    });
+
+    t.deepEqual(errors, []);
+
+    fn([100, 200], 1, 2, function cb(err, resultArr) {
+      t.equal(err, null);
+      t.deepEqual(resultArr, [202, 402]);
+      done();
+    });
+  });
+
+  test('arrayIterator with outArrayMapTask runs each value through flow, ret result[]', function (done) {
+    function add(a, b, cb) {
+      setTimeout(function () {
+        return cb(null, a + b);
+      }, 10);
+    }
+    function multiply(c, d, cb) { return cb(null, c * d); }
+
+    var fn = react();
+    var errors = fn.setAndValidateAST({
+      inParams: ['arr', 'addend', 'multiplier'],
+      tasks: [
+        { f: add,      a: [':it', 'addend'],        out: ['addResult']  },
+        { f: multiply, a: ['addResult', 'multiplier'],  out: [':result'] }
       ],
       outTask: { a: ['multResult'] },
       arrayIterator: 'arr',
