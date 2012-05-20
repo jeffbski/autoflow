@@ -1,5 +1,5 @@
 'use strict';
-/*global iterStreams:true common:true MemoryStream:true */
+/*global iterStreams:true common:true MemoryStream:true react:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
@@ -15,6 +15,10 @@ if (typeof(common) === 'undefined') {
 
 if (typeof(MemoryStream) === 'undefined') {
   var MemoryStream = require('../lib/memory-stream');
+}
+
+if (typeof(react) === 'undefined') {
+  var react = require('../lib/react');
 }
 
 (function () {
@@ -59,5 +63,37 @@ if (typeof(MemoryStream) === 'undefined') {
       done();
     });
   });
+
+  test('arrayIterator with outArrayMapTask plus concurrent throttles flow, ret result[]', function (done) {
+    var concurrent = 0;
+    function countAndDelay(a, cb) {
+      concurrent += 1;
+      setTimeout(function () {
+        cb(null, concurrent);
+        concurrent -= 1;
+      }, 50);
+    }
+
+    var fn = react();
+    var errors = fn.setAndValidateAST({
+      inParams: ['arr'],
+      tasks: [
+        { f: countAndDelay,   a: [':it'],  out: [':result']  }
+      ],
+      outTask: { a: ['concCounts'] },
+      arrayIterator: 'arr',
+      concurrent: 2,
+      arrayMapAccumulator: 'concCounts'
+    });
+
+    t.deepEqual(errors, []);
+
+    fn([100, 200, 300, 400], function cb(err, resultArr) {
+      t.equal(err, null);
+      t.deepEqual(resultArr, [2, 2, 2, 1]);
+      done();
+    });
+  });
+
 
 }());
