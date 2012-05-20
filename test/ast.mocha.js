@@ -17,7 +17,6 @@ if (typeof(react) === 'undefined') {
    Testing ast
   */
 
-
   suite('ast');
 
   function load(res, cb) { cb(null, res + '-loaded'); }
@@ -165,7 +164,11 @@ if (typeof(react) === 'undefined') {
         return cb(null, a + b);
       }, 10);
     }
-    function multiply(c, d, cb) { return cb(null, c * d); }
+    function multiply(c, d, cb) {
+      setTimeout(function () {
+        return cb(null, c * d);
+      }, 30);
+    }
 
     var fn = react();
     var errors = fn.setAndValidateAST({
@@ -181,9 +184,9 @@ if (typeof(react) === 'undefined') {
 
     t.deepEqual(errors, []);
 
-    fn([100, 200], 1, 2, function cb(err, resultArr) {
+    fn([100, 200, 300], 1, 2, function cb(err, resultArr) {
       t.equal(err, null);
-      t.deepEqual(resultArr, [202, 402]);
+      t.deepEqual(resultArr, [202, 402, 602]);
       done();
     });
   });
