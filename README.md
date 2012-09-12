@@ -16,7 +16,7 @@ Also "Reactive Programming" or "Dataflow" describe defining flow which reacts to
 
 It takes inspiration from several projects including:
 
- - Tim Caswell and Elijah Insua's [conductor](https://github.com/creationix/conductor) - [Article](http://howtonode.org/step-of-conductor)
+ - Tim Caswell and Elijah Insua's [conductor](https://github.com/tmpvar/conductor) - [Article](http://howtonode.org/step-of-conductor)
  - Caolan McMahon's [async](https://github.com/caolan/async)
 
 
