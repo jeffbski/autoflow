@@ -10,7 +10,7 @@ if (typeof(react) === 'undefined') {
 }
 
 if (typeof(taskUtil) === 'undefined') {
-  var taskUtil = require('../lib/task.js');  
+  var taskUtil = require('../lib/task.js');
 }
 
 (function () {
@@ -27,7 +27,7 @@ if (typeof(taskUtil) === 'undefined') {
     var fn = function () {
       var finalTask = taskUtil.createOutTask({}, undefined);
     };
-    t.throws(fn, new Error('callback is not a function'));
+    t.throws(fn, 'callback is not a function');
     done();
   });
 
@@ -35,7 +35,7 @@ if (typeof(taskUtil) === 'undefined') {
     var fn = function () {
       var finalTask = taskUtil.createOutTask({}, null);
     };
-    t.throws(fn, new Error('callback is not a function'));
+    t.throws(fn, 'callback is not a function');
     done();
   });
 
@@ -43,7 +43,7 @@ if (typeof(taskUtil) === 'undefined') {
     var fn = function () {
       var finalTask = taskUtil.createOutTask({}, 'foo');
     };
-    t.throws(fn, new Error('callback is not a function'));
+    t.throws(fn, 'callback is not a function');
     done();
   });
 
@@ -55,4 +55,4 @@ if (typeof(taskUtil) === 'undefined') {
     done();
   });
 
-}());  
+}());

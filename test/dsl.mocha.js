@@ -80,7 +80,7 @@ if (typeof(sprintf) === 'undefined') {
       { f: falpha, a: [], out: ['c'], type: 'cb', name: 'falpha'}
     ]);
     t.deepEqual(r.ast.outTask, { a: ['c'], type: 'finalcb' });
-    done();  
+    done();
   });
 
   test('single task, err and out params', function (done) {
@@ -92,7 +92,7 @@ if (typeof(sprintf) === 'undefined') {
       { f: falpha, a: [], out: ['c'], type: 'cb', name: 'falpha'}
     ]);
     t.deepEqual(r.ast.outTask, { a: ['c'], type: 'finalcb' });
-    done();  
+    done();
   });
 
   test('using - with literal string', function (done) {
@@ -104,11 +104,11 @@ if (typeof(sprintf) === 'undefined') {
       { f: falpha, a: ['"another-string"'], out: ['c'], type: 'cb', name: 'falpha'}
     ]);
     t.deepEqual(r.ast.outTask, { a: ['c'], type: 'finalcb' });
-    done();  
+    done();
   });
 
   test('single task, ERR and out params', function (done) {
-    var r = react('myName', 'cb -> ERR, c', 
+    var r = react('myName', 'cb -> ERR, c',
                   falpha, 'cb -> ERR, c'
                  );
     t.deepEqual(r.ast.inParams, []);
@@ -116,11 +116,11 @@ if (typeof(sprintf) === 'undefined') {
       { f: falpha, a: [], out: ['c'], type: 'cb', name: 'falpha'}
     ]);
     t.deepEqual(r.ast.outTask, { a: ['c'], type: 'finalcb' });
-    done();  
+    done();
   });
 
   test('cb used in defs is simply ignored', function (done) {
-    var r = react('myName', 'a, b, cb -> err, c', 
+    var r = react('myName', 'a, b, cb -> err, c',
                   falpha, 'a, b, cb -> err, c'
                  );
     t.deepEqual(r.ast.inParams, ['a', 'b']);
@@ -128,7 +128,7 @@ if (typeof(sprintf) === 'undefined') {
       { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
     ]);
     t.deepEqual(r.ast.outTask, { a: ['c'], type: 'finalcb' });
-    done();  
+    done();
   });
 
   test('callback used in defs is simply ignored', function (done) {
@@ -140,7 +140,7 @@ if (typeof(sprintf) === 'undefined') {
       { f: falpha, a: ['a', 'b'], out: ['c'], type: 'cb', name: 'falpha'}
     ]);
     t.deepEqual(r.ast.outTask, { a: ['c'], type: 'finalcb' });
-    done();  
+    done();
   });
 
   test('two inputs, two tasks, two out params', function (done) {
@@ -154,7 +154,7 @@ if (typeof(sprintf) === 'undefined') {
       { f: fbeta,  a: ['a', 'b'], out: ['d', 'e'], type: 'cb', name: 'fbeta'}
     ]);
     t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' });
-    done();  
+    done();
   });
 
   test('two inputs, two tasks, two out params, options', function (done) {
@@ -171,7 +171,7 @@ if (typeof(sprintf) === 'undefined') {
     t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' });
     t.equal(r.ast.name, 'myName', 'name should match');
     t.equal(r.ast.otherOptFoo, 'foo', 'other options should pass through');
-    done();  
+    done();
   });
 
   test('two inputs, two mixed tasks, two out params', function (done) {
@@ -185,12 +185,12 @@ if (typeof(sprintf) === 'undefined') {
       { f: fbeta,  a: ['a', 'b'], out: ['d'], type: 'ret', name: 'fbeta'}
     ]);
     t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' });
-    done();  
+    done();
   });
 
 
   test('two inputs, two mixed tasks, two out params, opts', function (done) {
-    var r = react('myName', 'a, b, cb -> err, c, d', 
+    var r = react('myName', 'a, b, cb -> err, c, d',
                   falpha, 'a, cb -> err, c', { after: fbeta },
                   fbeta,  'a, b -> d'
                  );
@@ -200,13 +200,13 @@ if (typeof(sprintf) === 'undefined') {
       { f: fbeta,  a: ['a', 'b'], out: ['d'], type: 'ret', name: 'fbeta'}
     ]);
     t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' });
-    done();  
+    done();
   });
 
 
     // Object use
   test('object prop task params', function (done) {
-    var r = react('myName', 'a, b, cb -> err, c, e', 
+    var r = react('myName', 'a, b, cb -> err, c, e',
                   falpha, 'a, b.cat, cb -> err, c',
                   fbeta,  'c.dog, b -> d',
                   'd.egg', 'c, cb -> err, e'
@@ -218,7 +218,7 @@ if (typeof(sprintf) === 'undefined') {
       { f: 'd.egg', a: ['c'], out: ['e'], type: 'cb', name: 'd.egg'}
     ]);
     t.deepEqual(r.ast.outTask, { a: ['c', 'e'], type: 'finalcb' });
-    done();  
+    done();
   });
 
   // Errors
@@ -229,7 +229,7 @@ if (typeof(sprintf) === 'undefined') {
                     falpha, 'cb -> err, c'
                    );
     };
-    t.throws(fn, new Error('first flow parameter should be the flow name, but found in/out def: cb -> err, c'));
+    t.throws(fn, 'first flow parameter should be the flow name, but found in/out def: cb -> err, c');
     done();
   });
 
@@ -239,7 +239,7 @@ if (typeof(sprintf) === 'undefined') {
                     falpha, 'cb -> err, c'
                    );
     };
-    t.throws(fn, new Error('callback specified, but first out param was not "err", use for clarity. Found in/out def: cb -> c'));
+    t.throws(fn, 'callback specified, but first out param was not "err", use for clarity. Found in/out def: cb -> c');
     done();
   });
 
@@ -249,7 +249,7 @@ if (typeof(sprintf) === 'undefined') {
                     falpha, 'cb -> c'  // missing err
                    );
     };
-    t.throws(fn, new Error('callback specified, but first out param was not "err", use for clarity. Found in/out def: cb -> c'));
+    t.throws(fn, 'callback specified, but first out param was not "err", use for clarity. Found in/out def: cb -> c');
     done();
   });
 
@@ -259,7 +259,7 @@ if (typeof(sprintf) === 'undefined') {
                     falpha, 'cb -> err, c'
                    );
     };
-    t.throws(fn, new Error('found err param, but cb/callback is not specified, is this cb-style async or sync function? Found in/out def: a -> err, c'));
+    t.throws(fn, 'found err param, but cb/callback is not specified, is this cb-style async or sync function? Found in/out def: a -> err, c');
     done();
   });
 
@@ -269,36 +269,36 @@ if (typeof(sprintf) === 'undefined') {
                     falpha, 'a -> err, c'  // missing cb
                    );
     };
-    t.throws(fn, new Error('found err param, but cb/callback is not specified, is this cb-style async or sync function? Found in/out def: a -> err, c'));
+    t.throws(fn, 'found err param, but cb/callback is not specified, is this cb-style async or sync function? Found in/out def: a -> err, c');
     done();
   });
 
   test('extra arg throws error', function (done) {
     var fn = function () {
-      var r = react('myName', 'a, b, cb -> err, c, d', 
+      var r = react('myName', 'a, b, cb -> err, c, d',
                     falpha, 'a, cb -> err, c', { after: fbeta },
                     fbeta,  'a, b -> returns d',
                     'extraBadArg'
                    );
     };
-    t.throws(fn, new Error('extra unmatched task arg: extraBadArg'));
-    done();  
+    t.throws(fn, 'extra unmatched task arg: extraBadArg');
+    done();
   });
 
   test('not enough args throws error', function (done) {
     var fn = function () {
-      var r = react('myName', 'a, b, cb -> err, c, d', 
+      var r = react('myName', 'a, b, cb -> err, c, d',
                     falpha, 'a, cb -> err, c', { after: fbeta },
                     fbeta
                    );
     };
-    t.throws(fn, new Error(sprintf('extra unmatched task arg: %s', fbeta)));
-    done();  
+    t.throws(fn, sprintf('extra unmatched task arg: %s', fbeta));
+    done();
   });
 
   test('long example', function (done) {
     /*jshint white: false */
-    
+
     function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
     function loadFile(filename, cb){ setTimeout(cb, 100, null, 'Filedata'+filename); }
     function markdown(filedata) { return 'html'+filedata; }
@@ -327,11 +327,11 @@ if (typeof(sprintf) === 'undefined') {
     });
   });
 
-  // selectFirst 
+  // selectFirst
 
   test('selectFirst', function (done) {
     var r = react.selectFirst('myName', 'a, b, cb -> err, c',
-                              { otherOptFoo: 'foo'},  // main options                            
+                              { otherOptFoo: 'foo'},  // main options
                               falpha, 'a, b, cb -> err, c',
                               fbeta,  'a, b -> c'
                              );
@@ -344,7 +344,7 @@ if (typeof(sprintf) === 'undefined') {
     t.deepEqual(r.ast.outTask, { type: 'finalcbFirst', a: ['c'] });
     t.equal(r.ast.name, 'myName', 'name should match if supplied');
     t.equal(r.ast.otherOptFoo, 'foo', 'other options should pass through');
-    done();  
+    done();
   });
 
-}());  
+}());

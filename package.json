@@ -16,7 +16,7 @@
   "devDependencies": {
     "requirejs": "~2.0.6",
     "mocha": "~1.4.2",
-    "chai": "~0.5.2",
+    "chai": "~1.2.0",
     "jake": "~0.3.16",
     "Deferred" : "~0.1.1"
   },
