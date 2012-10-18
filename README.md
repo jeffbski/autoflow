@@ -39,6 +39,7 @@ It takes inspiration from several projects including:
  - selectFirst flow where the first task that returns defined, non-null value is used
  - promise style functions - also automatic resolution of promise inputs (optionally loaded with `react.resolvePromises();`)
  - use of resulting flow function as callback style or promise style (if no callback provided) (provided via plugin corresponding to the promise library used) See https://github.com/jeffbski/react-deferred
+ - supports ES5 browsers (can work with others by using polyfills)
  - (planned) iteration on arrays, streams, sockets
  - (planned) event emitter integration
 
@@ -186,6 +187,7 @@ See the [Advanced React](https://github.com/jeffbski/react/blob/master/doc/advan
 
 ## Status
 
+ - 2012-10-17 - Fix issue with logEvents and provide way to disable logEvents(false) (v0.6.3)
  - 2012-09-12 - Upgrade RequireJS@2.0.6, mocha@1.4.2, chai@1.2.0, jake@0.3.16.  Update travis config to include Node 0.8 (v0.6.2)
  - 2012-04-25 - Browser compatibility issue with process check, (v0.6.1)
  - 2012-04-05 - Remove dependency on sprint, use util.format

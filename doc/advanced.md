@@ -102,6 +102,14 @@ react.logEvents('flow.*'); // turn on flow logging for all react functions
 react.logEvents(myReactFn, 'task.*'); // turn on task logging for myReactFn
 ```
 
+To turn off logging
+
+```javascript
+react.logEvents(false); // turn off logging
+```
+
+
+
 Available Events that can be logged:
 
  - flow.begin - flow execution has started (receives a flow env)
