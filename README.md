@@ -21,9 +21,7 @@ It takes inspiration from several projects including:
 
 ## Example Video and Comparison
 
-Ryan Atkinson did a nice job of demonstrating some of the power of react as compared to async and native callback code.
-
-<iframe width="853" height="480" src="http://www.youtube.com/embed/5EDucc56UnA?rel=0" frameborder="0" allowfullscreen></iframe>
+Ryan Atkinson did a nice job of demonstrating some of the power of react as compared to async and native callback code. http://www.youtube.com/embed/5EDucc56UnA?rel=0
 
 You can read more and see his example site here https://github.com/ryanatkn/react-writeup
 
