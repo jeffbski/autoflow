@@ -19,6 +19,14 @@ It takes inspiration from several projects including:
  - Tim Caswell and Elijah Insua's [conductor](https://github.com/tmpvar/conductor) - [Article](http://howtonode.org/step-of-conductor)
  - Caolan McMahon's [async](https://github.com/caolan/async)
 
+## Example Video and Comparison
+
+Ryan Atkinson did a nice job of demonstrating some of the power of react as compared to async and native callback code.
+
+<iframe width="853" height="480" src="http://www.youtube.com/embed/5EDucc56UnA?rel=0" frameborder="0" allowfullscreen></iframe>
+
+You can read more and see his example site here https://github.com/ryanatkn/react-writeup
+
 
 ## Goals
 
