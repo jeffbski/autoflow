@@ -48,6 +48,7 @@ You can read more and see his example site here https://github.com/ryanatkn/reac
  - supports ES5 browsers (can work with others by using polyfills)
  - (planned) iteration on arrays, streams, sockets
  - (planned) event emitter integration
+ - tested on node 0.8, 0.10, 0.11
 
 The tasks can be mixed, meaning you can use async, sync, object method calls, class method calls, etc in the same flow.
 
@@ -193,6 +194,7 @@ See the [Advanced React](https://github.com/jeffbski/react/blob/master/doc/advan
 
 ## Status
 
+ - 2013-04-12 - Update to test on node 0.8, 0.10, 0.11
  - 2012-10-17 - Fix issue with logEvents and provide way to disable logEvents(false) (v0.6.3)
  - 2012-09-12 - Upgrade RequireJS@2.0.6, mocha@1.4.2, chai@1.2.0, jake@0.3.16.  Update travis config to include Node 0.8 (v0.6.2)
  - 2012-04-25 - Browser compatibility issue with process check, (v0.6.1)
