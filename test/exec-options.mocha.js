@@ -1,4 +1,3 @@
-'use strict';
 /*global react:true */
 
 if (typeof(chai) === 'undefined') {
@@ -10,6 +9,7 @@ if (typeof(react) === 'undefined') {
 }
 
 (function () {
+  'use strict';
 
   var t = chai.assert;
 
@@ -25,7 +25,7 @@ if (typeof(react) === 'undefined') {
     var fn = react();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
-      tasks: [    
+      tasks: [
         { f: multiply, a: ['a', 'b'], out: ['c'] }
       ],
       outTask: { a: ['c'] }
@@ -36,13 +36,13 @@ if (typeof(react) === 'undefined') {
       reactExecOptions: true,
       outputStyle: 'cb'
     };
-    
+
     fn(execOptions, 2, 3, function (err, c) {
       t.equal(err, null);
       t.equal(c, 6);
       done();
     });
-  });  
+  });
 
 
 }());

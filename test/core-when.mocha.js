@@ -1,4 +1,3 @@
-'use strict';
 /*global react:true Deferred:true */
 
 if (typeof(chai) === 'undefined') {
@@ -14,6 +13,7 @@ if (typeof(Deferred) === 'undefined') {
 }
 
 (function () {
+  'use strict';
 
   var t = chai.assert;
 
@@ -51,7 +51,7 @@ if (typeof(Deferred) === 'undefined') {
     var fn = react();
     var errors = fn.setAndValidateAST({
       inParams: ['pm', 'pa'],
-      tasks: [    
+      tasks: [
         { a: ['pm'], out: ['m'], type: 'when' },
         { a: ['pa'], out: ['a'], type: 'when' }
       ],
@@ -61,21 +61,21 @@ if (typeof(Deferred) === 'undefined') {
 
     var pm = multiply(2, 3);
     var pa = add(4, 5);
-    
+
     fn(pm, pa, function (err, m, a) {
       t.equal(err, null);
       t.equal(m, 6);
       t.equal(a, 9);
       done();
     });
-  });  
+  });
 
 
   test('rejects with error', function (done) {
     var fn = react();
     var errors = fn.setAndValidateAST({
       inParams: ['pm', 'pa'],
-      tasks: [    
+      tasks: [
         { a: ['pm'], out: ['m'], type: 'when' },
         { a: ['pa'], out: ['a'], type: 'when' }
       ],
@@ -86,11 +86,11 @@ if (typeof(Deferred) === 'undefined') {
     var pm = badF2(2, 3);
     var pa = add(4, 5);
 
-    
+
     fn(pm, pa, function (err, m, a) {
       t.equal(err.message, 'my-error');
       done();
     });
   });
 
-}());  
+}());

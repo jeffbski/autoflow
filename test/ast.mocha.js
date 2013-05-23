@@ -1,4 +1,3 @@
-'use strict';
 /*global react:true */
 
 if (typeof(chai) === 'undefined') {
@@ -10,6 +9,7 @@ if (typeof(react) === 'undefined') {
 }
 
 (function () {
+  'use strict';
 
   var t = chai.assert;
 
@@ -57,7 +57,7 @@ if (typeof(react) === 'undefined') {
     var fn = react();
     var collector = react.createEventCollector();
     collector.capture(fn, 'ast.*');
-    
+
     var errors = fn.setAndValidateAST({
       inParams: ['res', 'prefstr', 'poststr'],
       tasks: [
@@ -99,7 +99,7 @@ if (typeof(react) === 'undefined') {
           { f: postfix, a: ['plres', 'poststr'], out: ['plresp'] }
         ],
         outTask: { a: ['plresp'] }
-      });      
+      });
     } else {
       done(); //skipping in browser
     }

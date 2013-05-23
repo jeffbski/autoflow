@@ -1,4 +1,3 @@
-'use strict';
 /*global react:true Deferred:true */
 
 if (typeof(chai) === 'undefined') {
@@ -14,6 +13,7 @@ if (typeof(Deferred) === 'undefined') {
 }
 
 (function () {
+  'use strict';
 
   var t = chai.assert;
 
@@ -34,7 +34,7 @@ if (typeof(Deferred) === 'undefined') {
     var fn = react();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
-      tasks: [    
+      tasks: [
         { f: multiply, a: ['a', 'b'], out: ['c'] },
         { f: add, a: ['c', 'b'], out: ['d'] }
       ],
@@ -51,7 +51,7 @@ if (typeof(Deferred) === 'undefined') {
     function retBP() {
       var deferred = new Deferred();
       setTimeout(function () { deferred.resolve(3); }, 10);
-      return deferred.promise();      
+      return deferred.promise();
     }
 
     var ap = retAP();
@@ -65,4 +65,4 @@ if (typeof(Deferred) === 'undefined') {
     });
   });
 
-}());  
+}());

@@ -1,4 +1,3 @@
-'use strict';
 /*global react:true inputParser:true */
 
 if (typeof(chai) === 'undefined') {
@@ -14,6 +13,7 @@ if (typeof(inputParser) === 'undefined') {
 }
 
 (function () {
+  'use strict';
 
   var t = chai.assert;
 

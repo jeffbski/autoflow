@@ -1,4 +1,3 @@
-'use strict';
 /*global react:true BaseTask:true */
 
 if (typeof(chai) === 'undefined') {
@@ -10,6 +9,7 @@ if (typeof(react) === 'undefined') {
 }
 
 (function () {
+  'use strict';
 
   var t = chai.assert;
 

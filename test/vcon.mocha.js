@@ -1,4 +1,3 @@
-'use strict';
 /*global react:true VContext:true */
 
 if (typeof(chai) === 'undefined') {
@@ -14,11 +13,12 @@ if (typeof(VContext) === 'undefined') {
 }
 
 (function () {
+  'use strict';
 
   var t = chai.assert;
 
   /**
-     Testing Variable Context 
+     Testing Variable Context
   */
 
   suite('vcon');
@@ -86,10 +86,10 @@ if (typeof(VContext) === 'undefined') {
   test('getVar on literals returns the literal', function (done) {
     t.equal(VContext.create([], []).getVar(true), true);
     t.equal(VContext.create([], []).getVar(false), false);
-    t.equal(VContext.create([], []).getVar(null), null);  
+    t.equal(VContext.create([], []).getVar(null), null);
     t.equal(VContext.create([], []).getVar('true'), true);
     t.equal(VContext.create([], []).getVar('false'), false);
-    t.equal(VContext.create([], []).getVar('null'), null);  
+    t.equal(VContext.create([], []).getVar('null'), null);
     t.equal(VContext.create([], []).getVar(-100), -100);
     t.equal(VContext.create([], []).getVar(100), 100);
     t.equal(VContext.create([], []).getVar(123.4), 123.4);
@@ -113,7 +113,7 @@ if (typeof(VContext) === 'undefined') {
     t.equal(VContext.create([o], ['a']).getVar('a.b'), 100);
     o = { b: { c: 200 }};
     t.equal(VContext.create([o], ['a']).getVar('a.b.c'), 200);
-    done();  
+    done();
   });
 
   test('setVar will create objects if needed', function (done) {
@@ -141,14 +141,14 @@ if (typeof(VContext) === 'undefined') {
     var v = VContext.create([{ bar: 1}], ['foo']);
     v.setVar(null, 2);
     t.deepEqual(v.values, { foo: { bar: 1 }});
-    done();  
+    done();
   });
 
   test('setVar with undefined key, will not set anything', function (done) {
     var v = VContext.create([{ bar: 1}], ['foo']);
     v.setVar(undefined, 2);
     t.deepEqual(v.values, { foo: { bar: 1 }});
-    done();  
+    done();
   });
 
   test('saveResults will set values for params and :LAST_RESULTS', function (done) {
@@ -156,7 +156,7 @@ if (typeof(VContext) === 'undefined') {
     v.saveResults(['foo', 'bar', 'cat'], [1, 'hello', null]);
     t.deepEqual(v.values, { foo: 1, bar: 'hello', cat: null,
                             ':LAST_RESULTS': [1, 'hello', null] });
-    done();  
+    done();
   });
 
   test('saveResults set :LAST_RESULT w/all even params is short', function (done) {
@@ -164,7 +164,7 @@ if (typeof(VContext) === 'undefined') {
     v.saveResults(['foo'], [1, 'hello', null]);
     t.deepEqual(v.values, { foo: 1,
                             ':LAST_RESULTS': [1, 'hello', null] });
-    done();  
+    done();
   });
 
   test('saveResults will set values for params and :LAST_RESULTS', function (done) {
@@ -172,22 +172,22 @@ if (typeof(VContext) === 'undefined') {
     v.saveResults(['foo', 'bar', 'cat'], [1, 'hello', null]);
     t.deepEqual(v.values, { foo: 1, bar: 'hello', cat: null,
                             ':LAST_RESULTS': [1, 'hello', null] });
-    done();  
+    done();
   });
 
   test('saveResults upgrades undefined to null, but :LAST_RESULT is exact', function (done) {
     var v = VContext.create([], []);
     v.saveResults(['foo', 'bar', 'baz'], [1, undefined]);
-    t.deepEqual(v.values, { foo: 1, bar: null, baz: null, 
+    t.deepEqual(v.values, { foo: 1, bar: null, baz: null,
                             ':LAST_RESULTS': [1, undefined] });
-    done();  
+    done();
   });
 
   test('saveResults null params skips saving, :LAST_RESULT is exact', function (done) {
     var v = VContext.create([], []);
     v.saveResults(['foo', null], [1, 20]); //skip second param
     t.deepEqual(v.values, { foo: 1, ':LAST_RESULTS': [1, 20] });
-    done();  
+    done();
   });
 
 }());

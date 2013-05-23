@@ -1,4 +1,3 @@
-'use strict';
 /*global react:true taskUtil:true */
 
 if (typeof(chai) === 'undefined') {
@@ -14,6 +13,7 @@ if (typeof(taskUtil) === 'undefined') {
 }
 
 (function () {
+  'use strict';
 
   var t = chai.assert;
 
@@ -28,7 +28,7 @@ if (typeof(taskUtil) === 'undefined') {
 
   test('missing types are guessed from params', function (done) {
     var ast = {
-      inParams: ['a'], 
+      inParams: ['a'],
       tasks: [
         { f: foo, a: ['a'], out: ['baz'] },
       ],
@@ -39,4 +39,4 @@ if (typeof(taskUtil) === 'undefined') {
     done();
   });
 
-}());  
+}());

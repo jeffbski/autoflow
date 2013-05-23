@@ -1,4 +1,3 @@
-'use strict';
 /*global react:true Deferred:true */
 
 if (typeof(chai) === 'undefined') {
@@ -14,6 +13,7 @@ if (typeof(Deferred) === 'undefined') {
 }
 
 (function () {
+  'use strict';
 
   var t = chai.assert;
 
@@ -55,7 +55,7 @@ if (typeof(Deferred) === 'undefined') {
     var fn = react();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
-      tasks: [    
+      tasks: [
         { f: multiply, a: ['a', 'b'], out: ['c'], type: 'promise' },
         { f: add, a: ['c', 'b'], out: ['d'], type: 'promise' }
       ],
@@ -69,7 +69,7 @@ if (typeof(Deferred) === 'undefined') {
       t.equal(d, 9);
       done();
     });
-  });  
+  });
 
   test('using "this" in a cb function', function (done) {
     function getA(cb) {
@@ -81,11 +81,11 @@ if (typeof(Deferred) === 'undefined') {
       }, 10);
       return deferred.promise();
     }
-    
+
     var fn = react();
     var errors = fn.setAndValidateAST({
       inParams: [],
-      tasks: [    
+      tasks: [
         { f: getA, a: [], out: ['a'], type: 'promise' }
       ],
       outTask: { a: ['a'] }
@@ -108,7 +108,7 @@ if (typeof(Deferred) === 'undefined') {
     var fn = react();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
-      tasks: [    
+      tasks: [
         { f: badFunc, a: ['a', 'b'], out: ['c'], type: 'promise' },
         { f: add, a: ['c', 'b'], out: ['d'], type: 'promise' }
       ],
@@ -126,7 +126,7 @@ if (typeof(Deferred) === 'undefined') {
     var fn = react();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
-      tasks: [    
+      tasks: [
         { f: badF2, a: ['a', 'b'], out: ['c'], type: 'promise' },
         { f: add, a: ['c', 'b'], out: ['d'], type: 'promise' }
       ],
@@ -140,4 +140,4 @@ if (typeof(Deferred) === 'undefined') {
     });
   });
 
-}());  
+}());

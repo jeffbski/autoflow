@@ -1,4 +1,3 @@
-'use strict';
 /*global react:true util:true sprintf:true validate:true */
 
 if (typeof(chai) === 'undefined') {
@@ -22,6 +21,7 @@ if (typeof(validate) === 'undefined') {
 }
 
 (function () {
+  'use strict';
 
   var t = chai.assert;
 
@@ -36,19 +36,19 @@ if (typeof(validate) === 'undefined') {
 
   test('cbTask requires f, a, out', function (done) {
     var ast = {
-      inParams: ['a'], 
+      inParams: ['a'],
       tasks: [{ type: 'cb' }],
       outTask: { a: ['bar'] }
     };
     var msg = sprintf('cbTask requires f, a, out - %s',
                       util.inspect(ast.tasks[0]));
-    t.deepEqual(validate(ast), [msg]);  
+    t.deepEqual(validate(ast), [msg]);
     done();
   });
-  
+
   test('cbTask verifies f type', function (done) {
     var ast = {
-      inParams: ['a'], 
+      inParams: ['a'],
       tasks: [{ type: 'cb', f: foo, a: [], out: [] }],
       outTask: { a: ['bar'] }
     };
@@ -61,39 +61,39 @@ if (typeof(validate) === 'undefined') {
 
   test('cbTask verifies a type', function (done) {
     var ast = {
-      inParams: ['a'], 
+      inParams: ['a'],
       tasks: [{ type: 'cb', f: foo, a: [], out: [] }],
       outTask: { a: ['bar'] }
     };
     ast.tasks[0].a = 'foo'; //err should be arr of strings
     var msg = sprintf('cbTask requires a to be an array of string param names - %s',
                       util.inspect(ast.tasks[0]));
-    t.deepEqual(validate(ast), [msg]);  
+    t.deepEqual(validate(ast), [msg]);
 
     ast = Object.create(ast);
     ast.tasks[0].a = ['foo', 1]; //err should be arr of strings
     msg = sprintf('cbTask requires a to be an array of string param names - %s',
                   util.inspect(ast.tasks[0]));
-    t.deepEqual(validate(ast), [msg]);  
+    t.deepEqual(validate(ast), [msg]);
     done();
   });
 
   test('cbTask verifies out type', function (done) {
     var ast = {
-      inParams: ['a'], 
+      inParams: ['a'],
       tasks: [{ type: 'cb', f: foo, a: [], out: [] }],
       outTask: { a: ['bar'] }
     };
     ast.tasks[0].out = 'foo'; //err should be arr of strings
     var msg = sprintf('cbTask requires out to be an array of string param names - %s',
                       util.inspect(ast.tasks[0]));
-    t.deepEqual(validate(ast), [msg]);  
+    t.deepEqual(validate(ast), [msg]);
 
     ast = Object.create(ast);
     ast.tasks[0].out = ['foo', 1]; //err should be arr of strings
     msg = sprintf('cbTask requires out to be an array of string param names - %s',
                   util.inspect(ast.tasks[0]));
-    t.deepEqual(validate(ast), [msg]);  
+    t.deepEqual(validate(ast), [msg]);
     done();
   });
 

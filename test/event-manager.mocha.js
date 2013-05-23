@@ -1,4 +1,3 @@
-'use strict';
 /*global react:true EventManager:true */
 
 if (typeof(chai) === 'undefined') {
@@ -14,6 +13,7 @@ if (typeof(EventManager) === 'undefined') {
 }
 
 (function () {
+  'use strict';
 
   var t = chai.assert;
 
@@ -116,4 +116,4 @@ if (typeof(EventManager) === 'undefined') {
     em.emit('bar', 'hello');
   });
 
-}());  
+}());

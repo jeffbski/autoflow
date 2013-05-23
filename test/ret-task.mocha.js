@@ -1,4 +1,3 @@
-'use strict';
 /*global react:true RetTask:true VContext:true */
 
 if (typeof(chai) === 'undefined') {
@@ -18,6 +17,7 @@ if (typeof(VContext) === 'undefined') {
 }
 
 (function () {
+  'use strict';
 
   var t = chai.assert;
 
@@ -66,7 +66,7 @@ if (typeof(VContext) === 'undefined') {
     t.equal(task.isReady(vCon, tasksByName), false);
     task.status = null;
     t.equal(task.isReady(vCon, tasksByName), true);
-    done();  
+    done();
   });
 
   test('no args defined, no after -> not ready', function (done) {
@@ -82,39 +82,39 @@ if (typeof(VContext) === 'undefined') {
     var vCon = VContext.create([1, {}], ['b', 'c']);
     var tasksByName = { foo: task };
     t.equal(task.isReady(vCon, tasksByName), false);
-    done();  
+    done();
   });
 
   test('all args defined, no after, out no obj parent -> NOT ready', function (done) {
     var task = new RetTask({ type: 'ret', f: foo, a: ['b', 'c'], out: ['d.e'] });
     var vCon = VContext.create([1, null], ['b', 'c']);
     var tasksByName = { foo: task };
-    t.equal(task.isReady(vCon, tasksByName), false, 'false if out objparent undef');  
-    done();  
+    t.equal(task.isReady(vCon, tasksByName), false, 'false if out objparent undef');
+    done();
   });
 
   test('all args defined, no after, out no obj.par.par -> NOT ready', function (done) {
     var task = new RetTask({ type: 'ret', f: foo, a: ['b', 'c'], out: ['c.e.f'] });
     var vCon = VContext.create([1, { }], ['b', 'c']);
     var tasksByName = { foo: task };
-    t.equal(task.isReady(vCon, tasksByName), false, 'false if out objparent undef');  
-    done();  
+    t.equal(task.isReady(vCon, tasksByName), false, 'false if out objparent undef');
+    done();
   });
 
   test('all args defined, no after, out null obj parent -> NOT ready', function (done) {
     var task = new RetTask({ type: 'ret', f: foo, a: ['b', 'c'], out: ['c.e'] });
     var vCon = VContext.create([1, null], ['b', 'c']);
     var tasksByName = { foo: task };
-    t.equal(task.isReady(vCon, tasksByName), false, 'false if out objparent null');  
-    done();  
+    t.equal(task.isReady(vCon, tasksByName), false, 'false if out objparent null');
+    done();
   });
 
   test('all args defined, no after, out null obj.par.par -> NOT ready', function (done) {
     var task = new RetTask({ type: 'ret', f: foo, a: ['b', 'c'], out: ['c.e.f'] });
     var vCon = VContext.create([1, { e: null }], ['b', 'c']);
     var tasksByName = { foo: task };
-    t.equal(task.isReady(vCon, tasksByName), false, 'false if out objparent null');  
-    done();  
+    t.equal(task.isReady(vCon, tasksByName), false, 'false if out objparent null');
+    done();
   });
 
   test('all args defined, no after -> ready', function (done) {
@@ -122,7 +122,7 @@ if (typeof(VContext) === 'undefined') {
     var vCon = VContext.create([1, null], ['b', 'c']);
     var tasksByName = { foo: task };
     t.equal(task.isReady(vCon, tasksByName), true);
-    done();  
+    done();
   });
 
   test('all args defined, obj prop null, no after -> ready', function (done) {
@@ -130,7 +130,7 @@ if (typeof(VContext) === 'undefined') {
     var vCon = VContext.create([1, { prop: null }], ['b', 'c']);
     var tasksByName = { foo: task };
     t.equal(task.isReady(vCon, tasksByName), true);
-    done();  
+    done();
   });
 
   test('all args defined, after not complete -> NOT ready', function (done) {
@@ -140,8 +140,8 @@ if (typeof(VContext) === 'undefined') {
       { type: 'ret', f: foo, a: ['b', 'c'], out: [], after: ['cat', 'bar']});
     var vCon = VContext.create([1, 2], ['b', 'c']);
     var tasksByName = { foo: task, bar: tbar, cat: tcat };
-    t.equal(task.isReady(vCon, tasksByName), false);  
-    done();  
+    t.equal(task.isReady(vCon, tasksByName), false);
+    done();
   });
 
   test('all args defined, after all complete -> ready', function (done) {
@@ -151,8 +151,8 @@ if (typeof(VContext) === 'undefined') {
       { type: 'ret', f: foo, a: ['b', 'c'], out: [], after: ['cat', 'bar']});
     var vCon = VContext.create([1, 2], ['b', 'c']);
     var tasksByName = { foo: task, bar: tbar, cat: tcat };
-    t.equal(task.isReady(vCon, tasksByName), true);  
-    done();  
+    t.equal(task.isReady(vCon, tasksByName), true);
+    done();
   });
 
   test('string without . is not method call', function (done) {
@@ -217,4 +217,4 @@ if (typeof(VContext) === 'undefined') {
     done();
   });
 
-}());  
+}());
