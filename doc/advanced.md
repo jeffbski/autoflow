@@ -121,7 +121,7 @@ Available Events that can be logged:
 
 ### Automatic Promise Resolution for inputs
 
-If you want to automatically resolve promises in React without having to manually call `when` or `then`, React provides a plugin which will detect the existence of a `then` method (indicating a promise) at runtime from any inputs to the flow and will internally create `when` tasks to resolve them before passing the values to other tasks. This built-in plugin is not loaded normally but is loaded by invoking the react method `resolvePromises`. External plugins like `react-deferred` also enable this but also provide additional promise integration. See https://github.com/jeffbski/react-deferred
+If you want to automatically resolve promises in React without having to manually call `when` or `then`, React provides a plugin which will detect the existence of a `then` method (indicating a promise) at runtime from any inputs to the flow and will internally create `when` tasks to resolve them before passing the values to other tasks. This built-in plugin is not loaded normally but is loaded by invoking the react method `resolvePromises`. External plugins like `react-deferred` and `react-q` also enable this but also provide additional promise integration. See https://github.com/jeffbski/react-deferred and https://github.com/jeffbski/react-q
 
 ```javascript
 var react = require('react');
@@ -172,3 +172,4 @@ collector.clear();  // clear the list of events;
 ### External Plugins
 
  - https://github.com/jeffbski/react-deferred - integrates jQuery style Deferred/Promises with react, providing automatic promise resolution and optional usage for react functions where by calling without a callback returns a promise.
+ - https://github.com/jeffbski/react-q - integrates Q-style Deferred/Promises with react, providing automatic promise resolution and optional usage for react functions where by calling without a callback returns a promise.

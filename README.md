@@ -44,7 +44,7 @@ You can read more and see his example site here https://github.com/ryanatkn/reac
  - class method calls
  - selectFirst flow where the first task that returns defined, non-null value is used
  - promise style functions - also automatic resolution of promise inputs (optionally loaded with `react.resolvePromises();`)
- - use of resulting flow function as callback style or promise style (if no callback provided) (provided via plugin corresponding to the promise library used) See https://github.com/jeffbski/react-deferred
+ - use of resulting flow function as callback style or promise style (if no callback provided) (provided via plugin corresponding to the promise library used) See https://github.com/jeffbski/react-deferred and https://github.com/jeffbski/react-q
  - supports ES5 browsers (can work with others by using polyfills)
  - (planned) iteration on arrays, streams, sockets
  - (planned) event emitter integration
