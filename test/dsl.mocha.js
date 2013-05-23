@@ -298,6 +298,7 @@ if (typeof(sprintf) === 'undefined') {
 
   test('long example', function (done) {
     /*jshint white: false */
+    this.timeout(6000); // runs slow on safari?
 
     function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
     function loadFile(filename, cb){ setTimeout(cb, 100, null, 'Filedata'+filename); }
@@ -307,17 +308,19 @@ if (typeof(sprintf) === 'undefined') {
     function loadEmailTemplate(cb) { setTimeout(cb, 50, null, 'emailmd'); }
     function customizeEmail(user, emailHtml) { return 'cust-'+user+emailHtml; }
     function deliverEmail(custEmailHtml, cb) { setTimeout(cb, 100, null, 'delivered-'+custEmailHtml); }
-    var loadAndSave = react('loadAndSave', 'filename, uid, outDirname, cb -> err, html, user, bytesWritten',  // name, in/out params
-                            loadUser,         'uid, cb          -> err, user',     // calling async fn loadUser with uid, callback is called with err and user
-                            loadFile,         'filename, cb     -> err, filedata',
-                            markdown,         'filedata         -> html',    // using a sync function
-                            prepareDirectory, 'outDirname, cb   -> err, dircreated',
-                            writeOutput,      'html, user, cb   -> err, bytesWritten', { after: prepareDirectory },  // only after prepareDirectory done
-                            loadEmailTemplate, 'cb              -> err, emailmd',
-                            markdown,         'emailmd          -> emailHtml',   // using a sync function
-                            customizeEmail,   'user, emailHtml  -> custEmailHtml',
-                            deliverEmail,     'custEmailHtml, cb -> err, deliveredEmail', { after: writeOutput }  // only after writeOutput is done
-                           );
+    var loadAndSave = react(
+      'loadAndSave',     'filename, uid, outDirname, cb -> err, html, user, bytesWritten',  // name, in/out params
+      loadUser,          'uid, cb           -> err, user',     // calling async fn loadUser with uid, cb is called w/ err & user
+      loadFile,          'filename, cb      -> err, filedata',
+      markdown,          'filedata          -> html',    // using a sync function
+      prepareDirectory,  'outDirname, cb    -> err, dircreated',
+      writeOutput,       'html, user, cb    -> err, bytesWritten', { after: prepareDirectory },  // after prepareDirectory done
+      loadEmailTemplate, 'cb                -> err, emailmd',
+      markdown,          'emailmd           -> emailHtml',   // using a sync function
+      customizeEmail,    'user, emailHtml   -> custEmailHtml',
+      deliverEmail,      'custEmailHtml, cb -> err, deliveredEmail', { after: writeOutput }  // only after writeOutput is done
+    );
+
     loadAndSave('file.md', 100, '/tmp/foo', function (err, html, user, bytesWritten) {  // executing the flow
       t.equal(err, null);
       t.equal(html, 'htmlFiledatafile.md');

@@ -52,6 +52,7 @@ if (typeof(Deferred) === 'undefined') {
 
 
   test('multi-step', function (done) {
+    this.timeout(4000); // runs slow on safari?
     var fn = react();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
