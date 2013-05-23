@@ -194,7 +194,7 @@ See the [Advanced React](https://github.com/jeffbski/react/blob/master/doc/advan
 
 ## Status
 
- - 2013-05-23 - Allow use of globals without needing to specify in locals, move 'use strict' into define
+ - 2013-05-23 - Allow use of globals without needing to specify in locals, move 'use strict' into define, upgrade amdefine@0.0.5, eventemitter@0.4.11, requirejs@2.1.6, mocha@1.10.0, chai@1.6.0, jake@0.5.15 (v0.7.0)
  - 2013-04-12 - Update to test on node 0.8, 0.10, 0.11
  - 2012-10-17 - Fix issue with logEvents and provide way to disable logEvents(false) (v0.6.3)
  - 2012-09-12 - Upgrade RequireJS@2.0.6, mocha@1.4.2, chai@1.2.0, jake@0.3.16.  Update travis config to include Node 0.8 (v0.6.2)

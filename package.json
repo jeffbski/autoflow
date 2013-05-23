@@ -1,7 +1,7 @@
 {
   "name": "react",
   "description": "React is a javascript module implementing a lightweight rules engine to make it easier to work with asynchronous code, by reducing boilerplate code and improving error and exception handling while allowing variable and task dependencies when defining flow.",
-  "version": "0.6.3",
+  "version": "0.7.0",
   "author": "Jeff Barczewski <jeff.barczewski@gmail.com>",
   "repository": { "type": "git", "url": "http://github.com/jeffbski/react.git" },
   "bugs" : { "url": "http://github.com/jeffbski/react/issues" },
@@ -9,15 +9,15 @@
   "main": "lib/react",
   "engines": { "node": ">=0.6" },
   "dependencies": {
-    "amdefine": "~0.0.2",
-    "eventemitter2": "~0.4.1",
+    "amdefine": "~0.0.5",
+    "eventemitter2": "~0.4.11",
     "ensure-array": "~0.0.5"
   },
   "devDependencies": {
-    "requirejs": "~2.0.6",
-    "mocha": "~1.9.0",
-    "chai": "~1.5.0",
-    "jake": "~0.3.16",
+    "requirejs": "~2.1.6",
+    "mocha": "~1.10.0",
+    "chai": "~1.6.0",
+    "jake": "~0.5.15",
     "Deferred" : "~0.1.1"
   },
   "scripts": {

@@ -80,7 +80,7 @@ if (typeof(react) === 'undefined') {
 
   test('ast.defined event is passed to process', function (done) {
     // browser might not have this, so only if process is an eventemitter
-    if (process && process.once) {
+    if (typeof process !== 'undefined' && process && process.once) {
       var fn = react();
       process.once('ast.defined', function (ast) {
         t.isObject(ast);
