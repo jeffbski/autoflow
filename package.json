@@ -20,6 +20,14 @@
     "jake": "~0.5.15",
     "Deferred" : "~0.1.1"
   },
+  "keywords": [
+    "flow",
+    "flow control",
+    "control flow",
+    "dataflow",
+    "reactive",
+    "async"
+  ],
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha ./test/*.mocha.js"
   }
