@@ -298,7 +298,6 @@ if (typeof(sprintf) === 'undefined') {
 
   test('long example', function (done) {
     /*jshint white: false */
-    this.timeout(10000); // runs slow on safari?
 
     function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
     function loadFile(filename, cb){ setTimeout(cb, 100, null, 'Filedata'+filename); }
