@@ -26,6 +26,8 @@
     "control flow",
     "dataflow",
     "reactive",
+    "deferred",
+    "promise"
     "async"
   ],
   "scripts": {
