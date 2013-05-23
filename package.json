@@ -27,7 +27,7 @@
     "dataflow",
     "reactive",
     "deferred",
-    "promise"
+    "promise",
     "async"
   ],
   "scripts": {
