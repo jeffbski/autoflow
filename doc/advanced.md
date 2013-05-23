@@ -74,7 +74,7 @@ The AST contains the following pieces:
  - **outTask** - task definition object specifying the flow's output style and parameters containing:
    - **f** - will contain reference to the callback function at runtime
    - **a** - parameters being passed as output from the flow
- - **locals** - object provided which contains additional values that will become part of the React variable space like input parameters but can be defined in advance at flow definition. This can be used to provide functions and objects to React enabling string based DSL's.
+ - **locals** - object provided which contains additional values that will become part of the React variable space like input parameters but can be defined in advance at flow definition. This can be used to provide functions and objects to React enabling string based DSL's. The global variables are already built-in, but any locals that are needed would be specified here.
 
 
 ## Plugins (optional requires which turn on additional functionality)
