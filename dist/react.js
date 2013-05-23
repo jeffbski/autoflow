@@ -7,21 +7,31 @@
   var defaultMaxListeners = 10;
 
   function init() {
-    this._events = new Object;
+    this._events = {};
+    if (this._conf) {
+      configure.call(this, this._conf);
+    }
   }
 
   function configure(conf) {
     if (conf) {
+      
+      this._conf = conf;
+      
       conf.delimiter && (this.delimiter = conf.delimiter);
+      conf.maxListeners && (this._events.maxListeners = conf.maxListeners);
       conf.wildcard && (this.wildcard = conf.wildcard);
+      conf.newListener && (this.newListener = conf.newListener);
+
       if (this.wildcard) {
-        this.listenerTree = new Object;
+        this.listenerTree = {};
       }
     }
   }
 
   function EventEmitter(conf) {
-    this._events = new Object;
+    this._events = {};
+    this.newListener = false;
     configure.call(this, conf);
   }
 
@@ -155,7 +165,7 @@
     while (name) {
 
       if (!tree[name]) {
-        tree[name] = new Object;
+        tree[name] = {};
       }
 
       tree = tree[name];
@@ -210,6 +220,8 @@
   EventEmitter.prototype.setMaxListeners = function(n) {
     this._events || init.call(this);
     this._events.maxListeners = n;
+    if (!this._conf) this._conf = {};
+    this._conf.maxListeners = n;
   };
 
   EventEmitter.prototype.event = '';
@@ -241,11 +253,12 @@
   };
 
   EventEmitter.prototype.emit = function() {
+    
     this._events || init.call(this);
 
     var type = arguments[0];
 
-    if (type === 'newListener') {
+    if (type === 'newListener' && !this.newListener) {
       if (!this._events.newListener) { return false; }
     }
 
@@ -547,12 +560,12 @@
 
 }(typeof process !== 'undefined' && typeof process.title !== 'undefined' && typeof exports !== 'undefined' ? exports : window);
 
-
 /*global define:true EventEmitter2:true */
 
 
 
 define('react/eventemitter',['eventemitter2'], function (EventEmitterMod) {
+  
 
   /**
      Abstract the details of getting an EventEmitter
@@ -563,8 +576,8 @@ define('react/eventemitter',['eventemitter2'], function (EventEmitterMod) {
   var EventEmitter = (EventEmitterMod) ?
     ((EventEmitterMod.EventEmitter2) ? EventEmitterMod.EventEmitter2 : EventEmitterMod) : EventEmitter2;
   return EventEmitter;
-  
-});  
+
+});
 /*global define:true */
 
 
@@ -1094,12 +1107,12 @@ exports._extend = function(origin, add) {
 };
 
 });  
-
 /*global define:true */
 
 
 
 define('react/error',['util'], function (util) {
+  
 
   function ensureStackTraceLimitSet(stackTraceLimit) {
     if (!Error.stackTraceLimit || Error.stackTraceLimit < stackTraceLimit) {
@@ -1130,7 +1143,7 @@ define('react/error',['util'], function (util) {
       errString += task.f.toString(); //TODO need to pretty print function, gets collapsed
       errString += '\n\n';
     }
-    return errString;    
+    return errString;
   }
 
   function augmentError(err, meta) {
@@ -1143,26 +1156,26 @@ define('react/error',['util'], function (util) {
 
   return {
     ensureStackTraceLimitSet: ensureStackTraceLimitSet,
-    augmentError: augmentError    
+    augmentError: augmentError
   };
 
-});  
-
+});
 /*global define:true sprint:true */
 
 
 
 define('react/sprintf',['util'], function (util) {
+  
 
   /**
      Abstract the details of getting a sprintf function.
      Currently using the simple format capabilities of node's util.format
     */
-  
+
   var sprintf = util.format;
   return sprintf;
-  
-});  
+
+});
 (function (root, factory) {
   /*global define:true */
 
@@ -1194,24 +1207,24 @@ define('react/sprintf',['util'], function (util) {
 }));
 
 
-
 /*global define:true */
 
 
 
 define('react/status',[], function () {
   
+
   var STATUS = { READY: 'ready',  RUNNING: 'running', ERRORED: 'errored', COMPLETE: 'complete' };
 
   return STATUS;
 
-});  
-
+});
 /*global define:true process:false*/
 
 
 
 define('react/event-manager',['./eventemitter'], function (EventEmitter) {
+  
   /*jshint regexp:false */
 
   var EVENT_EMITTER2_CONFIG = {
@@ -1293,7 +1306,6 @@ define('react/event-manager',['./eventemitter'], function (EventEmitter) {
   return EventManager;
 
 });
-
 /*global define:true */
 
 
@@ -1301,6 +1313,7 @@ define('react/event-manager',['./eventemitter'], function (EventEmitter) {
 define('react/base-task',['ensure-array', './status', './event-manager'],
        function (array, STATUS, EventManager) {
   
+
   function BaseTask() {
   }
 
@@ -1360,7 +1373,7 @@ define('react/base-task',['ensure-array', './status', './event-manager'],
      to this if they want to do this check.
   */
   BaseTask.prototype.parentExists = function (objPropStr, vCon) {
-      if (!isObjProperty(objPropStr)) return true; // NOT obj prop, just simple arg, ret true
+    if (!isObjProperty(objPropStr)) return true; // NOT obj prop, just simple arg, ret true
     var nameAndProps = objPropStr.split('.');
     nameAndProps.pop(); // pop off final prop
     var parent = nameAndProps.reduce(function (accObj, prop) {
@@ -1396,23 +1409,20 @@ define('react/base-task',['ensure-array', './status', './event-manager'],
   BaseTask.prototype.isMethodCall = function () {
     /*jshint regexp: false */
     return (typeof(this.f) === 'string' && /^.*\..*$/.test(this.f));  //str contains .
-    };
+  };
 
-    BaseTask.prototype.getMethodObj =  function (vCon) { //obj.prop.prop2, returns obj.prop or undefined
-      var name = this.f;
-      if (!name) return undefined;
-      var nameAndProps = name.split('.');
-      nameAndProps.pop(); // pop off last one
-      if (!nameAndProps.length) return undefined;
-      var result = nameAndProps.reduce(function (accObj, prop) {
-        if (accObj === undefined || accObj === null) return undefined; // prevent exception
-        return accObj[prop];
-      }, vCon.values); // vCon['foo']['bar']
-      return result;
-    };
+  BaseTask.prototype.getMethodObj =  function (vCon) { //obj.prop.prop2, returns obj.prop or undefined
+    var name = this.f;
+    if (!name) return undefined;
+    var nameAndProps = name.split('.');
+    nameAndProps.pop(); // pop off last one
+    if (!nameAndProps.length) return undefined;
+    var result = vCon.resolveNameArr(nameAndProps);
+    return result;
+  };
 
   return BaseTask;
-  
+
 });
 
 /*global define:true */
@@ -1420,6 +1430,7 @@ define('react/base-task',['ensure-array', './status', './event-manager'],
 
 
 define('react/cb-task',['util', './sprintf', './base-task'], function (util, sprintf, BaseTask) {
+  
 
   function format_error(errmsg, obj) {
     return sprintf('%s - %s', errmsg, util.inspect(obj));
@@ -1469,7 +1480,7 @@ define('react/cb-task',['util', './sprintf', './base-task'], function (util, spr
       vCon.saveResults(self.out, args);
       self.complete(args);
       contExec();
-    };    
+    };
   };
 
   CbTask.prototype.exec = function exec(vCon, handleError, contExec) {
@@ -1487,22 +1498,22 @@ define('react/cb-task',['util', './sprintf', './base-task'], function (util, spr
       } else if (typeof(func) === 'string') {
         func = vCon.getVar(func); // we want the actual fn from this string
       }
-      func.apply(bindObj, args); 
+      func.apply(bindObj, args);
     } catch (err) { //catch and handle the task error, calling final cb
       handleError(this, err);
-    }    
+    }
   };
 
   return CbTask;
 
-});  
-
+});
 
 /*global define:true */
 
 
 
 define('react/promise-task',['util', './sprintf', './base-task'], function (util, sprintf, BaseTask) {
+  
 
   /**
      PromiseTask is a task which executes a fn that returns a promise
@@ -1539,7 +1550,7 @@ define('react/promise-task',['util', './sprintf', './base-task'], function (util
              taskDef.a.every(function (x) { return (typeof(x) === 'string'); }))) {
         errors.push(format_error(A_REQ, taskDef));
       }
-      if (! (Array.isArray(taskDef.out) && taskDef.out.length <= 1 && 
+      if (! (Array.isArray(taskDef.out) && taskDef.out.length <= 1 &&
              taskDef.out.every(function (x) { return (typeof(x) === 'string'); }))) {
         errors.push(format_error(OUT_REQ, taskDef));
       }
@@ -1582,19 +1593,19 @@ define('react/promise-task',['util', './sprintf', './base-task'], function (util
       }
     } catch (err) { //catch and handle the task error, calling final cb
       handleError(this, err);
-    }    
+    }
   };
 
   return PromiseTask;
 
-});  
-
+});
 /*global define:true */
 
 
 
 define('react/ret-task',['util', './sprintf', './base-task'], function (util, sprintf, BaseTask) {
   
+
   function format_error(errmsg, obj) {
     return sprintf('%s - %s', errmsg, util.inspect(obj));
   }
@@ -1638,7 +1649,7 @@ define('react/ret-task',['util', './sprintf', './base-task'], function (util, sp
   RetTask.prototype.exec = function exec(vCon, handleError, contExec) {
     try {
       var args = this.a.map(function (k) { return vCon.getVar(k); }); //get args from vCon
-      this.start(args); //note the start time, args    
+      this.start(args); //note the start time, args
       var func = this.f;
       var bindObj = vCon.getVar('this'); //global space or the original this
       if (this.isMethodCall()) { //if method call then reset func and bindObj
@@ -1656,14 +1667,14 @@ define('react/ret-task',['util', './sprintf', './base-task'], function (util, sp
 
   return RetTask;
 
-});  
-
+});
 /*global define:true */
 
 
 
 define('react/when-task',['util', './sprintf', './base-task'], function (util, sprintf, BaseTask) {
   
+
   /**
      When task which checks if is a promise (has a then method)
      and waits for it to resolve.
@@ -1687,19 +1698,18 @@ define('react/when-task',['util', './sprintf', './base-task'], function (util, s
   WhenTask.prototype = new BaseTask();
   WhenTask.prototype.constructor = WhenTask;
 
-  WhenTask.prototype.f = function when() { // just here to keep validations happy 
-  }
+  WhenTask.prototype.f = function when() { }; // just here to keep validations happy
 
   WhenTask.validate = function (taskDef) {
     var errors = [];
     if (!taskDef.a || !taskDef.out) {
       errors.push(format_error(REQ, taskDef));
     } else {
-      if (! (Array.isArray(taskDef.a) && taskDef.a.length === 1 && 
+      if (! (Array.isArray(taskDef.a) && taskDef.a.length === 1 &&
              taskDef.a.every(function (x) { return (typeof(x) === 'string'); }))) {
         errors.push(format_error(A_REQ, taskDef));
       }
-      if (! (Array.isArray(taskDef.out) && taskDef.out.length <= 1 && 
+      if (! (Array.isArray(taskDef.out) && taskDef.out.length <= 1 &&
              taskDef.out.every(function (x) { return (typeof(x) === 'string'); }))) {
         errors.push(format_error(OUT_REQ, taskDef));
       }
@@ -1734,25 +1744,25 @@ define('react/when-task',['util', './sprintf', './base-task'], function (util, s
       }
     } catch (err) { //catch and handle the task error, calling final cb
       handleError(this, err);
-    } 
+    }
   };
 
   return WhenTask;
 
-});  
-
+});
 /*global define:true */
 
 
 
 define('react/finalcb-task',['./sprintf', 'util', './status', './event-manager'],
        function (sprintf, util, STATUS, EventManager) {
+  
 
   var OUTTASK_A_REQ = 'ast.outTask.a should be an array of string param names';
 
   function FinalCbTask(outTaskOptions) {
-      var taskDef = outTaskOptions.taskDef;
-    if (typeof(outTaskOptions.cbFunc) !== 'function') throw new Error('callback is not a function'); 
+    var taskDef = outTaskOptions.taskDef;
+    if (typeof(outTaskOptions.cbFunc) !== 'function') throw new Error('callback is not a function');
     var self = this;
     for (var k in taskDef) {
       if (true) self[k] = taskDef[k];  // if to make jshint happy
@@ -1802,14 +1812,14 @@ define('react/finalcb-task',['./sprintf', 'util', './status', './event-manager']
 
   return FinalCbTask;
 
-});  
-
+});
 /*global define:true */
 
 
 
 define('react/vcon',[], function () {
   
+
   var LAST_RESULTS_KEY = ':LAST_RESULTS';
 
   function VContext() {
@@ -1832,10 +1842,23 @@ define('react/vcon',[], function () {
     var m = /^("|')([^\1]*)\1$/.exec(name);  //check for quoted string " or '
     if (m) return m[2]; // if is quoted str, return inside of the quotes
     var nameAndProps = name.split('.');
-    return nameAndProps.reduce(function (accObj, prop) {
+    var result = this.resolveNameArr(nameAndProps);
+    return result;
+  };
+
+  VContext.prototype.resolveNameArr = function (nameAndProps) {
+    var vConValues = this.values;
+    var result = nameAndProps.reduce(function (accObj, prop) {
       if (accObj === undefined || accObj === null) return undefined; // prevent exception
       return accObj[prop];
     }, vConValues);   // vCon['foo']['bar']
+    if (result === undefined && this.global !== undefined) { // see if matches any global
+      result = nameAndProps.reduce(function (accObj, prop) {
+        if (accObj === undefined || accObj === null) return undefined; // prevent exception
+        return accObj[prop];
+      }, this.global);   // global['foo']['bar']
+    }
+    return result;
   };
 
   /**
@@ -1865,7 +1888,7 @@ define('react/vcon',[], function () {
     }, vConValues);   // vCon['foo']['bar']
     obj[lastProp] = value;
   };
-  
+
 
   /**
      Create Variable Context using arguments passed in.
@@ -1875,6 +1898,7 @@ define('react/vcon',[], function () {
        @param self used to pass 'this' context in
   */
   VContext.create = function (args, inParams, locals, self) {
+    /*jshint validthis:true, evil:true */
     var initValues = {};
     if (self) initValues['this'] = self;
     if (locals) Object.keys(locals).forEach(function (k) { initValues[k] = locals[k]; }); // copy over keys
@@ -1884,13 +1908,22 @@ define('react/vcon',[], function () {
       if (param) vcon[param] = (x !== undefined) ? x : null; // upgrade undefined to null
       return vcon;
     }, initValues);
+
+    // add in global
+    if (typeof global === 'object') { // node.js and modern browsers expose global
+      vContext.global = global;
+    } else { // try to access this using Function eval of this
+      // http://stackoverflow.com/questions/3277182/how-to-get-the-global-object-in-javascript
+      vContext.global = new Function('return this')();
+    }
+
     return vContext;
   };
 
 
   return VContext;
 
-});  
+});
 
 /*global define:true */
 
@@ -1898,12 +1931,13 @@ define('react/vcon',[], function () {
 
 define('react/finalcb-first-task',['./sprintf', 'util', './status', './vcon', './event-manager'],
        function (sprintf, util, STATUS, VContext, EventManager) {
+  
 
   var OUTTASK_A_REQ = 'ast.outTask.a should be an array of string param names';
 
   function FinalCbFirstSuccTask(outTaskOptions) {
-      var taskDef = outTaskOptions.taskDef;
-    if (typeof(outTaskOptions.cbFunc) !== 'function') throw new Error('callback is not a function'); 
+    var taskDef = outTaskOptions.taskDef;
+    if (typeof(outTaskOptions.cbFunc) !== 'function') throw new Error('callback is not a function');
     var self = this;
     for (var k in taskDef) {
       if (true) self[k] = taskDef[k];  // if to make jshint happy
@@ -1956,8 +1990,7 @@ define('react/finalcb-first-task',['./sprintf', 'util', './status', './vcon', '.
 
   return FinalCbFirstSuccTask;
 
-});  
-
+});
 /*global define:true */
 
 
@@ -1969,6 +2002,7 @@ function (util, sprintf, array, CbTask, PromiseTask,
          RetTask, WhenTask, FinalCbTask, FinalCbFirstSuccTask,
          STATUS, error, VContext, EventManager) {
   
+
   var TASK_TYPES = {
     cb: CbTask,
     ret: RetTask,
@@ -2003,13 +2037,13 @@ function (util, sprintf, array, CbTask, PromiseTask,
   */
   function setMissingType(taskDef) {
     if (taskDef.type) return taskDef; //already set, return
-    taskDef.type = 'cb'; 
+    taskDef.type = 'cb';
     return taskDef;
   }
 
   function setMissingOutTaskType(taskDef) {
     if (!taskDef.type) taskDef.type = Object.keys(OUT_TASK_TYPES)[0]; //use first outTask type as default
-  } 
+  }
 
   function ensureAfterArrStrings(taskDef) { // convert any fn to str, and make sure is array
     if (!taskDef.after) return;
@@ -2022,14 +2056,14 @@ function (util, sprintf, array, CbTask, PromiseTask,
      @returns array of errors for taskDef, could be empty
   */
   function validate(taskDef) {
-    if (!taskDef || typeof(taskDef) !== 'object') {    
+    if (!taskDef || typeof(taskDef) !== 'object') {
       return [format_error(TASKDEF_IS_OBJECT, taskDef)];
     }
     setMissingType(taskDef);
     ensureAfterArrStrings(taskDef);
     var errors = [];
     errors = errors.concat(validateTaskType(taskDef));
-    errors = errors.concat(validateTask(taskDef));  
+    errors = errors.concat(validateTask(taskDef));
     return errors;
   }
 
@@ -2056,13 +2090,13 @@ function (util, sprintf, array, CbTask, PromiseTask,
     setMissingOutTaskType(taskDef);
     var taskCons = OUT_TASK_TYPES[taskDef.type];
     errors = errors.concat(taskCons.validate(taskDef));
-    return errors;  
+    return errors;
   }
 
 
   function validateLocalFunctions(inParams, taskDefs, locals) {
     var errors = [];
-    function foo() { } //used to mock args as fns for validation check 
+    function foo() { } //used to mock args as fns for validation check
     var mock_args = inParams.map(function (p) { return foo; }); //mock args with fns
     var vCon = VContext.create(mock_args, inParams, locals);
     var tasks = taskDefs.map(create);
@@ -2135,7 +2169,7 @@ function (util, sprintf, array, CbTask, PromiseTask,
     var TaskConstructor = outTaskOptions.TaskConstructor;  // hook could have changed
     return new TaskConstructor(outTaskOptions);
   }
-  
+
   function createErrorHandler(vCon, outTask) {
     return function handleError(task, err) {
       task.status = STATUS.ERRORED;
@@ -2153,7 +2187,7 @@ function (util, sprintf, array, CbTask, PromiseTask,
 
   function execTasks(tasksReady, vCon, handleError, contExec) {
     tasksReady.forEach(function (t) { t.status = STATUS.READY; }); //set ready first, no double exec
-    tasksReady.forEach(function (t) { t.exec(vCon, handleError, contExec); }); 
+    tasksReady.forEach(function (t) { t.exec(vCon, handleError, contExec); });
   }
 
   /**
@@ -2184,7 +2218,7 @@ function (util, sprintf, array, CbTask, PromiseTask,
 
   function serializeTasks(tasks) { // conveniently set after for each task idx > 0
     nameTasks(tasks);
-    tasks.forEach(function (t, idx, arr) { if (idx !== 0) t.after = [arr[idx - 1].name]; }); 
+    tasks.forEach(function (t, idx, arr) { if (idx !== 0) t.after = [arr[idx - 1].name]; });
     return tasks;
   }
 
@@ -2205,15 +2239,15 @@ function (util, sprintf, array, CbTask, PromiseTask,
     findReadyAndExec: findReadyAndExec
   };
 
-});  
-
+});
 /*global define:true */
 
 
 
 define('react/validate',['util', './sprintf', 'ensure-array', './task'], function (util, sprintf, array, taskUtil) {
-  /*jshint latedef:false */
   
+  /*jshint latedef:false */
+
   var AST_IS_OBJECT = 'ast must be an object with inParams, tasks, and outTask';
   var INPARAMS_ARR_STR = 'ast.inParams must be an array of strings';
   var TASKS_ARR = 'ast.tasks must be an array of tasks';
@@ -2223,7 +2257,7 @@ define('react/validate',['util', './sprintf', 'ensure-array', './task'], functio
   var MISSING_INPUTS = 'missing or mispelled variable referenced in flow definition: %s';
 
   // match any of our literals true, false, int, float, quoted strings, or is property (has dot), match vcon.js
-  var LITERAL_OR_PROP_RE = /^(true|false|this|null|\-?[0-9\.]+)$|'|"|\./i;  
+  var LITERAL_OR_PROP_RE = /^(true|false|this|null|\-?[0-9\.]+)$|'|"|\./i;
 
   function format_error(errmsg, obj) {
     return sprintf('%s - %s', errmsg, util.inspect(obj));
@@ -2279,11 +2313,11 @@ define('react/validate',['util', './sprintf', 'ensure-array', './task'], functio
     tasks.forEach(function (t) {
       errors = errors.concat(taskUtil.validate(t));
     });
-      return errors;
+    return errors;
   }
 
   function validateTaskNamesUnique(tasks) {
-      if (!Array.isArray(tasks)) return [];
+    if (!Array.isArray(tasks)) return [];
     var errors = [];
     var namedTasks = tasks.filter(function (t) { return (t.name); });
     var names = namedTasks.map(function (t) { return t.name; });
@@ -2291,7 +2325,7 @@ define('react/validate',['util', './sprintf', 'ensure-array', './task'], functio
       if (accum[name]) errors.push(sprintf('%s %s', NAMES_UNIQUE, name));
       else accum[name] = true;
       return accum;
-    }, {});                             
+    }, {});
     return errors;
   }
 
@@ -2357,28 +2391,28 @@ define('react/validate',['util', './sprintf', 'ensure-array', './task'], functio
       if (!isLiteralOrProp(p) && !names[p]) accum.push(sprintf(MISSING_INPUTS, p)); // add error if missing
       return accum;
     }, errors);
-    return errors;  
+    return errors;
   }
 
   return validate;
 
-});  
-
+});
 /*global define:true */
 
 
 
 define('react/input-parser',['./event-manager'], function (EventManager) {
+  
 
   var defaultExecOptions = {
     reactExecOptions: true,
     outputStyle: 'cb',
   };
 
-    var OUTPUT_STYLES = {
-      CALLBACK: 'cb',
-      NONE: 'none'
-    };
+  var OUTPUT_STYLES = {
+    CALLBACK: 'cb',
+    NONE: 'none'
+  };
 
   function isExecOptions(x) { return (x && x.reactExecOptions); }
   function execOptionsFilter(x) { return isExecOptions(x); }
@@ -2394,16 +2428,16 @@ define('react/input-parser',['./event-manager'], function (EventManager) {
     if (style === OUTPUT_STYLES.CALLBACK && args.length) result.cb = args.shift(); // next take the cb
     result.extra = args; // these remaining were after the callback
     return result;
-    }
-    
+  }
+
   function inputParser(inputArgs, ast) {
     var parsedInput = { };
     var execOptionsArr = inputArgs.filter(execOptionsFilter);
     execOptionsArr.unshift(defaultExecOptions);
     parsedInput.options = execOptionsArr.reduce(mergeExecOptions, {});
 
-      var args = inputArgs.filter(nonExecOptionsFilter);
-    var splitResult = splitArgs(args, ast.inParams, parsedInput.options.outputStyle); 
+    var args = inputArgs.filter(nonExecOptionsFilter);
+    var splitResult = splitArgs(args, ast.inParams, parsedInput.options.outputStyle);
     parsedInput.args = splitResult.args;
     parsedInput.cb = splitResult.cb;
     if (splitResult.outputStyle) parsedInput.options.outputStyle = splitResult.outputStyle;
@@ -2416,14 +2450,14 @@ define('react/input-parser',['./event-manager'], function (EventManager) {
   inputParser.defaultExecOptions = defaultExecOptions;
   return inputParser;
 
-});  
-
+});
 /*global define:true */
 
 
 
 define('react/id',[], function () {
   
+
   var startingId = 0;
 
   function createUniqueId() {
@@ -2436,8 +2470,7 @@ define('react/id',[], function () {
     createUniqueId: createUniqueId
   };
 
-});  
-
+});
 /*global define:true */
 
 
@@ -2446,6 +2479,7 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
         './vcon', './event-manager', './input-parser', './id', './sprintf'],
        function (EventEmitter, error, validate, taskUtil, STATUS,
                  VContext, EventManager, inputParser, idGenerator, sprintf) {
+  
 
   var reactOptions = {
     stackTraceLimitMin: 30
@@ -2460,7 +2494,7 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
     return Object.keys(reactOptions).reduce(function (accum, k) {
       if (!accum[k]) accum[k] = reactOptions[k];
       return accum;
-    }, parsedOptions);    
+    }, parsedOptions);
   }
 
   /**
@@ -2517,7 +2551,7 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
         });
         Object.freeze(newAST);
       }
-      flowEmitter.emit(EventManager.TYPES.AST_DEFINED, ast); 
+      flowEmitter.emit(EventManager.TYPES.AST_DEFINED, ast);
       return errors;
     }
 
@@ -2541,7 +2575,7 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
       env.taskDefs = ast.tasks.slice(); // create copy
       env.outTaskDef = Object.create(ast.outTask); // create copy
       reactEmitter.emit(EventManager.TYPES.EXEC_TASKS_PRECREATE, env);  // hook
-      
+
       var tasks = env.taskDefs.map(taskUtil.create);
       var tasksByName = taskUtil.nameTasks(tasks); // map names to working tasks
       var outTask = taskUtil.createOutTask(env.outTaskDef, parsedInput.cb, tasks, vCon, env.options, env);
@@ -2572,13 +2606,13 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
   reactFactory.options = reactOptions;   // global react options
   reactFactory.events = reactEmitter;    // global react emitter
   return reactFactory; // module returns reactFactory to create a react fn
-});  
-
+});
 /*global define:true */
 
 
 
 define('react/parse',['./sprintf'], function (sprintf) {
+  
 
   function splitTrimFilterArgs(commaSepArgs) { //parse 'one, two' into ['one', 'two']
     if (!commaSepArgs) return [];
@@ -2603,7 +2637,7 @@ define('react/parse',['./sprintf'], function (sprintf) {
       return result;
     } else { // no match
       throw new Error(sprintf(errStr, str));
-    }  
+    }
   }
 
   return {
@@ -2611,8 +2645,7 @@ define('react/parse',['./sprintf'], function (sprintf) {
     parseStr: parseStr
   };
 
-});  
-
+});
 
 /*global define:true */
 
@@ -2620,7 +2653,8 @@ define('react/parse',['./sprintf'], function (sprintf) {
 
 define('react/dsl',['./sprintf', './core', './parse', './task'],
        function (sprintf, core, parse, taskUtil) {
-         /*jshint regexp: false */
+  
+  /*jshint regexp: false */
 
   var MISSING_NAME = 'first flow parameter should be the flow name, but found in/out def: %s';
   var INOUT_PARAMS_NO_MATCH = 'params in wrong format, wanted "foo, bar, cb -> err, baz" - found: %s';
@@ -2644,23 +2678,23 @@ define('react/dsl',['./sprintf', './core', './parse', './task'],
 
   var inOutDefParse = {
     splitStr: '->',
-      fn: function (m, origStr) {
-        var inParams = parse.splitTrimFilterArgs(m[0]);
-        var lastParam = inParams[inParams.length - 1];
-        var type = (lastParam && CB_NAMES_RE.test(lastParam)) ? 'cb' : 'ret';
-          var outParams = parse.splitTrimFilterArgs(m[1]);
-        var firstOutParam = outParams[0];
-        if (type === 'cb' && (!firstOutParam || !ERR_NAMES_RE.test(firstOutParam))) {
-          throw new Error(sprintf(MISSING_ERR, origStr));  // found cb, but no err param
-        } else if (type === 'ret' && firstOutParam && ERR_NAMES_RE.test(firstOutParam)) {
-          throw new Error(sprintf(MISSING_CB, origStr));  // found err but not cb param
-        }
-        return {
-          type: type,
-          inDef: filterOutTrailingCbParam(inParams),
-            outDef: filterOutLeadingErrParam(outParams)
-        };
+    fn: function (m, origStr) {
+      var inParams = parse.splitTrimFilterArgs(m[0]);
+      var lastParam = inParams[inParams.length - 1];
+      var type = (lastParam && CB_NAMES_RE.test(lastParam)) ? 'cb' : 'ret';
+      var outParams = parse.splitTrimFilterArgs(m[1]);
+      var firstOutParam = outParams[0];
+      if (type === 'cb' && (!firstOutParam || !ERR_NAMES_RE.test(firstOutParam))) {
+        throw new Error(sprintf(MISSING_ERR, origStr));  // found cb, but no err param
+      } else if (type === 'ret' && firstOutParam && ERR_NAMES_RE.test(firstOutParam)) {
+        throw new Error(sprintf(MISSING_CB, origStr));  // found err but not cb param
       }
+      return {
+        type: type,
+        inDef: filterOutTrailingCbParam(inParams),
+        outDef: filterOutLeadingErrParam(outParams)
+      };
+    }
   };
 
   function parseInOutParams(str) {
@@ -2696,11 +2730,11 @@ define('react/dsl',['./sprintf', './core', './parse', './task'],
     // if next arg is object, shift it off as options
     var options = (vargs.length && typeof(vargs[0]) === 'object') ? vargs.shift() : { };
     var taskDefArr = vargs; // rest are for the tasks
-    var defObj = {  
+    var defObj = {
       inOutParamStr: inOutParamStr,
       taskDefArr: taskDefArr,
       options: options
-      };
+    };
     return defObj;
   }
 
@@ -2708,7 +2742,7 @@ define('react/dsl',['./sprintf', './core', './parse', './task'],
   function dslDefine(name, arg1, arg2, argN) {
     var reactFn = core();
     if (name && INOUT_RE.test(name)) throw new Error(sprintf(MISSING_NAME, name));
-    var defObj = parseVargs(Array.prototype.slice.call(arguments, 1)); // name, already used 
+    var defObj = parseVargs(Array.prototype.slice.call(arguments, 1)); // name, already used
     var inOutDef = parseInOutParams(defObj.inOutParamStr);
     var ast = {
       name: name,
@@ -2717,18 +2751,18 @@ define('react/dsl',['./sprintf', './core', './parse', './task'],
       outTask: { a: inOutDef.outDef }
     };
     if (defObj.options) Object.keys(defObj.options).forEach(function (k) { ast[k] = defObj.options[k]; });
-      var errors = reactFn.setAndValidateAST(ast);
+    var errors = reactFn.setAndValidateAST(ast);
     if (errors.length) {
       var errorStr = errors.join('\n');
-        throw new Error(errorStr);
+      throw new Error(errorStr);
     }
     return reactFn;
-    }
+  }
 
   function selectFirst(name, arg1, arg2, argN) {
     var reactFn = core();
-    var defObj = parseVargs(Array.prototype.slice.call(arguments, 1)); // name, already used 
-    var inOutDef = parseInOutParams(defObj.inOutParamStr);  
+    var defObj = parseVargs(Array.prototype.slice.call(arguments, 1)); // name, already used
+    var inOutDef = parseInOutParams(defObj.inOutParamStr);
     var tasks = taskUtil.serializeTasks(parseTasks(defObj.taskDefArr));
     var ast = {
       name: name,
@@ -2736,7 +2770,7 @@ define('react/dsl',['./sprintf', './core', './parse', './task'],
       tasks: tasks,
       outTask: { type: 'finalcbFirst', a: inOutDef.outDef },
     };
-    if (defObj.options) Object.keys(defObj.options).forEach(function (k) { ast[k] = defObj.options[k]; });  
+    if (defObj.options) Object.keys(defObj.options).forEach(function (k) { ast[k] = defObj.options[k]; });
     var errors = reactFn.setAndValidateAST(ast);
     if (errors.length) {
       var errorStr = errors.join('\n');
@@ -2747,15 +2781,15 @@ define('react/dsl',['./sprintf', './core', './parse', './task'],
 
   dslDefine.selectFirst = selectFirst;
   return dslDefine;
-  
-});  
 
+});
 /*global define:true */
 
 
 
 define('react/track-tasks',[], function () {
   
+
   /**
      Track the tasks, start, complete, args, results, elapsed time
      Emits events that can be monitored
@@ -2818,15 +2852,15 @@ define('react/track-tasks',[], function () {
 
   }
 
-  return trackTasks; 
+  return trackTasks;
 
-});  
-
+});
 /*global define:true */
 
 
 
 define('react/log-events',['util'], function (util) { // TODO replace util.inspect with something portable to browser
+  
 
   var logEventsMod = { };
 
@@ -2920,12 +2954,12 @@ define('react/log-events',['util'], function (util) { // TODO replace util.inspe
   return logEventsMod;
 
 });
-
 /*global define:true */
 
 
 
 define('react/promise-resolve',[], function () {
+  
 
   /**
      Auto resolve promises passed in as arguments to the flow
@@ -2937,9 +2971,9 @@ define('react/promise-resolve',[], function () {
   */
 
 
-    var PROMISE_SUFFIX = '__promise';  // added to param names that are promises
+  var PROMISE_SUFFIX = '__promise';  // added to param names that are promises
 
-    var resolvingPromises = false;
+  var resolvingPromises = false;
 
   function resolvePromises(react) {
     if (resolvingPromises) return; // already resolving
@@ -2967,13 +3001,13 @@ define('react/promise-resolve',[], function () {
 
   return resolvePromises;
 
-});  
-
+});
 /*global define:true */
 
 
 
 define('react/event-collector',[], function () {
+  
 
   /**
      create an instance of the event collector
@@ -3026,9 +3060,9 @@ define('react/event-collector',[], function () {
         } else if (TASK_EVENTS_RE.test(this.event)) {
           eventObject.task = obj;
         } else if (AST_EVENTS_RE.test(this.event)) {
-          eventObject.ast = obj;      
+          eventObject.ast = obj;
         }
-        self.events.push(eventObject);      
+        self.events.push(eventObject);
       }
       emitter.on(eventId, accumEvents);
     };
@@ -3041,19 +3075,19 @@ define('react/event-collector',[], function () {
       this.events = []; // clear
     };
 
-    return new EventCollector();  
+    return new EventCollector();
   }
 
   return instantiate; // return the factory for creating EventCollector
-  
-});  
 
+});
 /*global define:true */
 
 
 
 define('react/react',['./core', './dsl', './track-tasks', './log-events', './promise-resolve', './event-collector'],
        function (core, dsl, trackTasksFn, logEventsMod, resolvePromisesFn, eventCollectorFactory) {
+  
 
   var react = dsl; // core + default dsl
 
