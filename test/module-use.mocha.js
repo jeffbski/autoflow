@@ -36,7 +36,7 @@ if (typeof(BaseTask) === 'undefined') {
      bum, 'dog, cb      -> err, result2');
 
      // OR using AST
-     
+
      var loadAndSave = react();
      loadAndSave.setAndValidateAST({
      inParams: ['one', 'two'],
@@ -88,7 +88,7 @@ if (typeof(BaseTask) === 'undefined') {
       { f: foo, a: ['a'], out: ['c'], type: 'cb', name: 'foo' },
       { f: bar, a: ['b'], out: ['d'], type: 'cb', name: 'bar' }
     ]);
-    t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' },      'should return obj just set'); 
+    t.deepEqual(r.ast.outTask, { a: ['c', 'd'], type: 'finalcb' },      'should return obj just set');
     done();
   });
 
@@ -100,7 +100,7 @@ if (typeof(BaseTask) === 'undefined') {
                    add, 'm, a, cb -> err, s'
                   );
 
-    
+
     fn(2, 3, function (err, m, s) {
       t.deepEqual(err, null, 'should not be any error');
       t.equal(m, 6);
@@ -116,17 +116,17 @@ if (typeof(BaseTask) === 'undefined') {
     function noSuccessNull(a, b, cb) { cb(null, null); } // returns null result
     function add(a, b, cb) { cb(null, a + b); }
 
-    
+
     var fn = react.selectFirst('mySelectFirst', 'a, b, cb -> err, c',
                                noSuccess, 'a, b, cb -> err, c',
                                noSuccessNull, 'a, b, cb -> err, c',
                                add, 'a, b, cb -> err, c',
-                               noSuccess, 'a, b, cb -> err, c'                             
+                               noSuccess, 'a, b, cb -> err, c'
                               );
 
     var collector = react.createEventCollector();
     collector.capture(fn, 'task.complete');
-    
+
     fn(2, 3, function (err, c) {
       t.deepEqual(err, null, 'should not be any error');
       t.equal(c, 5);
@@ -136,6 +136,23 @@ if (typeof(BaseTask) === 'undefined') {
       t.equal(events[1].task.name, 'noSuccessNull', 'name matches');
       t.equal(events[2].task.name, 'add', 'name matches');
       t.deepEqual(events[2].task.results, [5], 'results match');
+      done();
+    });
+  });
+
+  test('reference local/global vars', function (done) {
+    function foo(cb) {
+      cb(null, 100);
+    }
+
+    var fn = react('refGlobal', 'cb -> err, result',
+      'console.log', '"using global/local ref to console" ->',
+      foo, 'cb -> err, result', { after: 'console.log' }
+    );
+
+    fn(function (err, result) {
+      if (err) return done(err);
+      t.equal(result, 100);
       done();
     });
   });
