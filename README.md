@@ -23,6 +23,8 @@ It takes inspiration from several projects including:
 
 Ryan Atkinson did a nice job of demonstrating some of the power of react as compared to async and native callback code. http://www.youtube.com/embed/5EDucc56UnA?rel=0
 
+[![Ryan Atkinson React Video](doc/react-youtube-ryan.png)](http://www.youtube.com/embed/5EDucc56UnA?rel=0)
+
 You can read more and see his example site here https://github.com/ryanatkn/react-writeup
 
 
