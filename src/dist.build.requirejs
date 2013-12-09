@@ -3,9 +3,9 @@
   optimize: "none",
   packages: [
     {
-      name: "react",
+      name: "autoflow",
       location: "lib",
-      main: "react"
+      main: "autoflow"
     }
   ],
   paths: {
@@ -15,6 +15,6 @@
     sprint: "node_modules/sprint/lib/sprint",
     "ensure-array": "node_modules/ensure-array/ensure-array"
   },
-  name: "react",
-  out: "dist/react.js"
+  name: "autoflow",
+  out: "dist/autoflow.js"
 })

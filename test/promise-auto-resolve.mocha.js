@@ -1,11 +1,11 @@
-/*global react:true Deferred:true */
+/*global autoflow:true Deferred:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
 }
 
-if (typeof(react) === 'undefined') {
-  var react = require('../'); //require('react');
+if (typeof(autoflow) === 'undefined') {
+  var autoflow = require('../'); //require('autoflow');
 }
 
 if (typeof(Deferred) === 'undefined') {
@@ -21,17 +21,17 @@ if (typeof(Deferred) === 'undefined') {
 
   /**
      Test that arguments which are promises are automatically resolved
-     before calling react functions
+     before calling autoflow functions
   */
 
-  react.resolvePromises(); // enable promise resolving
+  autoflow.resolvePromises(); // enable promise resolving
 
   function multiply(x, y, cb) { cb(null, x * y); }
   function add(x, y, cb) { cb(null, x + y); }
   // function badF2(a, b, cb) { cb('my-error'); }
 
   test('auto resolve promises passed as args', function (done) {
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [

@@ -1,11 +1,11 @@
-/*global react:true inputParser:true */
+/*global autoflow:true inputParser:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
 }
 
-if (typeof(react) === 'undefined') {
-  var react = require('../'); //require('react');
+if (typeof(autoflow) === 'undefined') {
+  var autoflow = require('../'); //require('autoflow');
 }
 
 if (typeof(inputParser) === 'undefined') {
@@ -55,31 +55,31 @@ if (typeof(inputParser) === 'undefined') {
 
   test('parser parses input args with extra args', function (done) {
     var ast = { inParams: [] };
-    var execOptions = { reactExecOptions: true, outputStyle: 'none' };
+    var execOptions = { autoflowExecOptions: true, outputStyle: 'none' };
     var parsedInput = inputParser([execOptions, 10, 20], ast);
     t.deepEqual(parsedInput.args, []);
     t.deepEqual(parsedInput.extraArgs, [10, 20]);
     done();
   });
 
-  test('parser pulls react exec option off arg list', function (done) {
+  test('parser pulls autoflow exec option off arg list', function (done) {
     function myCb() { }
     var ast = { inParams: ['a', 'b'] };
-    var execOptions = { reactExecOptions: true, foo: 10 };
+    var execOptions = { autoflowExecOptions: true, foo: 10 };
     var parsedInput = inputParser([execOptions, 10, 20, myCb], ast);
     t.deepEqual(parsedInput.args, [10, 20]);
-    t.deepEqual(parsedInput.options, { reactExecOptions: true, outputStyle: 'cb', foo: 10 });
+    t.deepEqual(parsedInput.options, { autoflowExecOptions: true, outputStyle: 'cb', foo: 10 });
     done();
   });
 
-  test('parser pulls react exec options off arg list and merges from left to right', function (done) {
+  test('parser pulls autoflow exec options off arg list and merges from left to right', function (done) {
     function myCb() { }
     var ast = { inParams: ['a', 'b'] };
-    var execOptions = { reactExecOptions: true, foo: 12, bar: 24 };
-    var execOptions2 = { reactExecOptions: true, bar: 36, baz: 'hello' };
+    var execOptions = { autoflowExecOptions: true, foo: 12, bar: 24 };
+    var execOptions2 = { autoflowExecOptions: true, bar: 36, baz: 'hello' };
     var parsedInput = inputParser([execOptions, execOptions2, 10, 20, myCb], ast);
     t.deepEqual(parsedInput.args, [10, 20]);
-    t.deepEqual(parsedInput.options, { reactExecOptions: true, outputStyle: 'cb', foo: 12, bar: 36, baz: 'hello' });
+    t.deepEqual(parsedInput.options, { autoflowExecOptions: true, outputStyle: 'cb', foo: 12, bar: 36, baz: 'hello' });
     done();
   });
 

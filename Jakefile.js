@@ -24,12 +24,12 @@ function runRequireJs(argStr) {
 
 desc('Create core single-file developer dist');
 task('dist', function () {
-  runRequireJs('-o src/dist.build.requirejs out=dist/react.js');
+  runRequireJs('-o src/dist.build.requirejs out=dist/autoflow.js');
 });
 
 desc('Create full single-file minified dist');
 task('min', function () {
-  runRequireJs('-o src/dist.build.requirejs out=dist/react.min.js optimize=uglify');
+  runRequireJs('-o src/dist.build.requirejs out=dist/autoflow.min.js optimize=uglify');
 });
 
 desc('Create all dist versions');

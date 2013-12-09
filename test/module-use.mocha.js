@@ -1,11 +1,11 @@
-/*global react:true BaseTask:true */
+/*global autoflow:true BaseTask:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
 }
 
-if (typeof(react) === 'undefined') {
-  var react = require('../'); //require('react');
+if (typeof(autoflow) === 'undefined') {
+  var autoflow = require('../'); //require('autoflow');
 }
 
 if (typeof(BaseTask) === 'undefined') {
@@ -18,18 +18,18 @@ if (typeof(BaseTask) === 'undefined') {
   var t = chai.assert;
 
   /**
-     Testing the general use of react
+     Testing the general use of autoflow
   */
 
   suite('module-use');
 
   /**
      @example
-     var react = require('react');
-     react.options.an_option = 'something';
+     var autoflow = require('autoflow');
+     autoflow.options.an_option = 'something';
 
      // define function
-     var loadAndSave = react('myName', 'one, two, cb -> err, result1, result2',
+     var loadAndSave = autoflow('myName', 'one, two, cb -> err, result1, result2',
      foo, 'one, cb      -> err, cat',
      bar, 'two, cat, cb -> err, dog',
      baz, 'dog, cb      -> err, result1',
@@ -37,7 +37,7 @@ if (typeof(BaseTask) === 'undefined') {
 
      // OR using AST
 
-     var loadAndSave = react();
+     var loadAndSave = autoflow();
      loadAndSave.setAndValidateAST({
      inParams: ['one', 'two'],
      tasks: { },
@@ -51,20 +51,20 @@ if (typeof(BaseTask) === 'undefined') {
   */
 
   test('module exports an function object with properties', function (done) {
-    t.isFunction(react, 'is a core constructor and default dsl function');
-    t.isObject(react.options, 'has property for global react options');
-    t.isObject(react.events, 'has global react event manager');
-    t.isFunction(react.logEvents, 'has function to enable event logging');
-    t.isFunction(react.trackTasks, 'has function to enable task and flow tracking');
-    t.isFunction(react.resolvePromises, 'has fn to enable promise detection & resolution');
+    t.isFunction(autoflow, 'is a core constructor and default dsl function');
+    t.isObject(autoflow.options, 'has property for global autoflow options');
+    t.isObject(autoflow.events, 'has global autoflow event manager');
+    t.isFunction(autoflow.logEvents, 'has function to enable event logging');
+    t.isFunction(autoflow.trackTasks, 'has function to enable task and flow tracking');
+    t.isFunction(autoflow.resolvePromises, 'has fn to enable promise detection & resolution');
     done();
   });
 
   function foo() { }
   function bar() { }
 
-  test('calling react constructor function creates new function with ast', function (done) {
-    var r = react();
+  test('calling autoflow constructor function creates new function with ast', function (done) {
+    var r = autoflow();
     t.isFunction(r, 'is a function ready to execute flow');
     t.isObject(r.ast, 'is object for inspecting AST');
     t.deepEqual(r.ast.inParams, [],              'ast.inParams should return empty array');
@@ -74,7 +74,7 @@ if (typeof(BaseTask) === 'undefined') {
   });
 
   test('setAndValidateAST sets the ast and validates returning errors', function (done) {
-    var r = react();
+    var r = autoflow();
     var errors = r.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [
@@ -92,10 +92,10 @@ if (typeof(BaseTask) === 'undefined') {
     done();
   });
 
-  test('use react() default DSL from module', function (done) {
+  test('use autoflow() default DSL from module', function (done) {
     function multiply(a, b, cb) { cb(null, a * b); }
     function add(a, b, cb) { cb(null, a + b); }
-    var fn = react('multiplyAdd', 'a, b, cb -> err, m, s',
+    var fn = autoflow('multiplyAdd', 'a, b, cb -> err, m, s',
                    multiply, 'a, b, cb -> err, m',
                    add, 'm, a, cb -> err, s'
                   );
@@ -109,7 +109,7 @@ if (typeof(BaseTask) === 'undefined') {
     });
   });
 
-  test('use react.selectFirst() default DSL with events', function (done) {
+  test('use autoflow.selectFirst() default DSL with events', function (done) {
     function noSuccess(a, b, cb) {
       setTimeout(function () { cb(null); }, 100); // returns undefined result
     }
@@ -117,14 +117,14 @@ if (typeof(BaseTask) === 'undefined') {
     function add(a, b, cb) { cb(null, a + b); }
 
 
-    var fn = react.selectFirst('mySelectFirst', 'a, b, cb -> err, c',
+    var fn = autoflow.selectFirst('mySelectFirst', 'a, b, cb -> err, c',
                                noSuccess, 'a, b, cb -> err, c',
                                noSuccessNull, 'a, b, cb -> err, c',
                                add, 'a, b, cb -> err, c',
                                noSuccess, 'a, b, cb -> err, c'
                               );
 
-    var collector = react.createEventCollector();
+    var collector = autoflow.createEventCollector();
     collector.capture(fn, 'task.complete');
 
     fn(2, 3, function (err, c) {
@@ -145,7 +145,7 @@ if (typeof(BaseTask) === 'undefined') {
       cb(null, 100);
     }
 
-    var fn = react('refGlobal', 'cb -> err, result',
+    var fn = autoflow('refGlobal', 'cb -> err, result',
       'console.log', '"using global/local ref to console" ->',
       foo, 'cb -> err, result', { after: 'console.log' }
     );

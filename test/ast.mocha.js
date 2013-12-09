@@ -1,11 +1,11 @@
-/*global react:true */
+/*global autoflow:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
 }
 
-if (typeof(react) === 'undefined') {
-  var react = require('../'); //require('react');
+if (typeof(autoflow) === 'undefined') {
+  var autoflow = require('../'); //require('autoflow');
 }
 
 (function () {
@@ -27,7 +27,7 @@ if (typeof(react) === 'undefined') {
   function makeError(str, cb) { cb(new Error('makeErr-' + str)); }
 
   test('mixed', function (done) {
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['res', 'prefstr', 'poststr'],
       tasks: [
@@ -54,8 +54,8 @@ if (typeof(react) === 'undefined') {
   });
 
   test('ast.defined event called when ast is defined', function (done) {
-    var fn = react();
-    var collector = react.createEventCollector();
+    var fn = autoflow();
+    var collector = autoflow.createEventCollector();
     collector.capture(fn, 'ast.*');
 
     var errors = fn.setAndValidateAST({
@@ -81,7 +81,7 @@ if (typeof(react) === 'undefined') {
   test('ast.defined event is passed to process', function (done) {
     // browser might not have this, so only if process is an eventemitter
     if (typeof process !== 'undefined' && process && process.once) {
-      var fn = react();
+      var fn = autoflow();
       process.once('ast.defined', function (ast) {
         t.isObject(ast);
         t.isNotNull(ast.inParams);
@@ -106,7 +106,7 @@ if (typeof(react) === 'undefined') {
   });
 
   test('cb with err', function (done) {
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['res', 'prefstr', 'poststr'],
       tasks: [

@@ -14,7 +14,7 @@
    the tasks have completed.
   */
 
-var react = require('../'); // require('react');
+var autoflow = require('../'); // require('autoflow');
 
 function loadFoo(fooPath, cb) {
   setTimeout(function () {
@@ -33,7 +33,7 @@ function render(foo, bar) {
 }
 
 
-var fn = react('loadRender', 'fooPath, barPath, barP2, cb -> err, renderedOut',
+var fn = autoflow('loadRender', 'fooPath, barPath, barP2, cb -> err, renderedOut',
   loadFoo, 'fooPath, cb -> err, foo',
   loadBar, 'barPath, barP2, cb -> err, bar',
   render, 'foo, bar -> renderedOut'

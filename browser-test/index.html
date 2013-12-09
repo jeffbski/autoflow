@@ -13,9 +13,9 @@
       baseUrl: "..",
       packages: [
         {
-          name: "react",
+          name: "autoflow",
           location: "lib",
-          main: "react"
+          main: "autoflow"
         }
       ],
       paths: {
@@ -27,14 +27,14 @@
       }
     });
 
-    require(["react", "react/sprintf", "util", "react/validate", "react/task",
-             "react/cb-task", "react/vcon", "react/event-manager", "react/input-parser",
-             "react/base-task", "react/ret-task", "react/validate", "jquery"],
-            function (react, sprintf, util, validate, taskUtil,
+    require(["autoflow", "autoflow/sprintf", "util", "autoflow/validate", "autoflow/task",
+             "autoflow/cb-task", "autoflow/vcon", "autoflow/event-manager", "autoflow/input-parser",
+             "autoflow/base-task", "autoflow/ret-task", "autoflow/validate", "jquery"],
+            function (autoflow, sprintf, util, validate, taskUtil,
                       CbTask, VContext, EventManager, inputParser,
                       BaseTask, RetTask, validate, jquery) {
       // save refs on window for these
-      window.react = react;
+      window.autoflow = autoflow;
       window.sprintf = sprintf;
       window.util = util;
       window.validate = validate;

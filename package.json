@@ -1,12 +1,12 @@
 {
-  "name": "react",
-  "description": "React is a javascript module implementing a lightweight rules engine to make it easier to work with asynchronous code, by reducing boilerplate code and improving error and exception handling while allowing variable and task dependencies when defining flow.",
+  "name": "autoflow",
+  "description": "Autoflow (formerly named react) is a javascript module implementing a control-flow / flow control engine to make it easier to work with asynchronous code, by reducing boilerplate code and improving error and exception handling while allowing variable and task dependencies when defining flow.",
   "version": "0.7.1",
   "author": "Jeff Barczewski <jeff.barczewski@gmail.com>",
   "repository": { "type": "git", "url": "http://github.com/jeffbski/react.git" },
   "bugs" : { "url": "http://github.com/jeffbski/react/issues" },
   "licenses": [{ "type": "MIT", "url" : "http://github.com/jeffbski/react/raw/master/LICENSE" }],
-  "main": "lib/react",
+  "main": "lib/autoflow",
   "engines": { "node": ">=0.6" },
   "dependencies": {
     "amdefine": "~0.0.5",

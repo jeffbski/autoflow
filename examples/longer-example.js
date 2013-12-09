@@ -1,7 +1,7 @@
 'use strict';
 /*jshint white: false */
 
-var react = require('../'); // require('react');
+var autoflow = require('../'); // require('autoflow');
 
 function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
 function loadFile(filename, cb){ setTimeout(cb, 100, null, 'Filedata'+filename); }
@@ -21,9 +21,9 @@ function useHtml(err, html, user, bytesWritten) {
   console.log('final result: %s, user: %s, written:%s', html, user, bytesWritten);
 }
 
-// define fn, glue together with react, it will parallelize
+// define fn, glue together with autoflow, it will parallelize
 // starts with name and in/out params, then the tasks
-var loadAndSave = react('loadAndSave', 'filename, uid, outDir, cb -> err, html, user, bytes',  
+var loadAndSave = autoflow('loadAndSave', 'filename, uid, outDir, cb -> err, html, user, bytes',  
   loadUser,         'uid, cb          -> err, user',     // calling async loadUser with uid, cb called with err and user
   loadFile,         'filename, cb     -> err, filedata',
   markdown,         'filedata         -> html',    // using a sync function

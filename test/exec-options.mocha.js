@@ -1,11 +1,11 @@
-/*global react:true */
+/*global autoflow:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
 }
 
-if (typeof(react) === 'undefined') {
-  var react = require('../'); //require('react');
+if (typeof(autoflow) === 'undefined') {
+  var autoflow = require('../'); //require('autoflow');
 }
 
 (function () {
@@ -22,7 +22,7 @@ if (typeof(react) === 'undefined') {
   function multiply(x, y, cb) { cb(null, x * y); }
 
   test('execOptions as first param', function (done) {
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [
@@ -33,7 +33,7 @@ if (typeof(react) === 'undefined') {
     t.deepEqual(errors, [], 'no validation errors');
 
     var execOptions = {
-      reactExecOptions: true,
+      autoflowExecOptions: true,
       outputStyle: 'cb'
     };
 

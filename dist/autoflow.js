@@ -564,7 +564,7 @@
 
 
 
-define('react/eventemitter',['eventemitter2'], function (EventEmitterMod) {
+define('autoflow/eventemitter',['eventemitter2'], function (EventEmitterMod) {
   
 
   /**
@@ -1111,7 +1111,7 @@ exports._extend = function(origin, add) {
 
 
 
-define('react/error',['util'], function (util) {
+define('autoflow/error',['util'], function (util) {
   
 
   function ensureStackTraceLimitSet(stackTraceLimit) {
@@ -1164,7 +1164,7 @@ define('react/error',['util'], function (util) {
 
 
 
-define('react/sprintf',['util'], function (util) {
+define('autoflow/sprintf',['util'], function (util) {
   
 
   /**
@@ -1211,7 +1211,7 @@ define('react/sprintf',['util'], function (util) {
 
 
 
-define('react/status',[], function () {
+define('autoflow/status',[], function () {
   
 
   var STATUS = { READY: 'ready',  RUNNING: 'running', ERRORED: 'errored', COMPLETE: 'complete' };
@@ -1223,7 +1223,7 @@ define('react/status',[], function () {
 
 
 
-define('react/event-manager',['./eventemitter'], function (EventEmitter) {
+define('autoflow/event-manager',['./eventemitter'], function (EventEmitter) {
   
   /*jshint regexp:false */
 
@@ -1310,7 +1310,7 @@ define('react/event-manager',['./eventemitter'], function (EventEmitter) {
 
 
 
-define('react/base-task',['ensure-array', './status', './event-manager'],
+define('autoflow/base-task',['ensure-array', './status', './event-manager'],
        function (array, STATUS, EventManager) {
   
 
@@ -1429,7 +1429,7 @@ define('react/base-task',['ensure-array', './status', './event-manager'],
 
 
 
-define('react/cb-task',['util', './sprintf', './base-task'], function (util, sprintf, BaseTask) {
+define('autoflow/cb-task',['util', './sprintf', './base-task'], function (util, sprintf, BaseTask) {
   
 
   function format_error(errmsg, obj) {
@@ -1512,7 +1512,7 @@ define('react/cb-task',['util', './sprintf', './base-task'], function (util, spr
 
 
 
-define('react/promise-task',['util', './sprintf', './base-task'], function (util, sprintf, BaseTask) {
+define('autoflow/promise-task',['util', './sprintf', './base-task'], function (util, sprintf, BaseTask) {
   
 
   /**
@@ -1603,7 +1603,7 @@ define('react/promise-task',['util', './sprintf', './base-task'], function (util
 
 
 
-define('react/ret-task',['util', './sprintf', './base-task'], function (util, sprintf, BaseTask) {
+define('autoflow/ret-task',['util', './sprintf', './base-task'], function (util, sprintf, BaseTask) {
   
 
   function format_error(errmsg, obj) {
@@ -1672,7 +1672,7 @@ define('react/ret-task',['util', './sprintf', './base-task'], function (util, sp
 
 
 
-define('react/when-task',['util', './sprintf', './base-task'], function (util, sprintf, BaseTask) {
+define('autoflow/when-task',['util', './sprintf', './base-task'], function (util, sprintf, BaseTask) {
   
 
   /**
@@ -1754,7 +1754,7 @@ define('react/when-task',['util', './sprintf', './base-task'], function (util, s
 
 
 
-define('react/finalcb-task',['./sprintf', 'util', './status', './event-manager'],
+define('autoflow/finalcb-task',['./sprintf', 'util', './status', './event-manager'],
        function (sprintf, util, STATUS, EventManager) {
   
 
@@ -1817,7 +1817,7 @@ define('react/finalcb-task',['./sprintf', 'util', './status', './event-manager']
 
 
 
-define('react/vcon',[], function () {
+define('autoflow/vcon',[], function () {
   
 
   var LAST_RESULTS_KEY = ':LAST_RESULTS';
@@ -1929,7 +1929,7 @@ define('react/vcon',[], function () {
 
 
 
-define('react/finalcb-first-task',['./sprintf', 'util', './status', './vcon', './event-manager'],
+define('autoflow/finalcb-first-task',['./sprintf', 'util', './status', './vcon', './event-manager'],
        function (sprintf, util, STATUS, VContext, EventManager) {
   
 
@@ -1995,7 +1995,7 @@ define('react/finalcb-first-task',['./sprintf', 'util', './status', './vcon', '.
 
 
 
-define('react/task',['util', './sprintf', 'ensure-array', './cb-task', './promise-task',
+define('autoflow/task',['util', './sprintf', 'ensure-array', './cb-task', './promise-task',
        './ret-task', './when-task', './finalcb-task', './finalcb-first-task',
        './status', './error', './vcon', './event-manager'],
 function (util, sprintf, array, CbTask, PromiseTask,
@@ -2244,7 +2244,7 @@ function (util, sprintf, array, CbTask, PromiseTask,
 
 
 
-define('react/validate',['util', './sprintf', 'ensure-array', './task'], function (util, sprintf, array, taskUtil) {
+define('autoflow/validate',['util', './sprintf', 'ensure-array', './task'], function (util, sprintf, array, taskUtil) {
   
   /*jshint latedef:false */
 
@@ -2401,11 +2401,11 @@ define('react/validate',['util', './sprintf', 'ensure-array', './task'], functio
 
 
 
-define('react/input-parser',['./event-manager'], function (EventManager) {
+define('autoflow/input-parser',['./event-manager'], function (EventManager) {
   
 
   var defaultExecOptions = {
-    reactExecOptions: true,
+    autoflowExecOptions: true,
     outputStyle: 'cb',
   };
 
@@ -2414,7 +2414,7 @@ define('react/input-parser',['./event-manager'], function (EventManager) {
     NONE: 'none'
   };
 
-  function isExecOptions(x) { return (x && x.reactExecOptions); }
+  function isExecOptions(x) { return (x && x.autoflowExecOptions); }
   function execOptionsFilter(x) { return isExecOptions(x); }
   function nonExecOptionsFilter(x) { return !isExecOptions(x); }
   function mergeExecOptions(accum, options) {
@@ -2455,7 +2455,7 @@ define('react/input-parser',['./event-manager'], function (EventManager) {
 
 
 
-define('react/id',[], function () {
+define('autoflow/id',[], function () {
   
 
   var startingId = 0;
@@ -2475,24 +2475,24 @@ define('react/id',[], function () {
 
 
 
-define('react/core',['./eventemitter', './error', './validate', './task', './status',
+define('autoflow/core',['./eventemitter', './error', './validate', './task', './status',
         './vcon', './event-manager', './input-parser', './id', './sprintf'],
        function (EventEmitter, error, validate, taskUtil, STATUS,
                  VContext, EventManager, inputParser, idGenerator, sprintf) {
   
 
-  var reactOptions = {
+  var autoflowOptions = {
     stackTraceLimitMin: 30
   };
 
-  var reactEmitter = EventManager.global; // the top emitter
+  var autoflowEmitter = EventManager.global; // the top emitter
 
   /**
-     merge global react options with parsed options
+     merge global autoflow options with parsed options
   */
   function mergeOptions(parsedOptions) {
-    return Object.keys(reactOptions).reduce(function (accum, k) {
-      if (!accum[k]) accum[k] = reactOptions[k];
+    return Object.keys(autoflowOptions).reduce(function (accum, k) {
+      if (!accum[k]) accum[k] = autoflowOptions[k];
       return accum;
     }, parsedOptions);
   }
@@ -2505,13 +2505,13 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
   }
 
   /**
-     Creates react function which the AST can be manipulated and then
+     Creates autoflow function which the AST can be manipulated and then
      is ready to be executed. Can be used directly or a DSL can wrap this
      to provide the AST.
 
      @example
-     var react = require('react');
-     var fn = react();
+     var autoflow = require('autoflow');
+     var fn = autoflow();
      var valid2 = fn.setAndValidateAST({
      name: 'optionalName',
      inParams: ['a', 'b'],
@@ -2523,12 +2523,12 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
      console.log(fn.ast); // view
      fn(123, 456, cb);
   */
-  function reactFactory() {
-    if (arguments.length) throw new Error('react() takes no args, check API');
+  function autoflowFactory() {
+    if (arguments.length) throw new Error('autoflow() takes no args, check API');
 
-    error.ensureStackTraceLimitSet(reactOptions.stackTraceLimitMin);
+    error.ensureStackTraceLimitSet(autoflowOptions.stackTraceLimitMin);
     var flowEmitter = EventManager.create();
-    flowEmitter.parent = reactEmitter;
+    flowEmitter.parent = autoflowEmitter;
 
     var ast = {
       name: undefined,
@@ -2574,7 +2574,7 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
       env.vCon = vCon;
       env.taskDefs = ast.tasks.slice(); // create copy
       env.outTaskDef = Object.create(ast.outTask); // create copy
-      reactEmitter.emit(EventManager.TYPES.EXEC_TASKS_PRECREATE, env);  // hook
+      autoflowEmitter.emit(EventManager.TYPES.EXEC_TASKS_PRECREATE, env);  // hook
 
       var tasks = env.taskDefs.map(taskUtil.create);
       var tasksByName = taskUtil.nameTasks(tasks); // map names to working tasks
@@ -2596,22 +2596,22 @@ define('react/core',['./eventemitter', './error', './validate', './task', './sta
       return outTask.retValue; // could return promise
     }
 
-    var reactFn = exec;        // make the exec() the function returned
-    reactFn.ast  = ast;        // put AST hanging off the fn so it can be inspected
-    reactFn.setAndValidateAST = setAndValidateAST;   // call to set AST and then validate
-    reactFn.events = flowEmitter; // used to listen to execution events for this flow
-    return reactFn;
+    var autoflowFn = exec;        // make the exec() the function returned
+    autoflowFn.ast  = ast;        // put AST hanging off the fn so it can be inspected
+    autoflowFn.setAndValidateAST = setAndValidateAST;   // call to set AST and then validate
+    autoflowFn.events = flowEmitter; // used to listen to execution events for this flow
+    return autoflowFn;
   }
 
-  reactFactory.options = reactOptions;   // global react options
-  reactFactory.events = reactEmitter;    // global react emitter
-  return reactFactory; // module returns reactFactory to create a react fn
+  autoflowFactory.options = autoflowOptions;   // global autoflow options
+  autoflowFactory.events = autoflowEmitter;    // global autoflow emitter
+  return autoflowFactory; // module returns autoflowFactory to create a autoflow fn
 });
 /*global define:true */
 
 
 
-define('react/parse',['./sprintf'], function (sprintf) {
+define('autoflow/parse',['./sprintf'], function (sprintf) {
   
 
   function splitTrimFilterArgs(commaSepArgs) { //parse 'one, two' into ['one', 'two']
@@ -2651,7 +2651,7 @@ define('react/parse',['./sprintf'], function (sprintf) {
 
 
 
-define('react/dsl',['./sprintf', './core', './parse', './task'],
+define('autoflow/dsl',['./sprintf', './core', './parse', './task'],
        function (sprintf, core, parse, taskUtil) {
   
   /*jshint regexp: false */
@@ -2740,7 +2740,7 @@ define('react/dsl',['./sprintf', './core', './parse', './task'],
 
 
   function dslDefine(name, arg1, arg2, argN) {
-    var reactFn = core();
+    var autoflowFn = core();
     if (name && INOUT_RE.test(name)) throw new Error(sprintf(MISSING_NAME, name));
     var defObj = parseVargs(Array.prototype.slice.call(arguments, 1)); // name, already used
     var inOutDef = parseInOutParams(defObj.inOutParamStr);
@@ -2751,16 +2751,16 @@ define('react/dsl',['./sprintf', './core', './parse', './task'],
       outTask: { a: inOutDef.outDef }
     };
     if (defObj.options) Object.keys(defObj.options).forEach(function (k) { ast[k] = defObj.options[k]; });
-    var errors = reactFn.setAndValidateAST(ast);
+    var errors = autoflowFn.setAndValidateAST(ast);
     if (errors.length) {
       var errorStr = errors.join('\n');
       throw new Error(errorStr);
     }
-    return reactFn;
+    return autoflowFn;
   }
 
   function selectFirst(name, arg1, arg2, argN) {
-    var reactFn = core();
+    var autoflowFn = core();
     var defObj = parseVargs(Array.prototype.slice.call(arguments, 1)); // name, already used
     var inOutDef = parseInOutParams(defObj.inOutParamStr);
     var tasks = taskUtil.serializeTasks(parseTasks(defObj.taskDefArr));
@@ -2771,12 +2771,12 @@ define('react/dsl',['./sprintf', './core', './parse', './task'],
       outTask: { type: 'finalcbFirst', a: inOutDef.outDef },
     };
     if (defObj.options) Object.keys(defObj.options).forEach(function (k) { ast[k] = defObj.options[k]; });
-    var errors = reactFn.setAndValidateAST(ast);
+    var errors = autoflowFn.setAndValidateAST(ast);
     if (errors.length) {
       var errorStr = errors.join('\n');
       throw new Error(errorStr);
     }
-    return reactFn;
+    return autoflowFn;
   }
 
   dslDefine.selectFirst = selectFirst;
@@ -2787,7 +2787,7 @@ define('react/dsl',['./sprintf', './core', './parse', './task'],
 
 
 
-define('react/track-tasks',[], function () {
+define('autoflow/track-tasks',[], function () {
   
 
   /**
@@ -2805,49 +2805,49 @@ define('react/track-tasks',[], function () {
      - emits flow errored with flowEnv
 
      @example
-     var react = require('react');
-     react.trackTasks(); // enable task and flow tracking
+     var autoflow = require('autoflow');
+     autoflow.trackTasks(); // enable task and flow tracking
     */
 
 
   var trackingTasks = false;
 
-  function trackTasks(react) {
+  function trackTasks(autoflow) {
     if (trackingTasks) return;  // already tracking
     trackingTasks = true;
 
-    react.events.on(react.events.TYPES.EXEC_FLOW_START, function (env) {
+    autoflow.events.on(autoflow.events.TYPES.EXEC_FLOW_START, function (env) {
       env.startTime = Date.now();
-      env.flowEmitter.emit(react.events.TYPES.FLOW_BEGIN, env); //fire public ev
+      env.flowEmitter.emit(autoflow.events.TYPES.FLOW_BEGIN, env); //fire public ev
     });
 
-    react.events.on(react.events.TYPES.EXEC_TASK_START, function (task) {
+    autoflow.events.on(autoflow.events.TYPES.EXEC_TASK_START, function (task) {
       task.startTime = Date.now();
-      task.env.flowEmitter.emit(react.events.TYPES.TASK_BEGIN, task); //fire public ev
+      task.env.flowEmitter.emit(autoflow.events.TYPES.TASK_BEGIN, task); //fire public ev
     });
 
-    react.events.on(react.events.TYPES.EXEC_TASK_COMPLETE, function (task) {
+    autoflow.events.on(autoflow.events.TYPES.EXEC_TASK_COMPLETE, function (task) {
       task.endTime = Date.now();
       task.elapsedTime = task.endTime - task.startTime;
-      task.env.flowEmitter.emit(react.events.TYPES.TASK_COMPLETE, task); // fire public ev
+      task.env.flowEmitter.emit(autoflow.events.TYPES.TASK_COMPLETE, task); // fire public ev
     });
 
-    react.events.on(react.events.TYPES.EXEC_TASK_ERRORED, function (task) {
+    autoflow.events.on(autoflow.events.TYPES.EXEC_TASK_ERRORED, function (task) {
       task.endTime = Date.now();
       task.elapsedTime = task.endTime - task.startTime;
-      task.env.flowEmitter.emit(react.events.TYPES.TASK_ERRORED, task); // fire public ev
+      task.env.flowEmitter.emit(autoflow.events.TYPES.TASK_ERRORED, task); // fire public ev
     });
 
-    react.events.on(react.events.TYPES.EXEC_FLOW_COMPLETE, function (env) {
+    autoflow.events.on(autoflow.events.TYPES.EXEC_FLOW_COMPLETE, function (env) {
       env.endTime = Date.now();
       env.elapsedTime = env.endTime - env.startTime;
-      env.flowEmitter.emit(react.events.TYPES.FLOW_COMPLETE, env); //fire public ev
+      env.flowEmitter.emit(autoflow.events.TYPES.FLOW_COMPLETE, env); //fire public ev
     });
 
-    react.events.on(react.events.TYPES.EXEC_FLOW_ERRORED, function (env) {
+    autoflow.events.on(autoflow.events.TYPES.EXEC_FLOW_ERRORED, function (env) {
       env.endTime = Date.now();
       env.elapsedTime = env.endTime - env.startTime;
-      env.flowEmitter.emit(react.events.TYPES.FLOW_ERRORED, env); //fire public ev
+      env.flowEmitter.emit(autoflow.events.TYPES.FLOW_ERRORED, env); //fire public ev
     });
 
   }
@@ -2859,7 +2859,7 @@ define('react/track-tasks',[], function () {
 
 
 
-define('react/log-events',['util'], function (util) { // TODO replace util.inspect with something portable to browser
+define('autoflow/log-events',['util'], function (util) { // TODO replace util.inspect with something portable to browser
   
 
   var logEventsMod = { };
@@ -2868,11 +2868,11 @@ define('react/log-events',['util'], function (util) { // TODO replace util.inspe
      Log events to console.error
 
      @example
-     var react = require('react');
-     react.logEvents(); // log all task and flow events on all react functions
-     react.logEvents('task.*'); // log all task events on all react functions
-     react.logEvents(flowFn); // log all task and flow events on flowFn only
-     react.logEvents(flowFn, 'flow.*'); // log all flow events on flowFn only
+     var autoflow = require('autoflow');
+     autoflow.logEvents(); // log all task and flow events on all autoflow functions
+     autoflow.logEvents('task.*'); // log all task events on all autoflow functions
+     autoflow.logEvents(flowFn); // log all task and flow events on flowFn only
+     autoflow.logEvents(flowFn, 'flow.*'); // log all flow events on flowFn only
     */
 
   var ALL_FLOW_EVENTS = 'flow.*';
@@ -2915,15 +2915,15 @@ define('react/log-events',['util'], function (util) { // TODO replace util.inspe
   }
 
   /**
-     Log flow and task events for a flowFn or all of react.
+     Log flow and task events for a flowFn or all of autoflow.
      If called multiple times, remove previous listener (if any) before
      adding.
 
      @example
-     var react = require('react');
-     react.logEvents(flowFn, eventWildcard); //log events on flowfn matching wildcard
+     var autoflow = require('autoflow');
+     autoflow.logEvents(flowFn, eventWildcard); //log events on flowfn matching wildcard
 
-     @param flowFn Flow function or global react object
+     @param flowFn Flow function or global autoflow object
      @param eventWildcard wildcarded event type, if not provided use flow.* and task.*
   */
   function logEvents(flowFn, eventWildcard) {
@@ -2958,7 +2958,7 @@ define('react/log-events',['util'], function (util) { // TODO replace util.inspe
 
 
 
-define('react/promise-resolve',[], function () {
+define('autoflow/promise-resolve',[], function () {
   
 
   /**
@@ -2975,11 +2975,11 @@ define('react/promise-resolve',[], function () {
 
   var resolvingPromises = false;
 
-  function resolvePromises(react) {
+  function resolvePromises(autoflow) {
     if (resolvingPromises) return; // already resolving
     resolvingPromises = true;
 
-    react.events.on(react.events.TYPES.EXEC_TASKS_PRECREATE, function (env) {
+    autoflow.events.on(autoflow.events.TYPES.EXEC_TASKS_PRECREATE, function (env) {
       var vConValues = env.vCon.values;
       var promiseParams = env.ast.inParams.filter(function (p) {
         var value = vConValues[p];
@@ -3006,14 +3006,14 @@ define('react/promise-resolve',[], function () {
 
 
 
-define('react/event-collector',[], function () {
+define('autoflow/event-collector',[], function () {
   
 
   /**
      create an instance of the event collector
   */
-  function instantiate(react) {
-    react.trackTasks(); // enable task tracking
+  function instantiate(autoflow) {
+    autoflow.trackTasks(); // enable task tracking
 
     var AST_EVENTS_RE = /^ast\./;
     var TASK_EVENTS_RE = /^task\./;
@@ -3023,10 +3023,10 @@ define('react/event-collector',[], function () {
        Accumulator to make it easy to capture events
 
        @example
-       var react = require('react');
-       var collector = react.createEventCollector();
-       collector.capture(); // capture all flow and task events for all react flows
-       collector.capture('flow.*'); // capture all flow events for all react flows
+       var autoflow = require('autoflow');
+       var collector = autoflow.createEventCollector();
+       collector.capture(); // capture all flow and task events for all autoflow flows
+       collector.capture('flow.*'); // capture all flow events for all autoflow flows
        collector.capture(flowFn, 'task.*'); // capture task events on a flow
        collector.capture(flowFn, 'flow.*'); // add capture flow events on a flow
        var events = collector.list();  // retrieve the list of events
@@ -3038,15 +3038,15 @@ define('react/event-collector',[], function () {
 
     /**
        register listener to capture events for a specific flow
-       @param flowFn the react flow function or can pass global react
+       @param flowFn the autoflow flow function or can pass global autoflow
        @param eventId event id or wildcarded id
     */
     EventCollector.prototype.capture = function (flowFn, eventId) {
       /*jshint validthis: true */
       if (!eventId && typeof(flowFn) === 'string') { // only eventId provided
         eventId = flowFn;
-        flowFn = react; // global react
-      } else if (!flowFn) flowFn = react; // global react
+        flowFn = autoflow; // global autoflow
+      } else if (!flowFn) flowFn = autoflow; // global autoflow
       if (!eventId) eventId = '*'; // default to all
       var emitter = flowFn.events;
       var self = this;
@@ -3085,17 +3085,17 @@ define('react/event-collector',[], function () {
 
 
 
-define('react/react',['./core', './dsl', './track-tasks', './log-events', './promise-resolve', './event-collector'],
+define('autoflow/autoflow',['./core', './dsl', './track-tasks', './log-events', './promise-resolve', './event-collector'],
        function (core, dsl, trackTasksFn, logEventsMod, resolvePromisesFn, eventCollectorFactory) {
   
 
-  var react = dsl; // core + default dsl
+  var autoflow = dsl; // core + default dsl
 
   /**
      Enable detection of promises and resolution
     */
   function resolvePromises() {
-    resolvePromisesFn(react);
+    resolvePromisesFn(autoflow);
   }
 
   /**
@@ -3103,13 +3103,13 @@ define('react/react',['./core', './dsl', './track-tasks', './log-events', './pro
      tracking start, end, elapsed time
     */
   function trackTasks() {
-    trackTasksFn(react);
+    trackTasksFn(autoflow);
   }
 
   /**
      If called, load the built-in plugin for log events and invoke
 
-     @param flowFn [function] if not provided uses global react
+     @param flowFn [function] if not provided uses global autoflow
      @param eventWildcard [string] pattern to log events for
   */
   function logEvents(flowFn, eventWildcard) {
@@ -3117,7 +3117,7 @@ define('react/react',['./core', './dsl', './track-tasks', './log-events', './pro
       eventWildcard = flowFn;
       flowFn = undefined;
     }
-    if (!flowFn) flowFn = react; // use global
+    if (!flowFn) flowFn = autoflow; // use global
     trackTasks();
     return logEventsMod.logEvents(flowFn, eventWildcard);
   }
@@ -3126,16 +3126,16 @@ define('react/react',['./core', './dsl', './track-tasks', './log-events', './pro
      Instantiate an event collector
     */
   function createEventCollector() {
-    return eventCollectorFactory(react);
+    return eventCollectorFactory(autoflow);
   }
 
-  react.options = core.options; // global react options
-  react.events = core.events;   // global react event emitter
-  react.logEvents = logEvents;  // enable event logging
-  react.resolvePromises = resolvePromises; // enable promise resolution
-  react.trackTasks = trackTasks; // enable tracking of tasks
-  react.createEventCollector = createEventCollector; // create instance of EventCollector
-  return react;
+  autoflow.options = core.options; // global autoflow options
+  autoflow.events = core.events;   // global autoflow event emitter
+  autoflow.logEvents = logEvents;  // enable event logging
+  autoflow.resolvePromises = resolvePromises; // enable promise resolution
+  autoflow.trackTasks = trackTasks; // enable tracking of tasks
+  autoflow.createEventCollector = createEventCollector; // create instance of EventCollector
+  return autoflow;
 
 });
-define('react', ['react/react'], function (main) { return main; });
+define('autoflow', ['autoflow/autoflow'], function (main) { return main; });

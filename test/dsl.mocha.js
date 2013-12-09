@@ -1,11 +1,11 @@
-/*global react:true sprintf:true */
+/*global autoflow:true sprintf:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
 }
 
-if (typeof(react) === 'undefined') {
-  var react = require('../'); //require('react');
+if (typeof(autoflow) === 'undefined') {
+  var autoflow = require('../'); //require('autoflow');
 }
 
 if (typeof(sprintf) === 'undefined') {
@@ -27,13 +27,13 @@ if (typeof(sprintf) === 'undefined') {
   function fbeta() { }
 
   test('module exports is a fn with properties', function (done) {
-    t.isFunction(react, 'has define by DSL method'); //
-    t.isFunction(react.selectFirst, 'has selectFirst define method');
+    t.isFunction(autoflow, 'has define by DSL method'); //
+    t.isFunction(autoflow.selectFirst, 'has selectFirst define method');
     done();
   });
 
   test('no arguments -> empty name, inParams, tasks, outTask', function (done) {
-    var r = react();
+    var r = autoflow();
     t.equal(r.ast.name.slice(0, 'flow_'.length), 'flow_', 'generated flow name should start with flow_');
     t.deepEqual(r.ast.inParams, []);
     t.deepEqual(r.ast.tasks, []);
@@ -43,7 +43,7 @@ if (typeof(sprintf) === 'undefined') {
 
 
   test('empty first string -> empty name, inParams, tasks, outTask', function (done) {
-    var r = react('');
+    var r = autoflow('');
     t.equal(r.ast.name.slice(0, 'flow_'.length), 'flow_', 'generated flow name should start with flow_');
     t.deepEqual(r.ast.inParams, []);
     t.deepEqual(r.ast.tasks, []);
@@ -53,7 +53,7 @@ if (typeof(sprintf) === 'undefined') {
 
 
   test('single first string -> name, inParams["foo"], empty tasks, outTask', function (done) {
-    var r = react('foo');
+    var r = autoflow('foo');
     t.equal(r.ast.name, 'foo');
     t.deepEqual(r.ast.inParams, []);
     t.deepEqual(r.ast.tasks, []);
@@ -63,7 +63,7 @@ if (typeof(sprintf) === 'undefined') {
 
   test('triple first string -> inParams["foo", "bar", "baz"], empty tasks, outTask',
     function (done) {
-      var r = react('myName', ' foo,   bar,baz  ');
+      var r = autoflow('myName', ' foo,   bar,baz  ');
       t.equal(r.ast.name, 'myName');
       t.deepEqual(r.ast.inParams, ['foo', 'bar', 'baz']);
       t.deepEqual(r.ast.tasks, []);
@@ -72,7 +72,7 @@ if (typeof(sprintf) === 'undefined') {
     });
 
   test('single task, single out params', function (done) {
-    var r = react('myName', 'cb -> err, c',
+    var r = autoflow('myName', 'cb -> err, c',
                   falpha, 'cb -> err, c'
                  );
     t.deepEqual(r.ast.inParams, []);
@@ -84,7 +84,7 @@ if (typeof(sprintf) === 'undefined') {
   });
 
   test('single task, err and out params', function (done) {
-    var r = react('myName', 'cb -> err, c',
+    var r = autoflow('myName', 'cb -> err, c',
                   falpha, 'cb -> err, c'
                  );
     t.deepEqual(r.ast.inParams, []);
@@ -96,7 +96,7 @@ if (typeof(sprintf) === 'undefined') {
   });
 
   test('using - with literal string', function (done) {
-    var r = react('myName', '"hello-world", cb -> err, c',
+    var r = autoflow('myName', '"hello-world", cb -> err, c',
                   falpha, '"another-string", cb -> err, c'
                  );
     t.deepEqual(r.ast.inParams, ['"hello-world"']);
@@ -108,7 +108,7 @@ if (typeof(sprintf) === 'undefined') {
   });
 
   test('single task, ERR and out params', function (done) {
-    var r = react('myName', 'cb -> ERR, c',
+    var r = autoflow('myName', 'cb -> ERR, c',
                   falpha, 'cb -> ERR, c'
                  );
     t.deepEqual(r.ast.inParams, []);
@@ -120,7 +120,7 @@ if (typeof(sprintf) === 'undefined') {
   });
 
   test('cb used in defs is simply ignored', function (done) {
-    var r = react('myName', 'a, b, cb -> err, c',
+    var r = autoflow('myName', 'a, b, cb -> err, c',
                   falpha, 'a, b, cb -> err, c'
                  );
     t.deepEqual(r.ast.inParams, ['a', 'b']);
@@ -132,7 +132,7 @@ if (typeof(sprintf) === 'undefined') {
   });
 
   test('callback used in defs is simply ignored', function (done) {
-    var r = react('myName', 'a, b, callback -> err, c',
+    var r = autoflow('myName', 'a, b, callback -> err, c',
                   falpha, 'a, b, callback -> err, c'
                  );
     t.deepEqual(r.ast.inParams, ['a', 'b']);
@@ -144,7 +144,7 @@ if (typeof(sprintf) === 'undefined') {
   });
 
   test('two inputs, two tasks, two out params', function (done) {
-    var r = react('myName', 'a, b, cb -> err, c, d',
+    var r = autoflow('myName', 'a, b, cb -> err, c, d',
                   falpha, 'a, b, cb -> err, c',
                   fbeta,  'a, b, cb -> err, d, e'
                  );
@@ -158,7 +158,7 @@ if (typeof(sprintf) === 'undefined') {
   });
 
   test('two inputs, two tasks, two out params, options', function (done) {
-    var r = react('myName', 'a, b, cb -> err, c, d',
+    var r = autoflow('myName', 'a, b, cb -> err, c, d',
                   { otherOptFoo: 'foo'},  // main flow options
                   falpha, 'a, b, cb -> err, c',
                   fbeta,  'a, b, cb -> err, d, e'
@@ -175,7 +175,7 @@ if (typeof(sprintf) === 'undefined') {
   });
 
   test('two inputs, two mixed tasks, two out params', function (done) {
-    var r = react('myName', 'a, b, cb -> err, c, d',
+    var r = autoflow('myName', 'a, b, cb -> err, c, d',
                   falpha, 'a, b, cb -> err, c',
                   fbeta,  'a, b -> d'
                  );
@@ -190,7 +190,7 @@ if (typeof(sprintf) === 'undefined') {
 
 
   test('two inputs, two mixed tasks, two out params, opts', function (done) {
-    var r = react('myName', 'a, b, cb -> err, c, d',
+    var r = autoflow('myName', 'a, b, cb -> err, c, d',
                   falpha, 'a, cb -> err, c', { after: fbeta },
                   fbeta,  'a, b -> d'
                  );
@@ -206,7 +206,7 @@ if (typeof(sprintf) === 'undefined') {
 
     // Object use
   test('object prop task params', function (done) {
-    var r = react('myName', 'a, b, cb -> err, c, e',
+    var r = autoflow('myName', 'a, b, cb -> err, c, e',
                   falpha, 'a, b.cat, cb -> err, c',
                   fbeta,  'c.dog, b -> d',
                   'd.egg', 'c, cb -> err, e'
@@ -225,7 +225,7 @@ if (typeof(sprintf) === 'undefined') {
 
   test('missing name, throws error', function (done) {
     var fn = function () {
-      var r = react('cb -> err, c',
+      var r = autoflow('cb -> err, c',
                     falpha, 'cb -> err, c'
                    );
     };
@@ -235,7 +235,7 @@ if (typeof(sprintf) === 'undefined') {
 
   test('missing err in flow in/out - force for consistency, throw error', function (done) {
     var fn = function () {
-      var r = react('myname', 'cb -> c',  // missing err
+      var r = autoflow('myname', 'cb -> c',  // missing err
                     falpha, 'cb -> err, c'
                    );
     };
@@ -245,7 +245,7 @@ if (typeof(sprintf) === 'undefined') {
 
   test('missing err in task in/out - force for consistency, throw error', function (done) {
     var fn = function () {
-      var r = react('myname', 'cb -> err, c',
+      var r = autoflow('myname', 'cb -> err, c',
                     falpha, 'cb -> c'  // missing err
                    );
     };
@@ -255,7 +255,7 @@ if (typeof(sprintf) === 'undefined') {
 
   test('found err, but missing cb/callback in flow in/out - force for consistency, throw error', function (done) {
     var fn = function () {
-      var r = react('myname', 'a -> err, c', // missing cb
+      var r = autoflow('myname', 'a -> err, c', // missing cb
                     falpha, 'cb -> err, c'
                    );
     };
@@ -265,7 +265,7 @@ if (typeof(sprintf) === 'undefined') {
 
   test('found err, but missing cb/callback in task in/out - force for consistency, throw error', function (done) {
     var fn = function () {
-      var r = react('myname', 'cb -> err, c',
+      var r = autoflow('myname', 'cb -> err, c',
                     falpha, 'a -> err, c'  // missing cb
                    );
     };
@@ -275,7 +275,7 @@ if (typeof(sprintf) === 'undefined') {
 
   test('extra arg throws error', function (done) {
     var fn = function () {
-      var r = react('myName', 'a, b, cb -> err, c, d',
+      var r = autoflow('myName', 'a, b, cb -> err, c, d',
                     falpha, 'a, cb -> err, c', { after: fbeta },
                     fbeta,  'a, b -> returns d',
                     'extraBadArg'
@@ -287,7 +287,7 @@ if (typeof(sprintf) === 'undefined') {
 
   test('not enough args throws error', function (done) {
     var fn = function () {
-      var r = react('myName', 'a, b, cb -> err, c, d',
+      var r = autoflow('myName', 'a, b, cb -> err, c, d',
                     falpha, 'a, cb -> err, c', { after: fbeta },
                     fbeta
                    );
@@ -307,7 +307,7 @@ if (typeof(sprintf) === 'undefined') {
     function loadEmailTemplate(cb) { setTimeout(cb, 50, null, 'emailmd'); }
     function customizeEmail(user, emailHtml) { return 'cust-'+user+emailHtml; }
     function deliverEmail(custEmailHtml, cb) { setTimeout(cb, 100, null, 'delivered-'+custEmailHtml); }
-    var loadAndSave = react(
+    var loadAndSave = autoflow(
       'loadAndSave',     'filename, uid, outDirname, cb -> err, html, user, bytesWritten',  // name, in/out params
       loadUser,          'uid, cb           -> err, user',     // calling async fn loadUser with uid, cb is called w/ err & user
       loadFile,          'filename, cb      -> err, filedata',
@@ -332,7 +332,7 @@ if (typeof(sprintf) === 'undefined') {
   // selectFirst
 
   test('selectFirst', function (done) {
-    var r = react.selectFirst('myName', 'a, b, cb -> err, c',
+    var r = autoflow.selectFirst('myName', 'a, b, cb -> err, c',
                               { otherOptFoo: 'foo'},  // main options
                               falpha, 'a, b, cb -> err, c',
                               fbeta,  'a, b -> c'

@@ -1,11 +1,11 @@
-/*global react:true CbTask:true VContext:true */
+/*global autoflow:true CbTask:true VContext:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
 }
 
-if (typeof(react) === 'undefined') {
-  var react = require('../'); //require('react');
+if (typeof(autoflow) === 'undefined') {
+  var autoflow = require('../'); //require('autoflow');
 }
 
 if (typeof(CbTask) === 'undefined') {

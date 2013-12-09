@@ -4,14 +4,14 @@
    Advanced example using the AST directly which most users will not do.
    For general use, see other examples like simple.js
   */
-var react = require('../'); // require('react');
+var autoflow = require('../'); // require('autoflow');
 
 function load(res, cb) { setTimeout(cb, 100, null, res + '-loaded'); }
 function prefix(prefstr, str, cb) { setTimeout(cb, 100, null, prefstr + str); }
 function postfix(str, poststr, cb) { setTimeout(cb, 100, null, str + poststr); }
 function upper(str) { return str.toUpperCase(); }
 
-var fn = react();
+var fn = autoflow();
 var errors = fn.setAndValidateAST({
   inParams: ['res', 'prefstr', 'poststr'],
   tasks: [

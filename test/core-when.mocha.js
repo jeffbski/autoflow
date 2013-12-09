@@ -1,11 +1,11 @@
-/*global react:true Deferred:true */
+/*global autoflow:true Deferred:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
 }
 
-if (typeof(react) === 'undefined') {
-  var react = require('../'); //require('react');
+if (typeof(autoflow) === 'undefined') {
+  var autoflow = require('../'); //require('autoflow');
 }
 
 if (typeof(Deferred) === 'undefined') {
@@ -48,7 +48,7 @@ if (typeof(Deferred) === 'undefined') {
 
 
   test('multi-step', function (done) {
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['pm', 'pa'],
       tasks: [
@@ -72,7 +72,7 @@ if (typeof(Deferred) === 'undefined') {
 
 
   test('rejects with error', function (done) {
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['pm', 'pa'],
       tasks: [

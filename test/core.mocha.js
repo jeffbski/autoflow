@@ -1,11 +1,11 @@
-/*global react:true */
+/*global autoflow:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
 }
 
-if (typeof(react) === 'undefined') {
-  var react = require('../'); //require('react');
+if (typeof(autoflow) === 'undefined') {
+  var autoflow = require('../'); //require('autoflow');
 }
 
 (function () {
@@ -27,7 +27,7 @@ if (typeof(react) === 'undefined') {
   var anonFn = function (a, b) { return a + b; };
 
   test('set and validate AST', function (done) {
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       name: 'myflow',
       inParams: ['a', 'b'],
@@ -50,7 +50,7 @@ if (typeof(react) === 'undefined') {
   });
 
   test('unnamed tasks will be assigned unique names', function (done) {
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [
@@ -76,7 +76,7 @@ if (typeof(react) === 'undefined') {
 
 
   test('execution with no errors should call callback with result', function (done) {
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [
@@ -93,7 +93,7 @@ if (typeof(react) === 'undefined') {
   });
 
   test('multi-step', function (done) {
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [
@@ -113,7 +113,7 @@ if (typeof(react) === 'undefined') {
   });
 
   test('multi-step with after as nonarr fn', function (done) {
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [
@@ -124,7 +124,7 @@ if (typeof(react) === 'undefined') {
     });
     t.deepEqual(errors, [], 'no validation errors');
 
-    var collector = react.createEventCollector();
+    var collector = autoflow.createEventCollector();
     collector.capture(fn, 'task.complete');
 
     fn(2, 3, function (err, c, d) {
@@ -140,7 +140,7 @@ if (typeof(react) === 'undefined') {
   });
 
   test('mixed multi-step with after as nonarr fn w/events', function (done) {
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [
@@ -151,7 +151,7 @@ if (typeof(react) === 'undefined') {
     });
     t.deepEqual(errors, [], 'no validation errors');
 
-    var collector = react.createEventCollector();
+    var collector = autoflow.createEventCollector();
     collector.capture(fn, 'task.complete');
 
     fn(2, 3, function (err, c, d) {
@@ -182,7 +182,7 @@ if (typeof(react) === 'undefined') {
 
 
   test('sets obj values', function (done) {
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b', 'c'],
       tasks: [
@@ -203,7 +203,7 @@ if (typeof(react) === 'undefined') {
   });
 
   test('error when cant complete', function (done) {
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b', 'c'],
       tasks: [
@@ -226,7 +226,7 @@ if (typeof(react) === 'undefined') {
     function retObj(a, b, cb) { cb(null, { bar: a + b }); }
     function concat(a, b, cb) { cb(null, { result: a + b }); }
 
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [
@@ -251,7 +251,7 @@ if (typeof(react) === 'undefined') {
       concat: function concat(a, b, cb) { cb(null, { result: a + b }); }
     };
 
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [
@@ -276,7 +276,7 @@ if (typeof(react) === 'undefined') {
       concat: function concat(a, b, cb) { cb(null, { result: a + b }); }
     };
 
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b', 'CONT'],
       tasks: [
@@ -301,7 +301,7 @@ if (typeof(react) === 'undefined') {
       concat: function concat(a, b, cb) { cb(null, { result: a + b }); }
     };
 
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [
@@ -327,7 +327,7 @@ if (typeof(react) === 'undefined') {
       concat: function concat(a, b, cb) { cb(null, { result: a + b }); }
     };
 
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [
@@ -348,7 +348,7 @@ if (typeof(react) === 'undefined') {
   });
 
   test('multi-step func throws, cb with error', function (done) {
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [
@@ -367,7 +367,7 @@ if (typeof(react) === 'undefined') {
 
   test('multi-step func cb err, cb with error', function (done) {
 
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [
@@ -392,7 +392,7 @@ if (typeof(react) === 'undefined') {
       cb(null, this.a);
     }
 
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: [],
       tasks: [
@@ -419,7 +419,7 @@ if (typeof(react) === 'undefined') {
       return this.a;
     }
 
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: [],
       tasks: [
@@ -441,7 +441,7 @@ if (typeof(react) === 'undefined') {
   });
 
   test('undefined input arguments will be upgraded from undefined to null', function (done) {
-    var fn = react();
+    var fn = autoflow();
     function concat(a, b) {
       return '' + a + b;
     }
@@ -466,7 +466,7 @@ if (typeof(react) === 'undefined') {
 
 
   test('selectFirst with first succeeding', function (done) {
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [
@@ -477,7 +477,7 @@ if (typeof(react) === 'undefined') {
     });
     t.deepEqual(errors, [], 'no validation errors');
 
-    var collector = react.createEventCollector();
+    var collector = autoflow.createEventCollector();
     collector.capture(fn, 'task.complete');
 
     fn(2, 3, function (err, c) {
@@ -494,7 +494,7 @@ if (typeof(react) === 'undefined') {
   test('selectFirst with third succeeding', function (done) {
     function noSuccess(a, b, cb) { cb(null); } // returns undefined result
     function noSuccessNull(a, b, cb) { cb(null, null); } // returns null result
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [
@@ -506,7 +506,7 @@ if (typeof(react) === 'undefined') {
     });
     t.deepEqual(errors, [], 'no validation errors');
 
-    var collector = react.createEventCollector();
+    var collector = autoflow.createEventCollector();
     collector.capture(fn, 'task.complete');
 
     fn(2, 3, function (err, c) {
@@ -526,7 +526,7 @@ if (typeof(react) === 'undefined') {
       setTimeout(function () { cb(null); }, 100); // returns undefined result
     }
     function noSuccessNull(a, b, cb) { cb(null, null); } // returns null result
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [
@@ -539,7 +539,7 @@ if (typeof(react) === 'undefined') {
     });
     t.deepEqual(errors, [], 'no validation errors');
 
-    var collector = react.createEventCollector();
+    var collector = autoflow.createEventCollector();
     collector.capture(fn, 'task.complete');
 
     fn(2, 3, function (err, c) {
@@ -559,7 +559,7 @@ if (typeof(react) === 'undefined') {
     function noSuccess(a, b) {  } // returns undefined result
     function noSuccessNull(a, b) { return null; } // returns null result
     function addRet(a, b) { return a + b; }
-    var fn = react();
+    var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
       tasks: [
@@ -571,7 +571,7 @@ if (typeof(react) === 'undefined') {
     });
     t.deepEqual(errors, [], 'no validation errors');
 
-    var collector = react.createEventCollector();
+    var collector = autoflow.createEventCollector();
     collector.capture(fn, 'task.complete');
 
     fn(2, 3, function (err, c) {

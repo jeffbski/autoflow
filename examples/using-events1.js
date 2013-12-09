@@ -5,11 +5,11 @@
    Default DSL, showing use of events
   */
 
-var react = require('../'); // require('react');
-react.trackTasks();  // turn on flow and task tracking events
+var autoflow = require('../'); // require('autoflow');
+autoflow.trackTasks();  // turn on flow and task tracking events
 
 //output events as tasks start and complete
-react.events.on('flow.*', function (obj) {
+autoflow.events.on('flow.*', function (obj) {
   /*jshint validthis: true */
   var time = new Date();
   time.setTime(obj.time);
@@ -26,7 +26,7 @@ react.events.on('flow.*', function (obj) {
   }
 });
 
-react.events.on('task.*', function (obj) {
+autoflow.events.on('task.*', function (obj) {
   /*jshint validthis: true */
   var time = new Date();
   time.setTime(obj.time);
@@ -62,7 +62,7 @@ function useHtml(err, html, user, bytesWritten) {
   console.log('final result: %s, user: %s, written:%s', html, user, bytesWritten);
 }
 
-var loadAndSave = react('loadAndSave', 'filename, uid, outDirname, cb -> err, html, user, bytesWritten',  // name, in/out params
+var loadAndSave = autoflow('loadAndSave', 'filename, uid, outDirname, cb -> err, html, user, bytesWritten',  // name, in/out params
   loadUser,         'uid, cb          -> err, user',     // calling async fn loadUser with uid, callback is called with err and user
   loadFile,         'filename, cb     -> err, filedata',
   markdown,         'filedata         -> html',    // using a sync function

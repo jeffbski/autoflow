@@ -1,11 +1,11 @@
-/*global react:true BaseTask:true */
+/*global autoflow:true BaseTask:true */
 
 if (typeof(chai) === 'undefined') {
   var chai = require('chai');
 }
 
-if (typeof(react) === 'undefined') {
-  var react = require('../'); //require('react');
+if (typeof(autoflow) === 'undefined') {
+  var autoflow = require('../'); //require('autoflow');
 }
 
 (function () {
@@ -21,22 +21,22 @@ if (typeof(react) === 'undefined') {
 
   /**
      @example
-     var react = require('react');
-     react.logEvents(); // log to console
+     var autoflow = require('autoflow');
+     autoflow.logEvents(); // log to console
   */
 
   before(function () {
-    react.logEvents();
+    autoflow.logEvents();
   });
 
   after(function () {
-    react.logEvents(false);
+    autoflow.logEvents(false);
   });
 
-  test('use react() default DSL from module', function (done) {
+  test('use autoflow() default DSL from module', function (done) {
     function multiply(a, b, cb) { cb(null, a * b); }
     function add(a, b, cb) { cb(null, a + b); }
-    var fn = react('multiplyAdd', 'a, b, cb -> err, m, s',
+    var fn = autoflow('multiplyAdd', 'a, b, cb -> err, m, s',
                    multiply, 'a, b, cb -> err, m',
                    add, 'm, a, cb -> err, s'
                   );
@@ -50,7 +50,7 @@ if (typeof(react) === 'undefined') {
     });
   });
 
-  test('use react.selectFirst() default DSL with events', function (done) {
+  test('use autoflow.selectFirst() default DSL with events', function (done) {
     function noSuccess(a, b, cb) {
       setTimeout(function () { cb(null); }, 100); // returns undefined result
     }
@@ -58,14 +58,14 @@ if (typeof(react) === 'undefined') {
     function add(a, b, cb) { cb(null, a + b); }
 
 
-    var fn = react.selectFirst('mySelectFirst', 'a, b, cb -> err, c',
+    var fn = autoflow.selectFirst('mySelectFirst', 'a, b, cb -> err, c',
                                noSuccess, 'a, b, cb -> err, c',
                                noSuccessNull, 'a, b, cb -> err, c',
                                add, 'a, b, cb -> err, c',
                                noSuccess, 'a, b, cb -> err, c'
                               );
 
-    var collector = react.createEventCollector();
+    var collector = autoflow.createEventCollector();
     collector.capture(fn, 'task.complete');
 
     fn(2, 3, function (err, c) {

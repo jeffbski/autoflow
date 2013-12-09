@@ -5,8 +5,8 @@
    Default DSL, showing use of events
   */
 
-var react = require('../'); // require('react');
-react.logEvents(); // turn on logging of all flow and task events for all react functions
+var autoflow = require('../'); // require('autoflow');
+autoflow.logEvents(); // turn on logging of all flow and task events for all autoflow functions
 
 
 function loadUser(uid, cb){ setTimeout(cb, 100, null, "User"+uid); }
@@ -26,7 +26,7 @@ function useHtml(err, html, user, bytesWritten) {
   console.log('final result: %s, user: %s, written:%s', html, user, bytesWritten);
 }
 
-var loadAndSave = react('loadAndSave', 'filename, uid, outDirname, cb -> err, html, user, bytesWritten',  // name, in/out params
+var loadAndSave = autoflow('loadAndSave', 'filename, uid, outDirname, cb -> err, html, user, bytesWritten',  // name, in/out params
   loadUser,         'uid, cb          -> err, user',     // calling async fn loadUser with uid, callback is called with err and user
   loadFile,         'filename, cb     -> err, filedata',
   markdown,         'filedata         -> html',    // using a sync function

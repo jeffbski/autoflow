@@ -13,31 +13,31 @@
       baseUrl: "..",
       packages: [
         {
-          name: "react",
+          name: "autoflow",
           location: "dist",
-          main: "react.min"
+          main: "autoflow.min"
         }
       ],
       paths: {
         jQuery: "vendor/jquery/jquery-1.7.1.min",
-        eventemitter2: "dist/react.min",
-        util: "dist/react.min",
-        "ensure-array": "dist/react.min",
+        eventemitter2: "dist/autoflow.min",
+        util: "dist/autoflow.min",
+        "ensure-array": "dist/autoflow.min",
         test: "test"
       }
     });
 
-    require(["react", "jQuery"],
-            function (react, jquery) {
+    require(["autoflow", "jQuery"],
+            function (autoflow, jquery) {
 
-      require(["react/sprintf", "react/validate", "react/task", "react/cb-task",
-               "react/vcon", "react/event-manager", "react/input-parser",
-               "react/base-task", "react/ret-task", "util"],
+      require(["autoflow/sprintf", "autoflow/validate", "autoflow/task", "autoflow/cb-task",
+               "autoflow/vcon", "autoflow/event-manager", "autoflow/input-parser",
+               "autoflow/base-task", "autoflow/ret-task", "util"],
              function (sprintf, validate, taskUtil, CbTask,
                        VContext, EventManager, inputParser,
                        BaseTask, RetTask, util) {
         // save refs on window for these
-        window.react = react;
+        window.autoflow = autoflow;
         window.sprintf = sprintf;
         window.util = util;
         window.validate = validate;
