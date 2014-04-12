@@ -4,7 +4,7 @@
 
 autoflow (formerly named react) is a javascript module to make it easier to work with asynchronous code, by reducing boilerplate code and improving error and exception handling while allowing variable and task dependencies when defining flow. This project is applying the concepts of Reactive programming or Dataflow to controlling application flow.
 
-This Async flow control module is initially designed to work with Node.js but is planned to be extended to browser and other environments.
+This async flow control module is initially designed to work with Node.js but is planned to be extended to browser and other environments.
 
 Autoflow (formerly named react) got its original name from similarities with how "chain reactions" work in the physical world. You start the reaction and then it cascades and continues until complete.
 
@@ -31,32 +31,31 @@ It takes inspiration from several projects including:
 
 ## Supports
 
- - async node-style callback(err, arg...) functions
- - sync functions which directly return value
- - object instance method calls
- - class method calls
+ - Async node-style callback(err, arg...) functions
+ - Sync functions which directly return value
+ - Object instance method calls
+ - Class method calls
  - selectFirst flow where the first task that returns defined, non-null value is used
- - promise style functions - also automatic resolution of promise inputs (optionally loaded with `autoflow.resolvePromises();`)
- - use of resulting flow function as callback style or promise style (if no callback provided) (provided via plugin corresponding to the promise library used) See https://github.com/jeffbski/autoflow-deferred and https://github.com/jeffbski/autoflow-q
- - supports ES5 browsers (can work with others by using polyfills)
- - (planned) iteration on arrays, streams, sockets
- - (planned) event emitter integration
- - tested on node 0.8, 0.10, 0.11
+ - Promise style functions - also automatic resolution of promise inputs (optionally loaded with `autoflow.resolvePromises();`)
+ - Use of resulting flow function as callback style or promise style (if no callback provided). This is provided via plugin corresponding to the promise library used. See https://github.com/jeffbski/autoflow-deferred and https://github.com/jeffbski/autoflow-q
+ - Supports ES5 browsers (can work with others by using polyfills)
+ - (Planned) iteration on arrays, streams, sockets
+ - (Planned) event emitter integration
+ - Tested on node 0.8, 0.10, 0.11
 
 The tasks can be mixed, meaning you can use async, sync, object method calls, class method calls, etc in the same flow.
 
 ## Concept
 
-Borrowing heavily from Tim and Elijah's ideas for conductor, this async flow control module provides a way to construct a flow from a
-collection of rules based on functions or methods (referred to as _tasks_ in this module). It allows dependencies to be defined between the tasks so they can run in parallel as their dependencies are satisfied. autoflow can us both variable dependencies and task dependencies.
+Borrowing heavily from Tim and Elijah's ideas for conductor, this async flow control module provides a way to construct a flow from a collection of rules based on functions or methods (referred to as _tasks_ in this module). It allows dependencies to be defined between the tasks so they can run in parallel as their dependencies are satisfied. autoflow can use both variable dependencies and task dependencies.
 
-As Tasks complete, autoflow watches the dependencies and kicks off additional tasks that have all their dependencies met and are ready to execute. This allows the flow to run at maximum speed without needing to arbitrarily block tasks into groups of parallel and serial flow.
+As tasks complete, autoflow watches the dependencies and kicks off additional tasks that have all their dependencies met and are ready to execute. This allows the flow to run at maximum speed without needing to arbitrarily block tasks into groups of parallel and serial flow.
 
-To Reduce the boilerplate code needed and improve error handling, autoflow automatically provides callback functions for your asynchronous code. These autoflow-provided callback functions perform these steps:
+To reduce the boilerplate code needed and improve error handling, autoflow automatically provides callback functions for your asynchronous code. These autoflow-provided callback functions perform these steps:
 
- 1. Check for error and handle by calling outer callback function with this error after augmenting it with additional context information for easier debugging
- 2. save the callback variables into a context for future reference
- 3. call back into autoflow (and it will kick off additional tasks that  are now ready to go)
+ 1. Check for error and handle it by calling outer callback function with this error after augmenting it with additional context information for easier debugging
+ 2. Save the callback variables into a context for future reference
+ 3. Call back into autoflow (and it will kick off additional tasks that are now ready to go)
  4. Using the dependencies specified for each
 
 ## Design
@@ -121,7 +120,6 @@ var loadRender = autoflow('loadRender', 'fooPath, barPath, barP2, cb -> err, ren
 
 exports.loadRender = loadRender;  // is a normal fn created by autoflow
 
-
 // in a different module far far away, use this as any other node function
 var foobar = require('foobar');
 foobar.loadRender('foo.txt', 'bar.txt', 'BBB', function (err, renderedOut) {
@@ -131,13 +129,11 @@ foobar.loadRender('foo.txt', 'bar.txt', 'BBB', function (err, renderedOut) {
 ```
 
 Below is a graph of how the dependencies are mapped by autoflow which
-Also Indicates how the tasks will be executed. This was generated by the
+Also indicates how the tasks will be executed. This was generated by the
 autoflow plugin [autoflow-graphviz](https://github.com/jeffbski/autoflow-graphviz)
 which you can use to also graph your flows.
 
 ![simple.png](https://github.com/jeffbski/autoflow/raw/master/doc/simple.png)
-
-
 
 ## User API
 
@@ -159,20 +155,19 @@ Note: graphic uses the old name `react`, new name is `autoflow`
 
  1. **flow/function name** - string - represents the name of the flow or function that will be created. autoflow will use the name when generating events so you can monitor progress and performance and also when errors occur.
  2. **In/out flow parameter definition** - string - the inputs and outputs for the flow function. The parameters are specified in one single string for easy typing, separated by commas. The output follows the input after being separated by a `->`. Use the parameter name `cb` or `callback` to specify the Node style callback and `err` to represent the error parameter as the first output parameter of the callback. Literal values can also be specified directly (true, false, numbers, this, null). Literal strings can simply be quoted using single or double quotes.
- 3. **optional flow options** - object - If an object is provided immediately after the in/out flow def, then these options will be provided to autoflow to customize the flow. The `locals` property can contain an object map of any local variables you want to reference in the flow (other than what is passed in as parameters). For example: `{ locals: { foo: foo, bar: bar }}` would make local vars available in the flow. Note that global variables are already available in the flow.
- 4. **function reference or method string** - Specify the function to be called for this task, or if calling a method off of an object being passed in or returned by a task, use a string to specify like `'obj.method'`. These can be asynchronous Node-style callback `cb(err, ...)` functions or synchronous functions which simply return values directly.
- 5. **in/out task parameter definition** - string - similar to the in/out flow parameter definition above, these are the inputs and outputs that are passed to a task function and returned from a task function. The inputs will need to match either those from the flow inputs or outputs from other tasks that will run before this task. autoflow will use the inputs as dependencies, so it will invoke and wait for response from the tasks that provide the dependent inputs. So simply by specifying inputs and outputs for the tasks, autoflow will prioritize and parallelize tasks to run as fast as possible. Use `cb` or `callback` along with `err` to specify asynchronous Node style `cb(err, ...)` task, or omit both to specify a synchronous task.A synchronous task can only have a single return parameter.
+ 3. **optional flow options** - object - if an object is provided immediately after the in/out flow def, then these options will be provided to autoflow to customize the flow. The `locals` property can contain an object map of any local variables you want to reference in the flow (other than what is passed in as parameters). For example: `{ locals: { foo: foo, bar: bar }}` would make local vars available in the flow. Note that global variables are already available in the flow.
+ 4. **function reference or method string** - specify the function to be called for this task, or if calling a method off of an object being passed in or returned by a task, use a string to specify like `'obj.method'`. These can be asynchronous Node-style callback `cb(err, ...)` functions or synchronous functions which simply return values directly.
+ 5. **in/out task parameter definition** - string - similar to the in/out flow parameter definition above, these are the inputs and outputs that are passed to a task function and returned from a task function. The inputs will need to match either those from the flow inputs or outputs from other tasks that will run before this task. autoflow will use the inputs as dependencies, so it will invoke and wait for response from the tasks that provide the dependent inputs. So simply by specifying inputs and outputs for the tasks, autoflow will prioritize and parallelize tasks to run as fast as possible. Use `cb` or `callback` along with `err` to specify asynchronous Node style `cb(err, ...)` task, or omit both to specify a synchronous task. A synchronous task can only have a single return parameter.
  6. **Optional task options** - object - if an object is provided this can be used to specify additional options for this task.  Currently the valid options for a task are:
    - **name** - string - specifies a name for a task, otherwise autoflow will try to use the function name or method string if it is unique in the flow. If a name is not unique subsequent tasks will have `_index` (zero based index of the task) added to create unique name. If you specify a name, you will also want to indicate a unique name for within the flow otherwise it will get a suffix as well. Example: `{ name: 'myTaskName' }`
    - **after** - string, function reference, or array of string or function refs - specify additional preconditions that need to be complete before this task can run. In addition to the input dependencies being met, wait for these named tasks to complete before running.  The preconditions are specified using the name of the task or if the task function was only used once and is a named function (not anonymous), you can just provide the function reference and it will determine name from it. Example: `{ after: 'foo' }` or `{ after: ['foo', 'bar'] }`
- 7. **repeat 4-6** - repeat steps 4-6 to specify additional tasks in this flow. As dependencies are met for tasks, autoflow will invoke additional tasks that are ready to run in the order they are defined in this flow definition. So while the order does have some influence on the execution, it is primarily defined by the input dependencies and any other additonal preconditions specified with the `after` option. If you want to guarantee that something only runs after something else completes, then it will need to use an output from that task or specify the dependency with an `after`.
+ 7. **repeat 4-6** - repeat steps 4-6 to specify additional tasks in this flow. As dependencies are met for tasks, autoflow will invoke additional tasks that are ready to run in the order they are defined in this flow definition. So while the order does have some influence on the execution, it is primarily defined by the input dependencies and any other additional preconditions specified with the `after` option. If you want to guarantee that something only runs after something else completes, then it will need to use an output from that task or specify the dependency with an `after`.
 
-
-The Flow function created by autoflow from the input definition is a normal Node-style function which can be used like any other. These flow functions can be defined in a module and exported, they can be passed into other functions, used as methods on objects (the `this` context is passed in and available).
+The flow function created by autoflow from the input definition is a normal Node-style function which can be used like any other. These flow functions can be defined in a module and exported, they can be passed into other functions, used as methods on objects (the `this` context is passed in and is available).
 
 ### Debugging autoflow
 
-autoflow has a built-in plugin which can be loaded that will enable logging of tasks and flow as it executes very useful for debugging.  For full details see [Advanced autoflow - LogEvents](https://github.com/jeffbski/autoflow/blob/master/doc/advanced.md#LogEvents) along with the other plugins and an explanation of the AST autoflow uses.
+autoflow has a built-in plugin which can be loaded that will enable logging of tasks and flow as it executes, which is very useful for debugging. For full details see [Advanced autoflow - LogEvents](https://github.com/jeffbski/autoflow/blob/master/doc/advanced.md#LogEvents) along with the other plugins and an explanation of the AST autoflow uses.
 
 ```Javascript
 var autoflow = require('autoflow');
@@ -185,8 +180,6 @@ autoflow has many additional plugins and features which enable logging, monitori
 
 See The [Advanced autoflow](https://github.com/jeffbski/autoflow/blob/master/doc/advanced.md) for details on the AST autoflow uses for processing and other plugins that are available.
 
-
-
 ## Status
 
  - 2013-05-23 - Allow use of globals without needing to specify in locals, move 'use strict' into define, upgrade amdefine@0.0.5, eventemitter@0.4.11, requirejs@2.1.6, mocha@1.10.0, chai@1.6.0, jake@0.5.15 (v0.7.0)
@@ -197,7 +190,7 @@ See The [Advanced autoflow](https://github.com/jeffbski/autoflow/blob/master/doc
  - 2012-04-05 - Remove dependency on sprint, use util.format
  - 2012-03-28 - Make autoflow AMD-enabled and compatible with ES5 browsers and node.js, provide single file dist and min, add browser tests (v0.6.0)
  - 2012-03-24 - Add Travis-CI, remove promised-io since failing to install in travis-ci for node 0.6/0.7, switch from tap to mocha/chai
- - 2012-03-12 - Pass ast.define events to process (v0.5.2)
+ - 2012-03-12 - Pass ast.defined events to process (v0.5.2)
  - 2012-01-18 - Remove old DSL interfaces, improve plugin loading, log flow name with task name, ast.defined event, test with node 0.7.0 (v0.5.1)
  - 2012-01-17 - Additional documentation (v0.3.5)
  - 2012-01-16 - Refine events and create logging plugin (v0.3.3)
