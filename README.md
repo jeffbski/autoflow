@@ -217,6 +217,7 @@ mocha
 ## Contributors
 
  - Author: Jeff Barczewski (@jeffbski)
+ - Stig Kleppe-Jørgensen (@stigkj)
 
 ## Contributing
 
