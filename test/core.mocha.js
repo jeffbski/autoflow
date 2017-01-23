@@ -50,6 +50,11 @@ if (typeof(autoflow) === 'undefined') {
   });
 
   test('unnamed tasks will be assigned unique names', function (done) {
+    if (anonFn.name) {
+      console.log('skipping test since v8 is assigning name to fn');
+      return done();
+    }
+
     var fn = autoflow();
     var errors = fn.setAndValidateAST({
       inParams: ['a', 'b'],
