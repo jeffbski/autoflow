@@ -19,6 +19,10 @@ It takes inspiration from several projects including:
  - Tim Caswell and Elijah Insua's [conductor](https://github.com/tmpvar/conductor) - [Article](http://howtonode.org/step-of-conductor)
  - Caolan McMahon's [async](https://github.com/caolan/async)
 
+## Project status - INACTIVE
+
+I am not currently working on autoflow or autoflow family projects. I am happy to accept contributors if further development is needed.
+
 ## Goals
 
  - Minimize boilerplate code needed for working with asynchronous functions
